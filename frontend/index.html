@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골목대장 토너먼트 1st 리더보드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>골목대장 토너먼트 1st</h1>
+            <p class="last-updated">마지막 업데이트: <span id="last-updated-time"></span></p>
+            <div class="theme-switcher">
+                <button id="theme-toggle">다크 모드</button>
+            </div>
+        </header>
+        <main>
+            <div class="tabs">
+                <button class="tab-button active" data-target="total">합산</button>
+                <button class="tab-button" data-target="courseA">A코스</button>
+                <button class="tab-button" data-target="courseB">B코스</button>
+                <button class="tab-button" data-target="courseC">C코스</button>
+            </div>
+            <div id="leaderboard-content">
+                <!-- 리더보드 테이블이 여기에 동적으로 삽입됩니다. -->
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p>"이번에는 토너먼트다. 누적으로 1등 상금 100만원까지... 난 상대만 이기면 된다!"</p>
+                <span id="update-notice"></span>
+            </div>
+        </footer>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
