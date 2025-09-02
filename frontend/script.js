@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "leaderboard-content"
   );
   const tabs = document.querySelectorAll(".tab-button");
+  const tabsDropdown = document.getElementById("tabs-dropdown");
+  const mobileScheduleInfo = document.getElementById("mobile-schedule-info");
   const themeToggleButton = document.getElementById("theme-toggle");
   const tickerElement = document.querySelector(".ticker");
   const highlightContentElement = document.getElementById("highlight-content");
@@ -17,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshButton = document.getElementById("refresh-button");
   const viewToggleContainer = document.getElementById("view-toggle");
   const viewToggleButtons = viewToggleContainer.querySelectorAll(".toggle-btn");
-  // New elements for overview modal
   const overviewButton = document.getElementById("overview-button");
   const overviewModal = document.getElementById("overview-modal");
   const overviewModalCloseButton = overviewModal.querySelector(
@@ -45,6 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "[결승/3위전]", start: "2025-10-01", end: "2025-10-04" },
   ];
 
+  const tabInfo = {
+    total: "합산",
+    courseA: "A코스",
+    courseB: "B코스",
+    courseC: "C코스",
+  };
+
   // --- UI 컨트롤 함수 --- //
   const showSpinner = () => {
     isLoading = true;
@@ -70,12 +78,23 @@ document.addEventListener("DOMContentLoaded", () => {
         : '<i class="fa-regular fa-sun"></i>';
   };
 
-  const updateBodyLayout = () => {
-    if (activeTab === "total" && currentViewMode === "cutoff") {
-      document.body.classList.remove("scrollable-view");
-    } else {
-      document.body.classList.add("scrollable-view");
+  const setActiveTab = (newTab) => {
+    activeTab = newTab;
+    localStorage.setItem("activeTab", activeTab);
+
+    // Update buttons
+    tabs.forEach((t) =>
+      t.classList.toggle("active", t.dataset.target === activeTab)
+    );
+    // Update dropdown
+    if (tabsDropdown) {
+      tabsDropdown.value = activeTab;
     }
+
+    if (viewToggleContainer) {
+      viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+    }
+    renderLeaderboard();
   };
 
   // --- 점수 포맷 --- //
@@ -114,25 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
       PCR: "학",
       RMA: "까치",
       PMA: "까치",
-
     };
-    const tierMap = {
-      0: "예정",
-      1: "골드",
-      2: "실버",
-      3: "브론즈",
-    };
-
+    const tierMap = { 0: "예정", 1: "골드", 2: "실버", 3: "브론즈" };
     const level = levelMap[grade.substring(0, 3)];
     const tier = tierMap[grade.substring(3, 4)];
-
     return level && tier ? `${level} ${tier}` : grade;
   };
 
   // --- 데이터 처리 --- //
   const processAllPlayers = () => {
     const playerMap = new Map();
-
     ["total", "courseA", "courseB", "courseC"].forEach((key) => {
       const data = leaderboardData[key];
       if (data && Array.isArray(data)) {
@@ -147,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
           const p = playerMap.get(player.userId);
-
           if (key === "total") {
             Object.assign(p, player);
           } else {
@@ -158,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     });
-
     allPlayers = Array.from(playerMap.values());
   };
 
@@ -167,21 +175,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const scheduleListElement = document.getElementById(
       "dynamic-schedule-list"
     );
-    if (!scheduleListElement) return;
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    let currentEvent = null,
-      nextEvent = null,
-      currentEventIndex = -1;
+
+    let currentEvent = null;
+    let nextEvent = null;
+    let currentEventIndex = -1;
+
     tournamentSchedule.forEach((event, index) => {
       const startDate = new Date(event.start + "T00:00:00");
-      const endDate = new Date(event.end + "T00:00:00");
-      endDate.setHours(23, 59, 59, 999);
+      const endDate = new Date(event.end + "T23:59:59");
       if (now >= startDate && now <= endDate) {
         currentEvent = event;
         currentEventIndex = index;
       }
     });
+
     if (
       currentEventIndex !== -1 &&
       currentEventIndex + 1 < tournamentSchedule.length
@@ -192,19 +201,34 @@ document.addEventListener("DOMContentLoaded", () => {
         (event) => new Date(event.start + "T00:00:00") > now
       );
     }
-    let scheduleHTML = "";
-    if (currentEvent) {
-      const start = currentEvent.start.substring(5).replace("-", ".");
-      const end = currentEvent.end.substring(5).replace("-", ".");
-      scheduleHTML += `<li><span class="event-status current">진행중</span> ${currentEvent.name} ${start} ~ ${end}</li>`;
+
+    // PC Sidebar
+    if (scheduleListElement) {
+      let scheduleHTML = "";
+      if (currentEvent) {
+        const start = currentEvent.start.substring(5).replace("-", ".");
+        const end = currentEvent.end.substring(5).replace("-", ".");
+        scheduleHTML += `<li><span class="event-status current">진행중</span> ${currentEvent.name} ${start} ~ ${end}</li>`;
+      }
+      if (nextEvent) {
+        const start = nextEvent.start.substring(5).replace("-", ".");
+        const end = nextEvent.end.substring(5).replace("-", ".");
+        scheduleHTML += `<li><span class="event-status upcoming">예정</span> ${nextEvent.name} ${start} ~ ${end}</li>`;
+      }
+      scheduleListElement.innerHTML =
+        scheduleHTML || "<li>모든 일정이 종료되었습니다.</li>";
     }
-    if (nextEvent) {
-      const start = nextEvent.start.substring(5).replace("-", ".");
-      const end = nextEvent.end.substring(5).replace("-", ".");
-      scheduleHTML += `<li><span class="event-status upcoming">예정</span> ${nextEvent.name} ${start} ~ ${end}</li>`;
+
+    // Mobile Header Info
+    if (mobileScheduleInfo) {
+      if (currentEvent) {
+        const start = currentEvent.start.substring(5).replace("-", ".");
+        const end = currentEvent.end.substring(5).replace("-", ".");
+        mobileScheduleInfo.innerHTML = `<span class="event-status current">진행중</span> ${currentEvent.name} ${start} ~ ${end}`;
+      } else {
+        mobileScheduleInfo.innerHTML = "다음 대회를 기다려주세요.";
+      }
     }
-    scheduleListElement.innerHTML =
-      scheduleHTML || "<li>모든 일정이 종료되었습니다.</li>";
   };
 
   const renderTicker = (data) => {
@@ -223,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
         )}</span></div>`;
       })
       .join("");
-
     tickerElement.innerHTML = tickerContent.repeat(2);
   };
 
@@ -254,50 +277,42 @@ document.addEventListener("DOMContentLoaded", () => {
         columns[columnIndex].push(player);
       }
     });
-
     const columnsHTML = columns
       .map(
         (columnData) => `
-        <div class="cutoff-column">
-            ${columnData
-              .map((player) => {
-                const rank = player.isTieRank ? `T${player.rank}` : player.rank;
-                return `
-                <div class="cutoff-item" data-userid="${player.userId}">
-                    <span class="rank">${rank}</span>
-                    <div class="name-id" title="${player.userNickname}">
-                        <span class="name">${player.userNickname}</span>
-                        <span class="id">(${player.userId})</span>
-                    </div>
-                    <span class="score final-score">${formatSimpleScore(
-                      player.totalScore
-                    )}</span>
-                </div>`;
-              })
-              .join("")}
-        </div>`
+      <div class="cutoff-column">
+        ${columnData
+          .map((player) => {
+            const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+            return `<div class="cutoff-item" data-userid="${player.userId}">
+            <span class="rank">${rank}</span>
+            <div class="name-id" title="${player.userNickname}">
+              <span class="name">${player.userNickname}</span>
+              <span class="id">(${player.userId})</span>
+            </div>
+            <span class="score final-score">${formatSimpleScore(
+              player.totalScore
+            )}</span>
+          </div>`;
+          })
+          .join("")}
+      </div>`
       )
       .join("");
-
     leaderboardContentElement.innerHTML = `<div class="cutoff-container">${columnsHTML}</div>`;
   };
 
   const renderLeaderboard = () => {
-    updateBodyLayout();
     const data = leaderboardData[activeTab];
-
     if (activeTab === "total" && currentViewMode === "cutoff") {
       renderCutoffView(data || []);
       return;
     }
-
     leaderboardContentElement.innerHTML = "";
-
     if (!data || !Array.isArray(data) || data.length === 0) {
       leaderboardContentElement.innerHTML = `<p style="padding: 20px;">표시할 데이터가 없습니다.</p>`;
       return;
     }
-
     const headersConfig = {
       total: [
         { key: "순위" },
@@ -321,13 +336,11 @@ document.addEventListener("DOMContentLoaded", () => {
         { key: "최종 성적" },
       ],
     };
-
     const headers =
       activeTab === "total" ? headersConfig.total : headersConfig.course;
     const headHTML = `<thead><tr>${headers
       .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
       .join("")}</tr></thead>`;
-
     const bodyHTML = data
       .map((player) => {
         const rank = player.isTieRank ? `T${player.rank}` : player.rank;
@@ -342,47 +355,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const rowCells =
           activeTab === "total"
-            ? `
-              <td class="rank">${rank}</td>
-              <td class="nickname">${
-                player.userNickname
-              }<span class="user-id">(${
+            ? `<td class="rank">${rank}</td>
+         <td class="nickname">${player.userNickname}<span class="user-id">(${
                 player.userId
               })</span><span class="shop-name-mobile">${
                 player.shopName
               }</span></td>
-              <td class="mobile-hide">${player.shopName}</td>
-              <td class="mobile-hide">${player.roundCount}</td>
-              <td class="mobile-hide">${formatSimpleScore(
-                player.scores[0]?.score
-              )}</td>
-              <td class="mobile-hide">${formatSimpleScore(
-                player.scores[1]?.score
-              )}</td>
-              <td class="mobile-hide">${formatSimpleScore(
-                player.scores[2]?.score
-              )}</td>
-              <td>${player.revisionGrade}</td>
-              <td>${formatFinalScore(player.totalScore)}</td>`
-            : `
-              <td class="rank">${rank}</td>
-              <td class="nickname">${
-                player.userNickname
-              }<span class="user-id">(${
+         <td class="mobile-hide">${player.shopName}</td>
+         <td class="mobile-hide">${player.roundCount}</td>
+         <td class="mobile-hide">${formatSimpleScore(
+           player.scores[0]?.score
+         )}</td>
+         <td class="mobile-hide">${formatSimpleScore(
+           player.scores[1]?.score
+         )}</td>
+         <td class="mobile-hide">${formatSimpleScore(
+           player.scores[2]?.score
+         )}</td>
+         <td>${player.revisionGrade}</td>
+         <td>${formatFinalScore(player.totalScore)}</td>`
+            : `<td class="rank">${rank}</td>
+         <td class="nickname">${player.userNickname}<span class="user-id">(${
                 player.userId
               })</span><span class="shop-name-mobile">${
                 player.shopName
               }</span></td>
-              <td class="tablet-hide mobile-hide">${player.shopName}</td>
-              <td class="mobile-hide">${player.roundCount}</td>
-              <td>${formatSimpleScore(player.score)}</td>
-              <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
-              <td>${player.revisionGrade}</td>
-              <td>${formatFinalScore(player.totalScore)}</td>`;
+         <td class="tablet-hide mobile-hide">${player.shopName}</td>
+         <td class="mobile-hide">${player.roundCount}</td>
+         <td>${formatSimpleScore(player.score)}</td>
+         <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
+         <td>${player.revisionGrade}</td>
+         <td>${formatFinalScore(player.totalScore)}</td>`;
         return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
       })
       .join("");
-
     const clickableClass = activeTab === "total" ? "clickable" : "";
     leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody class="${clickableClass}">${bodyHTML}</tbody></table>`;
   };
@@ -396,23 +402,15 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       prevLeaderboardData = leaderboardData;
       leaderboardData = await response.json();
-
       processAllPlayers();
-
       lastUpdatedElement.textContent = new Date().toLocaleTimeString("ko-KR");
       renderLeaderboard();
       renderTicker(leaderboardData.total || []);
       renderHighlights(leaderboardData.total || []);
+      renderSchedule();
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      // 데이터 로딩 실패 시 UI 개선
-      leaderboardContentElement.innerHTML = `
-        <div class="error-container">
-          <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-          <h3 class="error-title">데이터 로딩 실패</h3>
-          <p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
-        </div>
-      `;
+      leaderboardContentElement.innerHTML = `<div class="error-container"> <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div> <h3 class="error-title">데이터 로딩 실패</h3> <p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p> </div>`;
     } finally {
       hideSpinner();
     }
@@ -421,7 +419,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const showPlayerModal = (player) => {
     if (!player) return;
     const rank = player.isTieRank ? `T${player.rank}` : player.rank || "-";
-
     let totalRounds = player.roundCount;
     if (totalRounds === undefined) {
       totalRounds =
@@ -429,7 +426,6 @@ document.addEventListener("DOMContentLoaded", () => {
         (player.courseRoundCounts.B || 0) +
         (player.courseRoundCounts.C || 0);
     }
-
     const courseAData = (leaderboardData.courseA || []).find(
       (p) => p.userId === player.userId
     );
@@ -448,34 +444,27 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${
         totalRounds || "-"
       }</span></div>
-    `;
-
-    detailsHTML += `
-        <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
-          courseAData?.score
-        )}</span></div>
-        <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
-          courseBData?.score
-        )}</span></div>
-        <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-          courseCData?.score
-        )}</span></div>
-        <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
-          player.grade ||
-            courseAData?.grade ||
-            courseBData?.grade ||
-            courseCData?.grade
-        )}</span></div>
-    `;
-
-    detailsHTML += `
+      <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
+        courseAData?.score
+      )}</span></div>
+      <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
+        courseBData?.score
+      )}</span></div>
+      <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+        courseCData?.score
+      )}</span></div>
+      <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
+        player.grade ||
+          courseAData?.grade ||
+          courseBData?.grade ||
+          courseCData?.grade
+      )}</span></div>
       <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
         player.revisionGrade ?? "-"
       }</span></div>
       <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
         player.totalScore
-      )}</span></div>
-    `;
+      )}</span></div>`;
 
     modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
     searchModal.style.display = "flex";
@@ -484,13 +473,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const handleSearch = () => {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) return;
-
     const player = allPlayers.find(
       (p) =>
         p.userNickname.toLowerCase().includes(searchTerm) ||
         p.userId.toLowerCase().includes(searchTerm)
     );
-
     if (player) {
       showPlayerModal(player);
     } else {
@@ -516,17 +503,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      activeTab = tab.dataset.target;
-      localStorage.setItem("activeTab", activeTab);
-      tabs.forEach((t) =>
-        t.classList.toggle("active", t.dataset.target === activeTab)
-      );
-      if (viewToggleContainer) {
-        viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
-      }
-      renderLeaderboard();
+      setActiveTab(tab.dataset.target);
     });
   });
+
+  if (tabsDropdown) {
+    tabsDropdown.addEventListener("change", (e) => {
+      setActiveTab(e.target.value);
+    });
+  }
 
   if (viewToggleButtons) {
     viewToggleButtons.forEach((btn) => {
@@ -548,12 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   searchButton.addEventListener("click", handleSearch);
-
   searchInput.addEventListener("keyup", (e) => {
     if (e.isComposing) return;
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+    if (e.key === "Enter") handleSearch();
   });
 
   modalCloseButton.addEventListener(
@@ -568,55 +550,46 @@ document.addEventListener("DOMContentLoaded", () => {
   leaderboardContentElement.addEventListener("click", (e) => {
     const row = e.target.closest("tr");
     const cutoffItem = e.target.closest(".cutoff-item");
-
     let userId = null;
-    if (row && activeTab === "total") {
-      userId = row.dataset.userid;
-    } else if (cutoffItem) {
-      userId = cutoffItem.dataset.userid;
-    }
-
+    if (row && activeTab === "total") userId = row.dataset.userid;
+    else if (cutoffItem) userId = cutoffItem.dataset.userid;
     if (userId) {
       const player = allPlayers.find((p) => p.userId === userId);
       showPlayerModal(player);
     }
   });
 
-  // Overview Modal Listeners
   overviewButton.addEventListener("click", () => {
     overviewModal.style.display = "flex";
   });
-
   overviewModalCloseButton.addEventListener("click", () => {
     overviewModal.style.display = "none";
   });
-
   overviewModal.addEventListener("click", (e) => {
-    if (e.target === overviewModal) {
-      overviewModal.style.display = "none";
-    }
+    if (e.target === overviewModal) overviewModal.style.display = "none";
   });
 
   const init = () => {
     applyTheme(localStorage.getItem("theme") || "dark");
 
-    tabs.forEach((t) => t.classList.remove("active"));
+    // Populate dropdown
+    if (tabsDropdown) {
+      tabsDropdown.innerHTML = Object.entries(tabInfo)
+        .map(([value, text]) => `<option value="${value}">${text}</option>`)
+        .join("");
+    }
+
+    // Set initial active states
+    setActiveTab(activeTab);
+
     if (viewToggleButtons) {
       viewToggleButtons.forEach((b) => b.classList.remove("active"));
+      const currentViewBtn = document.querySelector(
+        `.toggle-btn[data-view="${currentViewMode}"]`
+      );
+      if (currentViewBtn) currentViewBtn.classList.add("active");
     }
 
-    document
-      .querySelector(`.tab-button[data-target="${activeTab}"]`)
-      ?.classList.add("active");
-
-    if (viewToggleContainer) {
-      viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
-      document
-        .querySelector(`.toggle-btn[data-view="${currentViewMode}"]`)
-        ?.classList.add("active");
-    }
-
-    renderSchedule();
     fetchData();
     startAutoRefresh();
   };
