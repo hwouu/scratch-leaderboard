@@ -935,19 +935,17 @@ body.light-mode .desktop-footer .footer-links a:hover {
     gap: 4px 8px;
   }
   .header-controls-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
     width: 100%;
     align-items: center;
+    gap: 8px;
   }
   .header-center {
-    justify-content: flex-start;
+    display: block;
   }
   .controls-container {
-    display: flex;
-    flex-grow: 1;
-    min-width: 0;
-    gap: 8px;
-    align-items: center;
+    display: contents;
   }
   .search-container {
     flex-grow: 1;
