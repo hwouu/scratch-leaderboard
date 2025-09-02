@@ -12,7 +12,7 @@
   --text-secondary: #8a8f93;
   --accent-blue: #0091ff;
   --accent-red: #ff4d4d;
-  --accent-green: #28a745; /* 초록색 변수 추가 */
+  --accent-green: #28a745;
 
   /* Light Mode */
   --bg-main-light: #f0f2f5;
@@ -379,7 +379,6 @@ table {
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
-  /* UI 버그 수정을 위해 overflow:hidden 추가 */
   overflow: hidden;
 }
 table thead,
@@ -429,7 +428,6 @@ body.light-mode th {
   background-color: var(--bg-surface-light);
 }
 
-/* UI 버그 수정을 위해 thead의 첫번째와 마지막 th에 radius 적용 */
 thead tr th:first-child {
   border-top-left-radius: 12px;
 }
@@ -586,7 +584,6 @@ body.light-mode .highlight-panel {
   border-radius: 4px;
   color: #fff;
 }
-/* '진행중' 배경색을 초록색으로 변경 */
 .event-status.current {
   background-color: var(--accent-green);
 }
@@ -696,6 +693,34 @@ body.light-mode .search-result-item {
 }
 .flash-down {
   animation: flash-down 1.5s ease-out;
+}
+
+/* --- Footer --- */
+.site-footer {
+  padding: 20px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color);
+}
+body.light-mode .site-footer {
+  border-top-color: var(--border-color-light);
+}
+.footer-links {
+  margin-bottom: 8px;
+}
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin: 0 10px;
+  transition: color 0.2s;
+}
+.footer-links a:hover {
+  color: var(--text-primary);
+}
+body.light-mode .footer-links a:hover {
+  color: var(--text-primary-light);
 }
 
 /* --- Responsive Adjustments --- */
@@ -819,6 +844,11 @@ body.light-mode .search-result-item {
   }
   .cutoff-item {
     padding: 10px;
+    gap: 8px;
+  }
+  .footer-links {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
   }
 }
