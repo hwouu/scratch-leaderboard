@@ -126,7 +126,7 @@ body.scrollable-view #leaderboard-content {
 }
 .ticker-item .rank {
   font-weight: 700;
-  color: #ffffff;
+  color: #000000;
   margin-right: 8px;
 }
 .ticker-item .score {
