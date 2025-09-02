@@ -17,6 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshButton = document.getElementById("refresh-button");
   const viewToggleContainer = document.getElementById("view-toggle");
   const viewToggleButtons = viewToggleContainer.querySelectorAll(".toggle-btn");
+  // New elements for overview modal
+  const overviewButton = document.getElementById("overview-button");
+  const overviewModal = document.getElementById("overview-modal");
+  const overviewModalCloseButton = overviewModal.querySelector(
+    ".modal-close-button"
+  );
 
   // State
   const apiEndpoint = "/api";
@@ -392,7 +398,14 @@ document.addEventListener("DOMContentLoaded", () => {
       renderHighlights(leaderboardData.total || []);
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      leaderboardContentElement.innerHTML = `<p style="padding: 20px;">데이터 로딩 실패.</p>`;
+      // 데이터 로딩 실패 시 UI 개선
+      leaderboardContentElement.innerHTML = `
+        <div class="error-container">
+          <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 class="error-title">데이터 로딩 실패</h3>
+          <p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+        </div>
+      `;
     } finally {
       hideSpinner();
     }
@@ -559,6 +572,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userId) {
       const player = allPlayers.find((p) => p.userId === userId);
       showPlayerModal(player);
+    }
+  });
+
+  // Overview Modal Listeners
+  overviewButton.addEventListener("click", () => {
+    overviewModal.style.display = "flex";
+  });
+
+  overviewModalCloseButton.addEventListener("click", () => {
+    overviewModal.style.display = "none";
+  });
+
+  overviewModal.addEventListener("click", (e) => {
+    if (e.target === overviewModal) {
+      overviewModal.style.display = "none";
     }
   });
 

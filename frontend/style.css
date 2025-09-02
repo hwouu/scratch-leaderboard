@@ -252,7 +252,8 @@ body.light-mode .tabs {
   gap: 12px;
 }
 #theme-toggle,
-#refresh-button {
+#refresh-button,
+#overview-button {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -266,7 +267,8 @@ body.light-mode .tabs {
   align-items: center;
 }
 body.light-mode #theme-toggle,
-body.light-mode #refresh-button {
+body.light-mode #refresh-button,
+body.light-mode #overview-button {
   background: var(--bg-surface-light);
   border-color: var(--border-color-light);
   color: var(--text-primary-light);
@@ -679,6 +681,90 @@ body.light-mode .search-result-item {
   font-weight: 700;
   font-size: 16px;
 }
+/* Styles for Image Modal */
+.modal-content.image-modal {
+  background: transparent;
+  border: none;
+  width: auto;
+  max-width: 90%;
+  padding: 0;
+  min-width: unset;
+}
+.modal-content.image-modal img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 12px;
+  display: block;
+}
+.modal-content.image-modal .modal-close-button {
+  top: -10px;
+  right: -10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 20px;
+  text-align: center;
+  padding: 0;
+}
+
+/* --- Error UI --- */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  height: 100%;
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+.error-icon {
+  font-size: 48px;
+  color: var(--accent-red);
+  margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+.error-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+}
+.error-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+body.light-mode .error-container {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+}
+body.light-mode .error-title {
+  color: var(--text-primary-light);
+}
+body.light-mode .error-message {
+  color: var(--text-secondary-light);
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
 
 /* --- Animations --- */
 @keyframes flash-up {
@@ -801,13 +887,17 @@ body.light-mode .desktop-footer .footer-links a:hover {
   .controls-container {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto; /* Search | Overview | Theme */
     gap: 8px;
     order: 3;
   }
   #view-toggle,
   #refresh-button {
     display: none;
+  }
+  /* Ensure the new button is visible on mobile */
+  #overview-button {
+    display: flex;
   }
   .title-container {
     order: 1;
