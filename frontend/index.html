@@ -62,54 +62,58 @@
             <h1>LEADER BOARD</h1>
             <span class="live-indicator">LIVE</span>
           </div>
-          <p class="subtitle">
-            골목대장 토너먼트 1st
+          <div class="subtitle">
+            <span class="subtitle-text">골목대장 토너먼트 1st</span>
             <span class="last-updated">
               마지막 업데이트: <span id="last-updated-time"></span>
             </span>
-          </p>
+          </div>
+          <div id="mobile-schedule-info" class="mobile-show"></div>
         </div>
 
-        <div class="header-center">
-          <div class="tabs">
-            <button class="tab-button active" data-target="total">합산</button>
-            <button class="tab-button" data-target="courseA">A코스</button>
-            <button class="tab-button" data-target="courseB">B코스</button>
-            <button class="tab-button" data-target="courseC">C코스</button>
+        <div class="header-controls-row">
+          <div class="header-center">
+            <div class="tabs desktop-show">
+              <button class="tab-button active" data-target="total">
+                합산
+              </button>
+              <button class="tab-button" data-target="courseA">A코스</button>
+              <button class="tab-button" data-target="courseB">B코스</button>
+              <button class="tab-button" data-target="courseC">C코스</button>
+            </div>
+            <div class="tabs-dropdown-container mobile-show">
+              <select id="tabs-dropdown"></select>
+            </div>
           </div>
-        </div>
 
-        <div class="controls-container">
-          <div id="view-toggle" class="view-toggle icon-toggle">
-            <button
-              class="toggle-btn active"
-              data-view="leaderboard"
-              title="리더보드 보기"
-            >
-              <i class="fas fa-list-ol"></i>
+          <div class="controls-container">
+            <div id="view-toggle" class="view-toggle icon-toggle">
+              <button
+                class="toggle-btn active"
+                data-view="leaderboard"
+                title="리더보드 보기"
+              >
+                <i class="fas fa-list-ol"></i>
+              </button>
+              <button class="toggle-btn" data-view="cutoff" title="컷오프 보기">
+                <i class="fas fa-users"></i>
+              </button>
+            </div>
+            <div class="search-container">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="닉네임 또는 아이디"
+              />
+              <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            <button id="overview-button" title="대회 개요">
+              <i class="fas fa-file-alt"></i>
             </button>
-            <button class="toggle-btn" data-view="cutoff" title="컷오프 보기">
-              <i class="fas fa-users"></i>
+            <button id="theme-toggle" title="테마 변경">
+              <i class="fa-regular fa-sun"></i>
             </button>
           </div>
-          <div class="search-container">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="닉네임 또는 아이디"
-            />
-            <button id="search-button"><i class="fas fa-search"></i></button>
-          </div>
-          <button id="refresh-button" title="새로고침">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-          <!-- 대회 개요 버튼 추가 -->
-          <button id="overview-button" title="대회 개요">
-            <i class="fas fa-file-alt"></i>
-          </button>
-          <button id="theme-toggle" title="테마 변경">
-            <i class="fa-regular fa-sun"></i>
-          </button>
         </div>
       </header>
 
@@ -193,7 +197,6 @@
       </div>
     </footer>
 
-    <!-- 검색 모달 -->
     <div id="search-modal" class="modal-overlay" style="display: none">
       <div class="modal-content">
         <button class="modal-close-button">&times;</button>
@@ -201,7 +204,6 @@
       </div>
     </div>
 
-    <!-- 대회 개요 모달 추가 -->
     <div id="overview-modal" class="modal-overlay" style="display: none">
       <div class="modal-content image-modal">
         <button class="modal-close-button">&times;</button>
