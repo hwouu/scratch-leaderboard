@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      property="og:title"
+      content="LIVE 리더보드 | 2025 골목대장 토너먼트 1st"
+    />
+    <meta
+      property="og:description"
+      content="1위 상금 100만원! 골목대장 토너먼트 대회의 실시간 순위를 확인하세요."
+    />
+    <meta property="og:image" content="../common/og-image.png" />
+    <meta
+      property="og:url"
+      content="https://scratch-leaderboard.vercel.app/qualifying"
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="author" content="Your Name or Company" />
+    <meta
+      name="description"
+      content="골목대장 토너먼트 1st 스크린 골프 대회의 실시간 순위를 확인하세요. 코스별 순위와 선수 기록을 제공합니다."
+    />
+    <meta
+      name="keywords"
+      content="스크린골프, 골프 토너먼트, 리더보드, 골프 순위, 골목대장 토너먼트"
+    />
+
+    <title>LIVE 리더보드 | 2025 골목대장 토너먼트 1st (예선)</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%2324292e'/%3E%3Cg fill='white'%3E%3Cpath d='M7 3V1.5C7 0.67 7.67 0 8.5 0H15.5C16.33 0 17 0.67 17 1.5V3H19C20.1 3 21 3.9 21 5C21 6.1 20.1 7 19 7H18.92C18.72 8.61 17.81 10.08 16.5 11L17 17H18.5C19.33 17 20 17.67 20 18.5S19.33 20 18.5 20H5.5C4.67 20 4 19.33 4 18.5S4.67 17 5.5 17H7L7.5 11C6.19 10.08 5.28 8.61 5.08 7H5C3.9 7 3 6.1 3 5C3 3.9 3.9 3 5 3H7ZM9 2V3H15V2H9ZM6.31 5C6.65 6.6 7.9 7.9 9.5 8.24V16H14.5V8.24C16.1 7.9 17.35 6.6 17.69 5H6.31ZM6 18V18.5C6 18.22 6.22 18 6.5 18H17.5C17.78 18 18 18.22 18 18.5V18H6Z'/%3E%3Ccircle cx='12' cy='1.5' r='1' opacity='0.9'/%3E%3Cg fill='%23aaaaaa' opacity='0.7'%3E%3Ccircle cx='11.5' cy='1.2' r='0.2'/%3E%3Ccircle cx='12.5' cy='1.8' r='0.2'/%3E%3Ccircle cx='12.2' cy='1' r='0.15'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"
+    />
+
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="dark-mode">
+    <div id="spinner-overlay" class="hidden">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="ticker-wrap">
+      <div class="ticker"></div>
+    </div>
+
+    <div class="container">
+      <header>
+        <div class="title-container">
+          <div class="title-group">
+            <h1>LEADER BOARD</h1>
+            <span class="live-indicator">LIVE</span>
+          </div>
+          <div class="subtitle">
+            <span class="subtitle-text">골목대장 토너먼트 1st (예선)</span>
+            <span class="last-updated">
+              마지막 업데이트: <span id="last-updated-time"></span>
+            </span>
+          </div>
+          <div id="mobile-schedule-info" class="mobile-show"></div>
+        </div>
+
+        <div class="header-controls-row">
+          <div class="header-center">
+            <div class="tabs desktop-show">
+              <button class="tab-button active" data-target="total">
+                합산
+              </button>
+              <button class="tab-button" data-target="courseA">A코스</button>
+              <button class="tab-button" data-target="courseB">B코스</button>
+              <button class="tab-button" data-target="courseC">C코스</button>
+            </div>
+            <div class="tabs-dropdown-container mobile-show">
+              <select id="tabs-dropdown"></select>
+            </div>
+          </div>
+
+          <div class="controls-container">
+            <div id="view-toggle" class="view-toggle icon-toggle">
+              <button
+                class="toggle-btn active"
+                data-view="leaderboard"
+                title="리더보드 보기"
+              >
+                <i class="fas fa-list-ol"></i>
+              </button>
+              <button class="toggle-btn" data-view="cutoff" title="컷오프 보기">
+                <i class="fas fa-users"></i>
+              </button>
+            </div>
+            <div class="search-container">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="닉네임 또는 아이디"
+              />
+              <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            <button id="overview-button" title="대회 개요">
+              <i class="fas fa-file-alt"></i>
+            </button>
+            <button id="theme-toggle" title="테마 변경">
+              <i class="fa-regular fa-sun"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid-container">
+        <aside class="sidebar">
+          <div class="info-panel">
+            <h2>대회 정보</h2>
+            <div class="info-group">
+              <div class="info-item">
+                <span class="info-label">대회 방식</span
+                ><span class="info-value">토너먼트</span>
+              </div>
+            </div>
+            <div class="info-group">
+              <span class="info-label">대회 일정</span>
+              <ul id="dynamic-schedule-list" class="schedule-list"></ul>
+            </div>
+            <div class="info-group">
+              <span class="info-label">코스 정보</span>
+              <ul class="store-list">
+                <li>A코스 - 김제 스파힐스 CC</li>
+                <li>B코스 - 사츠마 골프리조트</li>
+                <li>C코스 - 지산 CC - 동/남</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="highlight-panel">
+            <h2>대회 하이라이트</h2>
+            <div id="highlight-content"></div>
+          </div>
+
+          <footer class="desktop-footer">
+            <div class="footer-links">
+              <a
+                href="https://www.golfzon.com/tournament/v2/view?tournamentId=1250"
+                target="_blank"
+                title="Data from Golfzon"
+              >
+                <i class="fas fa-database"></i>
+              </a>
+              <a
+                href="https://github.com/hwouu"
+                target="_blank"
+                title="Developer: hwouu"
+              >
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="mailto:nhw3990@gmail.com" title="Contact">
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
+            <div class="footer-copyright">&copy; 2025 Scratch Leaderboard</div>
+          </footer>
+        </aside>
+
+        <div id="leaderboard-content"></div>
+      </main>
+    </div>
+
+    <footer class="mobile-footer">
+      <div class="footer-links">
+        <a
+          href="https://www.golfzon.com/tournament/v2/view?tournamentId=1250"
+          target="_blank"
+          title="Data from Golfzon"
+        >
+          <i class="fas fa-database"></i>
+        </a>
+        <a
+          href="https://github.com/hwouu"
+          target="_blank"
+          title="Developer: hwouu"
+        >
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="mailto:nhw3990@gmail.com" title="Contact">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a class="footer-copyright-mobile">&copy; 2025 Scratch Leaderboard</a>
+      </div>
+    </footer>
+
+    <div id="search-modal" class="modal-overlay" style="display: none">
+      <div class="modal-content">
+        <button class="modal-close-button">&times;</button>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <div id="overview-modal" class="modal-overlay" style="display: none">
+      <div class="modal-content image-modal">
+        <button class="modal-close-button">&times;</button>
+        <img
+          src="../common/tournament-overview.png"
+          alt="대회 개요 포스터"
+          onerror="this.onerror=null;this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Tournament%0AOverview%0APoster';"
+        />
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
