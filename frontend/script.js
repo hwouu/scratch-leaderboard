@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const top20 = data.slice(0, 20);
-    tickerElement.innerHTML = top20
+    const tickerContent = top20
       .map((p) => {
         const rank = p.isTieRank ? `T${p.rank}` : p.rank;
         return `<div class="ticker-item"><span class="rank">${rank}</span><span class="name">${
@@ -211,8 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
           p.totalScore
         )}</span></div>`;
       })
-      .join("")
-      .repeat(2);
+      .join("");
+
+    tickerElement.innerHTML = tickerContent.repeat(2);
   };
 
   const renderHighlights = (data) => {
@@ -286,44 +287,36 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const headersConfig = {
+      total: [
+        { key: "순위" },
+        { key: "닉네임" },
+        { key: "참여매장", class: "mobile-hide" },
+        { key: "라운드", class: "mobile-hide" },
+        { key: "A", class: "mobile-hide" },
+        { key: "B", class: "mobile-hide" },
+        { key: "C", class: "mobile-hide" },
+        { key: "보정치" },
+        { key: "최종 성적" },
+      ],
+      course: [
+        { key: "순위" },
+        { key: "닉네임" },
+        { key: "참여매장", class: "tablet-hide mobile-hide" },
+        { key: "라운드", class: "mobile-hide" },
+        { key: "코스 성적" },
+        { key: "실력 등급", class: "mobile-hide" },
+        { key: "보정치" },
+        { key: "최종 성적" },
+      ],
+    };
+
     const headers =
-      activeTab === "total"
-        ? [
-            "순위",
-            "닉네임",
-            "참여매장",
-            "라운드",
-            "A",
-            "B",
-            "C",
-            "보정치",
-            "최종 성적",
-          ]
-        : [
-            "순위",
-            "닉네임",
-            "참여매장",
-            "라운드",
-            "코스 성적",
-            "실력 등급",
-            "보정치",
-            "최종 성적",
-          ];
+      activeTab === "total" ? headersConfig.total : headersConfig.course;
     const headHTML = `<thead><tr>${headers
-      .map((h) => {
-        let className = "";
-        if (
-          h !== "순위" &&
-          h !== "닉네임" &&
-          h !== "보정치" &&
-          h !== "최종 성적" &&
-          h !== "실력 등급"
-        )
-          className = "mobile-hide";
-        if (h === "참여매장") className = "mobile-hide";
-        return `<th class="${className}">${h}</th>`;
-      })
+      .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
       .join("")}</tr></thead>`;
+
     const bodyHTML = data
       .map((player) => {
         const rank = player.isTieRank ? `T${player.rank}` : player.rank;
@@ -369,10 +362,10 @@ document.addEventListener("DOMContentLoaded", () => {
               })</span><span class="shop-name-mobile">${
                 player.shopName
               }</span></td>
-              <td class="mobile-hide">${player.shopName}</td>
+              <td class="tablet-hide mobile-hide">${player.shopName}</td>
               <td class="mobile-hide">${player.roundCount}</td>
-              <td class="mobile-hide">${formatSimpleScore(player.score)}</td>
-              <td>${formatSkillLevel(player.grade)}</td>
+              <td>${formatSimpleScore(player.score)}</td>
+              <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
               <td>${player.revisionGrade}</td>
               <td>${formatFinalScore(player.totalScore)}</td>`;
         return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
@@ -473,8 +466,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) return;
 
-    const player = allPlayers.find((p) =>
-      p.userNickname.toLowerCase().includes(searchTerm)
+    const player = allPlayers.find(
+      (p) =>
+        p.userNickname.toLowerCase().includes(searchTerm) ||
+        p.userId.toLowerCase().includes(searchTerm)
     );
 
     if (player) {
@@ -483,6 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modalBody.innerHTML = `<p><strong>'${searchInput.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
       searchModal.style.display = "flex";
     }
+    searchInput.blur(); // 검색 후 키보드 숨기기
   };
 
   const startAutoRefresh = () => {
@@ -532,10 +528,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   searchButton.addEventListener("click", handleSearch);
-  searchInput.addEventListener(
-    "keydown",
-    (e) => e.key === "Enter" && handleSearch()
-  );
+
+  // 한글 입력 버그 수정을 위해 keydown -> keyup, isComposing 체크 로직 추가
+  searchInput.addEventListener("keyup", (e) => {
+    if (e.isComposing) return; // 한글 조합 중에는 실행 방지
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  });
+
   modalCloseButton.addEventListener(
     "click",
     () => (searchModal.style.display = "none")

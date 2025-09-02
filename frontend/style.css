@@ -12,6 +12,7 @@
   --text-secondary: #8a8f93;
   --accent-blue: #0091ff;
   --accent-red: #ff4d4d;
+  --accent-green: #28a745; /* 초록색 변수 추가 */
 
   /* Light Mode */
   --bg-main-light: #f0f2f5;
@@ -46,6 +47,8 @@ body.light-mode {
 }
 .container {
   width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
@@ -104,7 +107,7 @@ body.scrollable-view #leaderboard-content {
 .ticker-wrap {
   width: 100%;
   overflow: hidden;
-  background-color: var(--accent-blue);
+  background-color: var(--bg-surface);
   border-bottom: 2px solid var(--border-color);
   padding: 12px 0;
   flex-shrink: 0;
@@ -126,7 +129,7 @@ body.scrollable-view #leaderboard-content {
 }
 .ticker-item .rank {
   font-weight: 700;
-  color: #000000;
+  color: var(--accent-blue);
   margin-right: 8px;
 }
 .ticker-item .score {
@@ -137,7 +140,7 @@ body.scrollable-view #leaderboard-content {
   color: var(--accent-red);
 }
 body.light-mode .ticker-wrap {
-  background-color: var(--bg-surface);
+  background-color: #333;
 }
 body.light-mode .ticker-item .rank {
   color: var(--accent-blue);
@@ -148,7 +151,7 @@ body.light-mode .ticker-item .rank {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
@@ -165,6 +168,35 @@ header {
   display: flex;
   justify-content: center;
 }
+.title-container {
+  flex-shrink: 0;
+}
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.live-indicator {
+  background-color: var(--accent-red);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
 h1 {
   margin: 0;
   font-size: 28px;
@@ -189,7 +221,7 @@ h1 {
   padding: 6px;
 }
 body.light-mode .tabs {
-  background-color: var(--bg-surface-light);
+  background-color: var(--bg-surface-accent-light);
 }
 .tab-button {
   padding: 10px 20px;
@@ -347,6 +379,8 @@ table {
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
+  /* UI 버그 수정을 위해 overflow:hidden 추가 */
+  overflow: hidden;
 }
 table thead,
 table tbody {
@@ -387,10 +421,22 @@ th {
   text-transform: uppercase;
   color: var(--text-secondary);
   background-color: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 body.light-mode th {
   background-color: var(--bg-surface-light);
 }
+
+/* UI 버그 수정을 위해 thead의 첫번째와 마지막 th에 radius 적용 */
+thead tr th:first-child {
+  border-top-left-radius: 12px;
+}
+thead tr th:last-child {
+  border-top-right-radius: 12px;
+}
+
 tbody tr:last-child td {
   border-bottom: none;
 }
@@ -540,8 +586,9 @@ body.light-mode .highlight-panel {
   border-radius: 4px;
   color: #fff;
 }
+/* '진행중' 배경색을 초록색으로 변경 */
 .event-status.current {
-  background-color: var(--accent-red);
+  background-color: var(--accent-green);
 }
 .event-status.upcoming {
   background-color: var(--text-secondary);
@@ -651,11 +698,46 @@ body.light-mode .search-result-item {
   animation: flash-down 1.5s ease-out;
 }
 
-/* --- Mobile Responsive Adjustments --- */
+/* --- Responsive Adjustments --- */
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .container {
+    padding: 0 20px;
+  }
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .header-center {
+    order: 2;
+  }
+  .controls-container {
+    order: 3;
+  }
+  .title-container {
+    order: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  main.grid-container {
+    grid-template-columns: 280px 1fr;
+  }
+  .tablet-hide {
+    display: none;
+  }
+  .cutoff-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   body {
     height: auto;
-    overflow: auto;
+    overflow-y: auto;
   }
   tbody.clickable tr {
     -webkit-tap-highlight-color: transparent;
@@ -685,8 +767,19 @@ body.light-mode .search-result-item {
   }
   .title-container {
     order: 1;
+    width: 100%;
     text-align: center;
   }
+  .title-group {
+    justify-content: center;
+  }
+  .subtitle {
+    font-size: 14px;
+  }
+  #search-input {
+    font-size: 16px; /* iOS auto-zoom 방지 */
+  }
+
   main.grid-container {
     grid-template-columns: 1fr;
   }
@@ -720,5 +813,12 @@ body.light-mode .search-result-item {
   }
   .cutoff-container {
     grid-template-columns: 1fr;
+  }
+  .cutoff-column {
+    padding: 12px;
+  }
+  .cutoff-item {
+    padding: 10px;
+    gap: 8px;
   }
 }
