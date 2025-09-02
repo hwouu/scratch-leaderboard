@@ -31,9 +31,13 @@ function init() {
   // 전역 이벤트 리스너 설정
   initializeGlobalListeners();
 
+  // 현재 테마를 적용 (페이지 로드 시)
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  document.body.classList.toggle("light-mode", savedTheme === "light");
+
   // 라우터를 실행하여 현재 URL에 맞는 페이지를 렌더링
   route();
 }
 
 // 애플리케이션 시작
-init();
+document.addEventListener("DOMContentLoaded", init);

@@ -78,6 +78,10 @@ export function renderQualifyingPage(app) {
 
 // --- 템플릿 렌더링 함수들 ---
 function renderHeader(header) {
+  const currentTheme = localStorage.getItem("theme") || "dark";
+  const themeIconClass =
+    currentTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
+
   header.innerHTML = `
         <div class="title-container">
             <div class="title-group">
@@ -116,8 +120,9 @@ function renderHeader(header) {
                     <input type="text" id="search-input" placeholder="닉네임 또는 아이디" />
                     <button id="search-button"><i class="fas fa-search"></i></button>
                 </div>
+                <button id="refresh-button" title="새로고침"><i class="fas fa-sync-alt"></i></button>
                 <button id="overview-button" title="대회 개요"><i class="fas fa-file-alt"></i></button>
-                <button id="theme-toggle" title="테마 변경"><i class="fa-regular fa-sun"></i></button>
+                <button id="theme-toggle" title="테마 변경"><i class="${themeIconClass}"></i></button>
             </div>
         </div>`;
 }
@@ -174,11 +179,6 @@ function renderMobileFooter(footer) {
 async function initialize(elements) {
   setupEventListeners(elements);
 
-  const theme = localStorage.getItem("theme") || "dark";
-  document.body.classList.toggle("light-mode", theme === "light");
-  document.querySelector("#theme-toggle i").className =
-    theme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
-
   setActiveTabUI();
   setViewModeUI();
 
@@ -196,7 +196,9 @@ async function initialize(elements) {
  */
 async function fetchAndRender(elements) {
   const spinnerOverlay = document.getElementById("spinner-overlay");
+  const refreshButton = document.getElementById("refresh-button");
   spinnerOverlay.classList.remove("hidden");
+  if (refreshButton) refreshButton.querySelector("i").classList.add("fa-spin");
 
   const { success } = await fetchLeaderboardData();
   if (success) {
@@ -212,6 +214,8 @@ async function fetchAndRender(elements) {
     elements.contentElement.innerHTML = `<div class="error-container"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title">데이터 로딩 실패</h3><p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p></div>`;
   }
   spinnerOverlay.classList.add("hidden");
+  if (refreshButton)
+    refreshButton.querySelector("i").classList.remove("fa-spin");
 }
 
 function startAutoRefresh(elements) {
@@ -512,6 +516,10 @@ function renderSchedule(listElement, mobileElement) {
 function setupEventListeners(elements) {
   const { contentElement, searchModal, overviewModal } = elements;
 
+  document.getElementById("refresh-button").addEventListener("click", () => {
+    fetchAndRender(elements);
+  });
+
   document.querySelector(".tabs").addEventListener("click", (e) => {
     if (e.target.classList.contains("tab-button")) {
       activeTab = e.target.dataset.target;
@@ -544,16 +552,6 @@ function setupEventListeners(elements) {
     .addEventListener("click", () => handleSearch(searchInput, searchModal));
   searchInput.addEventListener("keyup", (e) => {
     if (e.key === "Enter") handleSearch(searchInput, searchModal);
-  });
-
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const newTheme = document.body.classList.contains("light-mode")
-      ? "dark"
-      : "light";
-    localStorage.setItem("theme", newTheme);
-    document.body.classList.toggle("light-mode", newTheme === "light");
-    document.querySelector("#theme-toggle i").className =
-      newTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
   });
 
   searchModal.addEventListener("click", (e) => {
