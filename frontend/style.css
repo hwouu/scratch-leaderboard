@@ -14,7 +14,6 @@
   --accent-red: #ff4d4d;
   --accent-green: #28a745;
   --accent-yellow: #ffc107;
-  --accent-cyan: #17a2b8;
 
   /* Light Mode */
   --bg-main-light: #f0f2f5;
@@ -137,30 +136,22 @@ body.scrollable-view #leaderboard-content {
   font-weight: 700;
   margin-left: 8px;
 }
-.ticker-item .score-positive {
+.ticker-item .score-final {
   color: var(--accent-red);
-}
-.ticker-item .score-negative {
-  color: var(--accent-cyan);
-}
-.ticker-item .score-neutral {
-  color: #fff;
 }
 
 body.light-mode .ticker-wrap {
-  background-color: #343a40; /* 대비되는 어두운 배경색 */
-  border-bottom: 2px solid #343a40;
+  background-color: #343a40;
+  border-bottom-color: #343a40;
 }
-
-/* 어두워진 배경에 맞춰 내부 텍스트 색상을 밝게 조정합니다. */
 body.light-mode .ticker-item {
-  color: #fff; /* 이름 등 기본 텍스트는 흰색 */
+  color: #fff;
 }
 body.light-mode .ticker-item .rank {
-  color: var(--accent-yellow); /* 랭크는 노란색으로 강조 */
+  color: var(--accent-yellow);
 }
-body.light-mode .ticker-item .score-neutral {
-  color: #fff; /* 0점(E) 스코어도 흰색으로 */
+body.light-mode .ticker-item .score-final {
+  color: var(--accent-red);
 }
 
 @keyframes ticker-move {

@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let allPlayers = [];
   const REFRESH_INTERVAL_MS = 300000;
   let activeTab = localStorage.getItem("activeTab") || "total";
-  // 뷰 모드를 localStorage에서 불러오도록 수정
   let currentViewMode =
     localStorage.getItem("currentViewMode") || "leaderboard";
   let isLoading = false;
@@ -91,11 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatTickerScore = (score) => {
     if (score === null || score === undefined) return "<span>-</span>";
     const scoreValue = parseInt(score, 10);
-    let className = "score-neutral";
-    if (scoreValue > 0) className = "score-positive";
-    if (scoreValue < 0) className = "score-negative";
     const scoreText = scoreValue > 0 ? `+${scoreValue}` : scoreValue;
-    return `<span class="${className}">${scoreText}</span>`;
+    return `<span class="score-final">${scoreText}</span>`;
   };
 
   // --- 실력 등급 포맷 함수 --- //
@@ -481,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modalBody.innerHTML = `<p><strong>'${searchInput.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
       searchModal.style.display = "flex";
     }
-    searchInput.blur(); // 검색 후 키보드 숨기기
+    searchInput.blur();
   };
 
   const startAutoRefresh = () => {
@@ -516,7 +512,6 @@ document.addEventListener("DOMContentLoaded", () => {
     viewToggleButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         currentViewMode = btn.dataset.view;
-        // 뷰 모드를 localStorage에 저장
         localStorage.setItem("currentViewMode", currentViewMode);
         viewToggleButtons.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
@@ -570,14 +565,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const init = () => {
     applyTheme(localStorage.getItem("theme") || "dark");
 
-    // --- BUG FIX START ---
-    // 탭과 뷰 버튼의 모든 active 클래스를 먼저 제거합니다.
     tabs.forEach((t) => t.classList.remove("active"));
     if (viewToggleButtons) {
       viewToggleButtons.forEach((b) => b.classList.remove("active"));
     }
 
-    // localStorage에서 불러온 값에 따라 active 클래스를 올바른 버튼에만 추가합니다.
     document
       .querySelector(`.tab-button[data-target="${activeTab}"]`)
       ?.classList.add("active");
@@ -588,7 +580,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(`.toggle-btn[data-view="${currentViewMode}"]`)
         ?.classList.add("active");
     }
-    // --- BUG FIX END ---
 
     renderSchedule();
     fetchData();
