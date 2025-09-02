@@ -131,13 +131,12 @@ function renderSidebar(sidebar) {
   sidebar.innerHTML = `
         <div class="info-panel">
             <h2>대회 정보</h2>
-            
             <div class="info-group">
                 <div class="info-item">
                     <span class="info-label">대회 방식</span><span class="info-value">토너먼트</span>
                 </div>
             </div>
-                        <div class="info-group">
+            <div class="info-group">
                 <span class="info-label">대회 일정</span>
                 <ul id="dynamic-schedule-list" class="schedule-list"></ul>
             </div>
@@ -388,8 +387,7 @@ function renderLeaderboardView(container, data) {
     })
     .join("");
 
-  const clickableClass = activeTab === "total" ? "clickable" : "";
-  container.innerHTML = `<table>${headHTML}<tbody class="${clickableClass}">${bodyHTML}</tbody></table>`;
+  container.innerHTML = `<table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table>`;
 }
 
 function renderCutoffView(container, data) {
@@ -572,7 +570,6 @@ function setupEventListeners(elements) {
     .addEventListener("click", () => (overviewModal.style.display = "flex"));
 
   contentElement.addEventListener("click", (e) => {
-    if (activeTab !== "total") return;
     const target = e.target.closest(
       "tr[data-userid], .cutoff-item[data-userid]"
     );
