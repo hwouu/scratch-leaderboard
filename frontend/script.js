@@ -569,6 +569,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const init = () => {
     applyTheme(localStorage.getItem("theme") || "dark");
+
+    // --- BUG FIX START ---
+    // 탭과 뷰 버튼의 모든 active 클래스를 먼저 제거합니다.
+    tabs.forEach((t) => t.classList.remove("active"));
+    if (viewToggleButtons) {
+      viewToggleButtons.forEach((b) => b.classList.remove("active"));
+    }
+
+    // localStorage에서 불러온 값에 따라 active 클래스를 올바른 버튼에만 추가합니다.
     document
       .querySelector(`.tab-button[data-target="${activeTab}"]`)
       ?.classList.add("active");
@@ -579,6 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(`.toggle-btn[data-view="${currentViewMode}"]`)
         ?.classList.add("active");
     }
+    // --- BUG FIX END ---
 
     renderSchedule();
     fetchData();
