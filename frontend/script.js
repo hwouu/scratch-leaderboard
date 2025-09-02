@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const updateBodyLayout = () => {
-    // Cutoff view is fullscreen, other views are scrollable
     if (activeTab === "total" && currentViewMode === "cutoff") {
       document.body.classList.remove("scrollable-view");
     } else {
@@ -141,16 +140,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!data || data.length === 0) return;
     const top20 = data.slice(0, 20);
     tickerElement.innerHTML = top20
-      .map(
-        (p) =>
-          `<div class="ticker-item"><span class="rank">${
-            p.rank
-          }</span><span class="name">${
-            p.userNickname
-          }</span><span class="score">${formatTickerScore(
-            p.totalScore
-          )}</span></div>`
-      )
+      .map((p) => {
+        const rank = p.isTieRank ? `T${p.rank}` : p.rank;
+        return `<div class="ticker-item"><span class="rank">${rank}</span><span class="name">${
+          p.userNickname
+        }</span><span class="score">${formatTickerScore(
+          p.totalScore
+        )}</span></div>`;
+      })
       .join("")
       .repeat(2);
   };
@@ -340,25 +337,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const handleSearch = () => {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) return;
-    const data = leaderboardData[activeTab];
-    if (!data) return;
+
+    const data = leaderboardData.total || [];
     const player = data.find((p) =>
       p.userNickname.toLowerCase().includes(searchTerm)
     );
+
     if (player) {
-      modalBody.innerHTML = `<h3 class="modal-body-title">${
-        player.userNickname
-      } (${
-        player.userId
-      })</h3><div class="search-result-item"><span class="result-label">순위</span><span class="result-value">${
-        player.rank
-      }</span></div><div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value">${formatSimpleScore(
-        player.totalScore
-      )}</span></div><div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${
-        player.shopName
-      }</span></div><div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${
-        player.roundCount
-      }</span></div>`;
+      const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+      let detailsHTML = `
+        <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
+        <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${player.shopName}</span></div>
+        <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${player.roundCount}</span></div>
+      `;
+
+      if (player.scores && player.scores.length > 0) {
+        detailsHTML += `
+            <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
+              player.scores[0]?.score
+            )}</span></div>
+            <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
+              player.scores[1]?.score
+            )}</span></div>
+            <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+              player.scores[2]?.score
+            )}</span></div>
+          `;
+      } else if (player.score !== undefined) {
+        detailsHTML += `<div class="search-result-item"><span class="result-label">코스 성적</span><span class="result-value">${formatSimpleScore(
+          player.score
+        )}</span></div>`;
+      }
+
+      detailsHTML += `
+        <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
+          player.revisionGrade
+        }</span></div>
+        <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
+          player.totalScore
+        )}</span></div>
+      `;
+
+      modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
     } else {
       modalBody.innerHTML = `<p><strong>'${searchInput.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
     }

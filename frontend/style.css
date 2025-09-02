@@ -53,29 +53,13 @@ body.light-mode {
   min-height: 0;
 }
 
-/* --- Scrollable Layout (for Leaderboard View) --- */
-body.scrollable-view {
-  height: 100%;
-  overflow-y: hidden; /* Prevent body scroll, allow children to scroll */
-}
+/* --- Layout Modes --- */
 body.scrollable-view main.grid-container {
-  overflow-y: hidden;
+  align-items: flex-start;
 }
 body.scrollable-view #leaderboard-content {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-body.scrollable-view table {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-height: 0;
-  border-radius: 12px;
-}
-body.scrollable-view table tbody {
-  overflow-y: auto;
-  flex-grow: 1;
+  height: auto;
+  max-height: calc(100vh - 200px);
 }
 
 /* --- Spinner --- */
@@ -136,12 +120,13 @@ body.scrollable-view table tbody {
   font-size: 16px;
 }
 .ticker-item .name,
-.ticker-item .rank,
 .ticker-item .score {
   font-weight: 600;
   color: #ffffff;
 }
 .ticker-item .rank {
+  font-weight: 700;
+  color: #ffffff;
   margin-right: 8px;
 }
 .ticker-item .score {
@@ -151,9 +136,15 @@ body.scrollable-view table tbody {
 .ticker-item .score-positive {
   color: var(--accent-red);
 }
-
 body.light-mode .ticker-wrap {
   background-color: var(--bg-surface);
+}
+body.light-mode .ticker-item .rank {
+  color: var(--accent-blue);
+}
+
+body.dark-mode .ticker-item .rank {
+  color: var(--bg-surface-accent);
 }
 
 @keyframes ticker-move {
@@ -195,7 +186,6 @@ h1 {
   margin-left: 8px;
   opacity: 0.8;
 }
-
 .tabs {
   display: flex;
   background-color: var(--bg-surface);
@@ -330,7 +320,7 @@ main.grid-container {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 24px;
-  align-items: stretch; /* Make columns same height */
+  align-items: stretch;
   flex-grow: 1;
   min-height: 0;
   padding-bottom: 24px;
@@ -343,7 +333,9 @@ main.grid-container {
 
 /* --- Leaderboard Table --- */
 #leaderboard-content {
-  overflow: hidden; /* Hide overflow for border-radius */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 table {
   width: 100%;
@@ -352,6 +344,18 @@ table {
   background-color: var(--bg-surface);
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+}
+table thead,
+table tbody {
+  display: block;
+}
+table tbody {
+  overflow-y: auto;
+  flex-grow: 1;
 }
 body.light-mode table {
   background-color: var(--bg-surface-light);
@@ -424,10 +428,9 @@ tbody tr:last-child td {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
   gap: 8px;
-  justify-content: flex-start;
 }
 body.light-mode .cutoff-column {
   background-color: var(--bg-surface-light);
@@ -441,8 +444,14 @@ body.light-mode .cutoff-column {
   align-items: center;
   gap: 12px;
 }
+.cutoff-item.empty {
+  background-color: transparent;
+}
 body.light-mode .cutoff-item {
   background-color: var(--bg-surface-accent-light);
+}
+body.light-mode .cutoff-item.empty {
+  background-color: transparent;
 }
 .cutoff-item .rank {
   font-size: 16px;
