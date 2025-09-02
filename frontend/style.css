@@ -356,6 +356,10 @@ table tbody {
   overflow-y: auto;
   flex-grow: 1;
 }
+/* '합산' 탭에서 클릭 가능한 행 스타일 */
+table tbody.clickable tr {
+  cursor: pointer;
+}
 body.light-mode table {
   background-color: var(--bg-surface-light);
   border-color: var(--border-color-light);
@@ -657,8 +661,7 @@ body.light-mode .search-result-item {
     height: auto;
     overflow: auto;
   }
-  tbody.mobile-clickable tr {
-    cursor: pointer;
+  tbody.clickable tr {
     -webkit-tap-highlight-color: transparent; /* 터치 시 파란색 하이라이트 제거 */
   }
   .container {
@@ -676,16 +679,17 @@ body.light-mode .search-result-item {
   .controls-container {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto; /* 검색창과 테마 버튼만 보이도록 수정 */
     gap: 8px;
     order: 3;
+  }
+  #view-toggle,
+  #refresh-button {
+    display: none; /* 모바일에서 토글과 새로고침 버튼 숨김 */
   }
   .title-container {
     order: 1;
     text-align: center;
-  }
-  .view-toggle {
-    display: none;
   }
   main.grid-container {
     grid-template-columns: 1fr;
