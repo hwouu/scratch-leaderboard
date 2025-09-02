@@ -356,10 +356,11 @@ table tbody {
   overflow-y: auto;
   flex-grow: 1;
 }
-/* '합산' 탭에서 클릭 가능한 행 스타일 */
-table tbody.clickable tr {
+/* '합산' 탭에서만 클릭 가능하도록 스타일 수정 */
+tbody.clickable tr {
   cursor: pointer;
 }
+
 body.light-mode table {
   background-color: var(--bg-surface-light);
   border-color: var(--border-color-light);
@@ -376,9 +377,6 @@ tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
-}
-tbody tr {
-  cursor: default;
 }
 
 body.light-mode th,

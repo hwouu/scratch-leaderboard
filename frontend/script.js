@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const apiEndpoint = "/api";
   let leaderboardData = {};
   let prevLeaderboardData = {};
+  let allPlayers = [];
   const REFRESH_INTERVAL_MS = 300000;
   let activeTab = localStorage.getItem("activeTab") || "total";
   let currentViewMode = "leaderboard"; // 'leaderboard' or 'cutoff'
@@ -93,6 +94,39 @@ document.addEventListener("DOMContentLoaded", () => {
     if (scoreValue < 0) className = "score-negative";
     const scoreText = scoreValue > 0 ? `+${scoreValue}` : scoreValue;
     return `<span class="${className}">${scoreText}</span>`;
+  };
+
+  // --- 데이터 처리 --- //
+  const processAllPlayers = () => {
+    const playerMap = new Map();
+
+    // 각 코스 및 합산 데이터 순회
+    ["total", "courseA", "courseB", "courseC"].forEach((key) => {
+      const data = leaderboardData[key];
+      if (data && Array.isArray(data)) {
+        data.forEach((player) => {
+          if (!playerMap.has(player.userId)) {
+            playerMap.set(player.userId, {
+              userId: player.userId,
+              userNickname: player.userNickname,
+              shopName: player.shopName,
+              courseRoundCounts: { A: 0, B: 0, C: 0 }, // 코스별 라운드 수 저장
+            });
+          }
+          const p = playerMap.get(player.userId);
+
+          // 합산 정보 우선 적용
+          if (key === "total") {
+            Object.assign(p, player);
+          } else {
+            const courseInitial = key.charAt(6);
+            p.courseRoundCounts[courseInitial] = player.roundCount || 0;
+          }
+        });
+      }
+    });
+
+    allPlayers = Array.from(playerMap.values());
   };
 
   // --- 데이터 렌더링 --- //
@@ -319,6 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
       })
       .join("");
+
     const clickableClass = activeTab === "total" ? "clickable" : "";
     leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody class="${clickableClass}">${bodyHTML}</tbody></table>`;
   };
@@ -332,6 +367,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       prevLeaderboardData = leaderboardData;
       leaderboardData = await response.json();
+
+      processAllPlayers();
+
       lastUpdatedElement.textContent = new Date().toLocaleTimeString("ko-KR");
       renderLeaderboard();
       renderTicker(leaderboardData.total || []);
@@ -345,34 +383,48 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const showPlayerModal = (player) => {
-    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+    const rank = player.isTieRank ? `T${player.rank}` : player.rank || "-";
+
+    // 라운드 수 계산 로직 수정
+    let totalRounds = player.roundCount; // 합산 데이터가 있으면 우선 사용
+    if (totalRounds === undefined) {
+      totalRounds =
+        (player.courseRoundCounts.A || 0) +
+        (player.courseRoundCounts.B || 0) +
+        (player.courseRoundCounts.C || 0);
+    }
+
     let detailsHTML = `
       <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
-      <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${player.shopName}</span></div>
-      <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${player.roundCount}</span></div>
+      <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${
+        player.shopName
+      }</span></div>
+      <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${
+        totalRounds || "-"
+      }</span></div>
     `;
 
-    if (player.scores && player.scores.length > 0) {
-      detailsHTML += `
-          <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
-            player.scores[0]?.score
-          )}</span></div>
-          <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
-            player.scores[1]?.score
-          )}</span></div>
-          <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-            player.scores[2]?.score
-          )}</span></div>
-        `;
-    } else if (player.score !== undefined) {
-      detailsHTML += `<div class="search-result-item"><span class="result-label">코스 성적</span><span class="result-value">${formatSimpleScore(
-        player.score
-      )}</span></div>`;
-    }
+    detailsHTML += `
+        <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
+          (leaderboardData.courseA || []).find(
+            (p) => p.userId === player.userId
+          )?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
+          (leaderboardData.courseB || []).find(
+            (p) => p.userId === player.userId
+          )?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+          (leaderboardData.courseC || []).find(
+            (p) => p.userId === player.userId
+          )?.score
+        )}</span></div>
+    `;
 
     detailsHTML += `
       <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
-        player.revisionGrade
+        player.revisionGrade ?? "-"
       }</span></div>
       <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
         player.totalScore
@@ -387,8 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) return;
 
-    const data = leaderboardData.total || [];
-    const player = data.find((p) =>
+    const player = allPlayers.find((p) =>
       p.userNickname.toLowerCase().includes(searchTerm)
     );
 
@@ -461,13 +512,12 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   leaderboardContentElement.addEventListener("click", (e) => {
+    // '합산' 탭일 때만 모달을 띄우도록 수정
     if (activeTab === "total") {
       const row = e.target.closest("tr");
       if (row && row.dataset.userid) {
         const userId = row.dataset.userid;
-        const player = (leaderboardData.total || []).find(
-          (p) => p.userId === userId
-        );
+        const player = allPlayers.find((p) => p.userId === userId);
         if (player) {
           showPlayerModal(player);
         }
