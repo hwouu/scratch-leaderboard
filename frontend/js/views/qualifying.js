@@ -89,7 +89,7 @@ function renderHeader(header) {
                 <span class="live-indicator">LIVE</span>
             </div>
             <div class="subtitle">
-                <span class="subtitle-text">골목대장 토너먼트 1st - 예선</span>
+                <span class="subtitle-text">골목대장 토너먼트 1st</span>
                 <span class="last-updated">마지막 업데이트: <span id="last-updated-time"></span></span>
             </div>
             <div id="mobile-schedule-info" class="mobile-show"></div>
@@ -131,12 +131,13 @@ function renderSidebar(sidebar) {
   sidebar.innerHTML = `
         <div class="info-panel">
             <h2>대회 정보</h2>
+            
             <div class="info-group">
                 <div class="info-item">
-                    <span class="info-label">대회 방식</span><span class="info-value">예선 (스트로크)</span>
+                    <span class="info-label">대회 방식</span><span class="info-value">토너먼트</span>
                 </div>
             </div>
-            <div class="info-group">
+                        <div class="info-group">
                 <span class="info-label">대회 일정</span>
                 <ul id="dynamic-schedule-list" class="schedule-list"></ul>
             </div>
