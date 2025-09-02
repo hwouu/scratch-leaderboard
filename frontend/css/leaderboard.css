@@ -1,0 +1,205 @@
+/* Leaderboard Table */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  /* overflow: hidden;  <- 이 줄을 제거하여 스크롤 문제를 해결합니다. */
+}
+table thead,
+table tbody {
+  display: block;
+}
+table tbody {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+tbody.clickable tr {
+  cursor: pointer;
+}
+body.light-mode table {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+}
+th,
+td {
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+thead tr,
+tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+body.light-mode th,
+body.light-mode td {
+  border-bottom-color: var(--border-color-light);
+}
+th {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+body.light-mode th {
+  background-color: var(--bg-surface-light);
+}
+thead tr th:first-child {
+  border-top-left-radius: 12px;
+}
+thead tr th:last-child {
+  border-top-right-radius: 12px;
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+.nickname {
+  text-align: left;
+  font-weight: 600;
+}
+.user-id {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.final-score {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-red);
+}
+.shop-name-mobile {
+  display: none;
+}
+
+/* Cutoff View */
+.cutoff-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  height: 100%;
+}
+.cutoff-column {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  gap: 8px;
+}
+body.light-mode .cutoff-column {
+  background-color: var(--bg-surface-light);
+  border: 1px solid var(--border-color-light);
+}
+.cutoff-item {
+  background-color: var(--bg-surface-accent);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.cutoff-item.empty {
+  background-color: transparent;
+}
+body.light-mode .cutoff-item {
+  background-color: var(--bg-surface-accent-light);
+}
+body.light-mode .cutoff-item.empty {
+  background-color: transparent;
+}
+.cutoff-item .rank {
+  font-size: 16px;
+  width: 30px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.cutoff-item .name-id {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cutoff-item .name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.cutoff-item .id {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: block;
+}
+.cutoff-item .score {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* --- Responsive Adjustments for Leaderboard --- */
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .tablet-hide,
+  .mobile-hide {
+    display: none;
+  }
+  .shop-name-mobile {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+  .cutoff-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  tbody.clickable tr {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-hide {
+    display: none;
+  }
+  .shop-name-mobile {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+  th,
+  td {
+    padding: 12px 8px;
+  }
+  .cutoff-container {
+    grid-template-columns: 1fr;
+  }
+  .cutoff-column {
+    padding: 12px;
+  }
+  .cutoff-item {
+    padding: 10px;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,110 @@
+.tournament-container {
+  display: flex;
+  flex-direction: row;
+  font-family: var(--font-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  overflow-x: auto;
+  height: 100%;
+}
+body.light-mode .tournament-container {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+
+.match {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 10px;
+  position: relative;
+}
+
+.match:not(:last-child) {
+  margin-bottom: 50px; /* 경기 간 간격 */
+}
+
+.connector {
+  width: 20px;
+  height: 50%; /* This will be half the match height */
+  border: 2px solid var(--border-color);
+  border-left: none;
+  position: absolute;
+  right: -20px;
+}
+
+.connector.top {
+  top: 0;
+  border-top-right-radius: 10px;
+  border-bottom: none;
+}
+
+.connector.bottom {
+  bottom: 0;
+  border-bottom-right-radius: 10px;
+  border-top: none;
+}
+
+.match-line {
+  height: 2px;
+  width: 20px;
+  background-color: var(--border-color);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.connector.bridge {
+  width: 20px;
+  height: 2px;
+  background-color: var(--border-color);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.player {
+  padding: 10px 15px;
+  background-color: var(--bg-surface-accent);
+  border-radius: 5px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 200px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+}
+body.light-mode .player {
+  background-color: var(--bg-surface-accent-light);
+  border-color: var(--border-color-light);
+}
+.player.winner {
+  font-weight: bold;
+  border-left: 4px solid var(--accent-green);
+}
+.player.loser {
+  opacity: 0.6;
+}
+.player-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-score {
+  font-weight: bold;
+  color: var(--accent-red);
+}
+
+.final-match {
+  align-self: center;
+}
