@@ -252,6 +252,8 @@ body.light-mode .search-container {
   padding: 10px 14px;
   font-size: 14px;
   outline: none;
+  flex-grow: 1; /* 검색창이 남은 공간을 채우도록 수정 */
+  min-width: 0;
 }
 body.light-mode #search-input {
   color: var(--text-primary-light);
@@ -266,6 +268,7 @@ body.light-mode #search-input {
   cursor: pointer;
   border-radius: 0 7px 7px 0;
   transition: background-color 0.2s;
+  flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 설정 */
 }
 body.light-mode #search-button {
   background: var(--bg-surface-accent-light);
@@ -369,6 +372,9 @@ tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
+}
+tbody tr {
+  cursor: default;
 }
 
 body.light-mode th,
@@ -651,6 +657,10 @@ body.light-mode .search-result-item {
     height: auto;
     overflow: auto;
   }
+  tbody.mobile-clickable tr {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent; /* 터치 시 파란색 하이라이트 제거 */
+  }
   .container {
     padding: 0 16px;
   }
@@ -675,8 +685,7 @@ body.light-mode .search-result-item {
     text-align: center;
   }
   .view-toggle {
-    grid-column: 1 / -1;
-    justify-content: center;
+    display: none;
   }
   main.grid-container {
     grid-template-columns: 1fr;

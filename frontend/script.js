@@ -307,10 +307,14 @@ document.addEventListener("DOMContentLoaded", () => {
               <td class="mobile-hide">${formatSimpleScore(player.score)}</td>
               <td>${player.revisionGrade}</td>
               <td>${formatFinalScore(player.totalScore)}</td>`;
-        return `<tr class="${rankChangeClass}">${rowCells}</tr>`;
+        return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
       })
       .join("");
-    leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody>${bodyHTML}</tbody></table>`;
+    const mobileClickableClass =
+      window.matchMedia("(max-width: 768px)").matches && activeTab === "total"
+        ? "mobile-clickable"
+        : "";
+    leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody class="${mobileClickableClass}">${bodyHTML}</tbody></table>`;
   };
 
   const fetchData = async () => {
@@ -334,6 +338,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const showPlayerModal = (player) => {
+    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+    let detailsHTML = `
+      <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
+      <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${player.shopName}</span></div>
+      <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${player.roundCount}</span></div>
+    `;
+
+    if (player.scores && player.scores.length > 0) {
+      detailsHTML += `
+          <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
+            player.scores[0]?.score
+          )}</span></div>
+          <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
+            player.scores[1]?.score
+          )}</span></div>
+          <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+            player.scores[2]?.score
+          )}</span></div>
+        `;
+    } else if (player.score !== undefined) {
+      detailsHTML += `<div class="search-result-item"><span class="result-label">코스 성적</span><span class="result-value">${formatSimpleScore(
+        player.score
+      )}</span></div>`;
+    }
+
+    detailsHTML += `
+      <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
+        player.revisionGrade
+      }</span></div>
+      <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
+        player.totalScore
+      )}</span></div>
+    `;
+
+    modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
+    searchModal.style.display = "flex";
+  };
+
   const handleSearch = () => {
     const searchTerm = searchInput.value.trim().toLowerCase();
     if (!searchTerm) return;
@@ -344,45 +387,11 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     if (player) {
-      const rank = player.isTieRank ? `T${player.rank}` : player.rank;
-      let detailsHTML = `
-        <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
-        <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${player.shopName}</span></div>
-        <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${player.roundCount}</span></div>
-      `;
-
-      if (player.scores && player.scores.length > 0) {
-        detailsHTML += `
-            <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
-              player.scores[0]?.score
-            )}</span></div>
-            <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
-              player.scores[1]?.score
-            )}</span></div>
-            <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-              player.scores[2]?.score
-            )}</span></div>
-          `;
-      } else if (player.score !== undefined) {
-        detailsHTML += `<div class="search-result-item"><span class="result-label">코스 성적</span><span class="result-value">${formatSimpleScore(
-          player.score
-        )}</span></div>`;
-      }
-
-      detailsHTML += `
-        <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
-          player.revisionGrade
-        }</span></div>
-        <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
-          player.totalScore
-        )}</span></div>
-      `;
-
-      modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
+      showPlayerModal(player);
     } else {
       modalBody.innerHTML = `<p><strong>'${searchInput.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
+      searchModal.style.display = "flex";
     }
-    searchModal.style.display = "flex";
   };
 
   const startAutoRefresh = () => {
@@ -438,6 +447,24 @@ document.addEventListener("DOMContentLoaded", () => {
     "click",
     (e) => e.target === searchModal && (searchModal.style.display = "none")
   );
+
+  leaderboardContentElement.addEventListener("click", (e) => {
+    if (
+      window.matchMedia("(max-width: 768px)").matches &&
+      activeTab === "total"
+    ) {
+      const row = e.target.closest("tr");
+      if (row && row.dataset.userid) {
+        const userId = row.dataset.userid;
+        const player = (leaderboardData.total || []).find(
+          (p) => p.userId === userId
+        );
+        if (player) {
+          showPlayerModal(player);
+        }
+      }
+    }
+  });
 
   const init = () => {
     applyTheme(localStorage.getItem("theme") || "dark");
