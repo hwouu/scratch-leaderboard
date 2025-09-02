@@ -1,4 +1,3 @@
-
 import requests
 import json
 from http.server import BaseHTTPRequestHandler
@@ -6,10 +5,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Golfzon API URLs
 URLS = {
-    "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3606/stroke?gender=0",
-    "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3607/stroke?gender=0",
-    "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3608/stroke?gender=0",
-    "courseC": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3609/stroke?gender=0"
+    "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3606/stroke?gender=0&page=1&size=100",
+    "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3607/stroke?gender=0&page=1&size=100",
+    "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3608/stroke?gender=0&page=1&size=100",
+    "courseC": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3609/stroke?gender=0&page=1&size=100"
 }
 
 def fetch_url(url):
