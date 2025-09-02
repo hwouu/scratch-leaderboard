@@ -708,7 +708,9 @@ body.light-mode .site-footer {
   border-top-color: var(--border-color-light);
 }
 .footer-links {
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .footer-links a {
   color: var(--text-secondary);
@@ -721,6 +723,11 @@ body.light-mode .site-footer {
 }
 body.light-mode .footer-links a:hover {
   color: var(--text-primary-light);
+}
+.footer-copyright {
+  cursor: default;
+  font-size: 12px;
+  margin-left: 12px !important;
 }
 
 /* --- Responsive Adjustments --- */
@@ -846,9 +853,10 @@ body.light-mode .footer-links a:hover {
     padding: 10px;
     gap: 8px;
   }
+
+  /* Footer Mobile Layout */
   .footer-links {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 }
