@@ -143,10 +143,6 @@ body.light-mode .ticker-item .rank {
   color: var(--accent-blue);
 }
 
-body.dark-mode .ticker-item .rank {
-  color: var(--bg-surface-accent);
-}
-
 @keyframes ticker-move {
   0% {
     transform: translateX(0);
