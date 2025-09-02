@@ -37,12 +37,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let refreshIntervalId = null;
 
   const tournamentSchedule = [
-    { name: "[예선전]", start: "2025-09-01", end: "2025-09-15" },
-    { name: "[32강]", start: "2025-09-15", end: "2025-09-19" },
-    { name: "[16강]", start: "2025-09-19", end: "2025-09-23" },
-    { name: "[8강]", start: "2025-09-23", end: "2025-09-27" },
-    { name: "[4강]", start: "2025-09-27", end: "2025-10-01" },
-    { name: "[결승/3위전]", start: "2025-10-01", end: "2025-10-05" },
+    { name: "[예선전]", start: "2025-09-01", end: "2025-09-14" },
+    { name: "[32강]", start: "2025-09-15", end: "2025-09-18" },
+    { name: "[16강]", start: "2025-09-19", end: "2025-09-22" },
+    { name: "[8강]", start: "2025-09-23", end: "2025-09-26" },
+    { name: "[4강]", start: "2025-09-27", end: "2025-09-30" },
+    { name: "[결승/3위전]", start: "2025-10-01", end: "2025-10-04" },
   ];
 
   // --- UI 컨트롤 함수 --- //
