@@ -32,7 +32,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  overflow-y: hidden;
+  overflow: hidden; /* 전체 페이지 스크롤 방지 */
 }
 body {
   font-family: var(--font-primary);
@@ -55,15 +55,6 @@ body.light-mode {
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
-}
-
-/* --- Layout Modes --- */
-body.scrollable-view main.grid-container {
-  align-items: flex-start;
-}
-body.scrollable-view #leaderboard-content {
-  height: auto;
-  max-height: calc(100vh - 220px);
 }
 
 /* --- Spinner --- */
@@ -365,6 +356,7 @@ main.grid-container {
   flex-grow: 1;
   min-height: 0;
   padding-bottom: 24px;
+  overflow-y: auto; /* 메인 콘텐츠 영역 스크롤 적용 */
 }
 .sidebar {
   display: flex;
@@ -389,15 +381,14 @@ table {
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
-  overflow: hidden;
 }
 table thead,
 table tbody {
   display: block;
 }
 table tbody {
-  overflow-y: auto;
   flex-grow: 1;
+  /* overflow-y: auto; 제거 */
 }
 tbody.clickable tr {
   cursor: pointer;
@@ -468,7 +459,8 @@ tbody tr:last-child td {
   font-weight: 700;
   color: var(--accent-red);
 }
-.shop-name-mobile {
+.shop-name-mobile,
+.shop-name-tablet {
   display: none;
 }
 
@@ -858,6 +850,12 @@ body.light-mode .desktop-footer .footer-links a:hover {
   .tablet-hide {
     display: none;
   }
+  .shop-name-tablet {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
   .cutoff-container {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -865,9 +863,13 @@ body.light-mode .desktop-footer .footer-links a:hover {
 
 /* Mobile */
 @media (max-width: 768px) {
+  html,
   body {
     height: auto;
-    overflow-y: auto;
+    overflow-y: auto; /* 모바일에서는 전체 스크롤 허용 */
+  }
+  main.grid-container {
+    overflow-y: visible; /* 모바일에서는 메인 영역 스크롤 비활성화 */
   }
   tbody.clickable tr {
     -webkit-tap-highlight-color: transparent;
@@ -895,7 +897,6 @@ body.light-mode .desktop-footer .footer-links a:hover {
   #refresh-button {
     display: none;
   }
-  /* Ensure the new button is visible on mobile */
   #overview-button {
     display: flex;
   }

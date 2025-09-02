@@ -109,8 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
       REA: "독수리",
       RFA: "매",
       RCR: "학",
+      PCR: "학",
     };
     const tierMap = {
+      0: "예정",
       1: "골드",
       2: "실버",
       3: "브론즈",
@@ -295,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
       total: [
         { key: "순위" },
         { key: "닉네임" },
-        { key: "참여매장", class: "mobile-hide" },
+        { key: "참여매장", class: "mobile-hide tablet-hide" },
         { key: "라운드", class: "mobile-hide" },
         { key: "A", class: "mobile-hide" },
         { key: "B", class: "mobile-hide" },
@@ -306,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
       course: [
         { key: "순위" },
         { key: "닉네임" },
-        { key: "참여매장", class: "tablet-hide mobile-hide" },
+        { key: "참여매장", class: "mobile-hide tablet-hide" },
         { key: "라운드", class: "mobile-hide" },
         { key: "코스 성적" },
         { key: "실력 등급", class: "mobile-hide" },
@@ -337,14 +339,13 @@ document.addEventListener("DOMContentLoaded", () => {
           activeTab === "total"
             ? `
               <td class="rank">${rank}</td>
-              <td class="nickname">${
-                player.userNickname
-              }<span class="user-id">(${
-                player.userId
-              })</span><span class="shop-name-mobile">${
-                player.shopName
-              }</span></td>
-              <td class="mobile-hide">${player.shopName}</td>
+              <td class="nickname">
+                ${player.userNickname}
+                <span class="user-id">(${player.userId})</span>
+                <span class="shop-name-mobile">${player.shopName}</span>
+                <span class="shop-name-tablet">${player.shopName}</span>
+              </td>
+              <td class="mobile-hide tablet-hide">${player.shopName}</td>
               <td class="mobile-hide">${player.roundCount}</td>
               <td class="mobile-hide">${formatSimpleScore(
                 player.scores[0]?.score
@@ -359,14 +360,13 @@ document.addEventListener("DOMContentLoaded", () => {
               <td>${formatFinalScore(player.totalScore)}</td>`
             : `
               <td class="rank">${rank}</td>
-              <td class="nickname">${
-                player.userNickname
-              }<span class="user-id">(${
-                player.userId
-              })</span><span class="shop-name-mobile">${
-                player.shopName
-              }</span></td>
-              <td class="tablet-hide mobile-hide">${player.shopName}</td>
+              <td class="nickname">
+                ${player.userNickname}
+                <span class="user-id">(${player.userId})</span>
+                <span class="shop-name-mobile">${player.shopName}</span>
+                <span class="shop-name-tablet">${player.shopName}</span>
+              </td>
+              <td class="mobile-hide tablet-hide">${player.shopName}</td>
               <td class="mobile-hide">${player.roundCount}</td>
               <td>${formatSimpleScore(player.score)}</td>
               <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
