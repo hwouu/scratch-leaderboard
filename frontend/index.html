@@ -13,7 +13,7 @@
       content="스크린골프, 골프 토너먼트, 리더보드, 골프 순위, 골목대장 토너먼트"
     />
 
-    <title>Leader Board - Scratch 1st 토너먼트 대회</title>
+    <title>LIVE SCOREBOARD - 골목대장 토너먼트 1st</title>
 
     <link
       rel="icon"
@@ -27,6 +27,10 @@
     />
   </head>
   <body class="dark-mode">
+    <div id="spinner-overlay" class="hidden">
+      <div class="spinner"></div>
+    </div>
+
     <div class="ticker-wrap">
       <div class="ticker"></div>
     </div>
@@ -34,25 +38,46 @@
     <div class="container">
       <header>
         <div class="title-container">
-          <h1>골목대장 토너먼트 1st</h1>
-          <p class="last-updated">
-            마지막 업데이트: <span id="last-updated-time"></span>
-            <span class="update-notice">(데이터는 5분마다 실시간으로 갱신됩니다)</span>
+          <h1>LIVE SCOREBOARD</h1>
+          <p class="subtitle">
+            골목대장 토너먼트 1st
+            <span class="last-updated">
+              최종 업데이트: <span id="last-updated-time"></span>
+            </span>
           </p>
         </div>
-        <div class="tabs">
-          <button class="tab-button active" data-target="total">합산</button>
-          <button class="tab-button" data-target="courseA">A코스</button>
-          <button class="tab-button" data-target="courseB">B코스</button>
-          <button class="tab-button" data-target="courseC">C코스</button>
+
+        <div class="header-center">
+          <div class="tabs">
+            <button class="tab-button active" data-target="total">합산</button>
+            <button class="tab-button" data-target="courseA">A코스</button>
+            <button class="tab-button" data-target="courseB">B코스</button>
+            <button class="tab-button" data-target="courseC">C코스</button>
+          </div>
         </div>
+
         <div class="controls-container">
+          <div id="view-toggle" class="view-toggle icon-toggle">
+            <button
+              class="toggle-btn active"
+              data-view="leaderboard"
+              title="리더보드 보기"
+            >
+              <i class="fas fa-list-ol"></i>
+            </button>
+            <button class="toggle-btn" data-view="cutoff" title="컷오프 보기">
+              <i class="fas fa-users"></i>
+            </button>
+          </div>
           <div class="search-container">
             <input type="text" id="search-input" placeholder="닉네임 검색..." />
             <button id="search-button"><i class="fas fa-search"></i></button>
           </div>
-          <button id="theme-toggle">
-            <i class="fas fa-sun"></i> 라이트 모드
+          <button id="refresh-button" title="새로고침">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button id="theme-toggle" title="테마 변경">
+            <i class="fas fa-sun"></i>
           </button>
         </div>
       </header>
@@ -82,7 +107,7 @@
           </div>
 
           <div class="highlight-panel">
-            <h2>기록 하이라이트</h2>
+            <h2>대회 하이라이트</h2>
             <div id="highlight-content"></div>
           </div>
         </aside>
