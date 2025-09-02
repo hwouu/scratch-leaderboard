@@ -41,13 +41,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const showSpinner = () => {
     isLoading = true;
     spinnerOverlay.classList.remove("hidden");
-    refreshButton.querySelector("i").classList.add("fa-spin");
+    if (refreshButton) {
+      refreshButton.querySelector("i").classList.add("fa-spin");
+    }
   };
 
   const hideSpinner = () => {
     isLoading = false;
     spinnerOverlay.classList.add("hidden");
-    refreshButton.querySelector("i").classList.remove("fa-spin");
+    if (refreshButton) {
+      refreshButton.querySelector("i").classList.remove("fa-spin");
+    }
   };
 
   const applyTheme = (theme) => {
@@ -137,7 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const renderTicker = (data) => {
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      tickerElement.innerHTML = "";
+      return;
+    }
     const top20 = data.slice(0, 20);
     tickerElement.innerHTML = top20
       .map((p) => {
@@ -154,18 +161,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const renderHighlights = (data) => {
     if (!data || data.length === 0) {
-      highlightContentElement.innerHTML = "";
+      if (highlightContentElement) highlightContentElement.innerHTML = "";
       return;
     }
     const best = [...data].sort((a, b) => a.totalScore - b.totalScore)[0];
     const most = [...data].sort((a, b) => b.roundCount - a.roundCount)[0];
-    highlightContentElement.innerHTML = `<div class="highlight-item"><div class="highlight-title">최고 성적</div><div class="highlight-value">${
-      best.userNickname
-    }: ${formatSimpleScore(
-      best.totalScore
-    )}</div></div><div class="highlight-item"><div class="highlight-title">최다 라운드</div><div class="highlight-value">${
-      most.userNickname
-    }: ${most.roundCount}회</div></div>`;
+    if (highlightContentElement) {
+      highlightContentElement.innerHTML = `<div class="highlight-item"><div class="highlight-title">최고 성적</div><div class="highlight-value">${
+        best.userNickname
+      }: ${formatSimpleScore(
+        best.totalScore
+      )}</div></div><div class="highlight-item"><div class="highlight-title">최다 라운드</div><div class="highlight-value">${
+        most.userNickname
+      }: ${most.roundCount}회</div></div>`;
+    }
   };
 
   const renderCutoffView = (data) => {
@@ -310,11 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
       })
       .join("");
-    const mobileClickableClass =
-      window.matchMedia("(max-width: 768px)").matches && activeTab === "total"
-        ? "mobile-clickable"
-        : "";
-    leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody class="${mobileClickableClass}">${bodyHTML}</tbody></table>`;
+    const clickableClass = activeTab === "total" ? "clickable" : "";
+    leaderboardContentElement.innerHTML = `<table>${headHTML}<tbody class="${clickableClass}">${bodyHTML}</tbody></table>`;
   };
 
   const fetchData = async () => {
@@ -415,24 +421,30 @@ document.addEventListener("DOMContentLoaded", () => {
       tabs.forEach((t) =>
         t.classList.toggle("active", t.dataset.target === activeTab)
       );
-      viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+      if (viewToggleContainer) {
+        viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+      }
       renderLeaderboard();
     });
   });
 
-  viewToggleButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      currentViewMode = btn.dataset.view;
-      viewToggleButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderLeaderboard();
+  if (viewToggleButtons) {
+    viewToggleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentViewMode = btn.dataset.view;
+        viewToggleButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderLeaderboard();
+      });
     });
-  });
+  }
 
-  refreshButton.addEventListener("click", () => {
-    fetchData();
-    startAutoRefresh();
-  });
+  if (refreshButton) {
+    refreshButton.addEventListener("click", () => {
+      fetchData();
+      startAutoRefresh();
+    });
+  }
 
   searchButton.addEventListener("click", handleSearch);
   searchInput.addEventListener(
@@ -449,10 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   leaderboardContentElement.addEventListener("click", (e) => {
-    if (
-      window.matchMedia("(max-width: 768px)").matches &&
-      activeTab === "total"
-    ) {
+    if (activeTab === "total") {
       const row = e.target.closest("tr");
       if (row && row.dataset.userid) {
         const userId = row.dataset.userid;
@@ -471,7 +480,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .querySelector(`.tab-button[data-target="${activeTab}"]`)
       .classList.add("active");
-    viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+    if (viewToggleContainer) {
+      viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+    }
     renderSchedule();
     fetchData();
     startAutoRefresh();
