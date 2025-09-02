@@ -27,7 +27,6 @@ html,
 body {
   height: 100%;
   margin: 0;
-  overflow-y: hidden;
 }
 body {
   font-family: var(--font-primary);
@@ -95,7 +94,11 @@ body.light-mode {
 
 /* Ticker */
 .ticker-wrap {
+  position: fixed; /* 화면 상단에 고정 */
+  top: 0;
+  left: 0;
   width: 100%;
+  z-index: 1000; /* 다른 요소보다 위에 표시 */
   overflow: hidden;
   background-color: var(--accent-blue);
   border-bottom: 2px solid var(--border-color);
@@ -148,6 +151,11 @@ body.light-mode .ticker-item .score-final {
   100% {
     transform: translateX(-50%);
   }
+}
+
+/* ticker가 있을 때 container의 상단 여백 추가 */
+.ticker-wrap + .container {
+  padding-top: 50px; /* 티커의 높이만큼 여백을 주어 내용이 가려지지 않게 함 */
 }
 
 /* Header */
@@ -384,12 +392,7 @@ main.grid-container {
   gap: 24px;
 }
 
-/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-  문제의 원인이었던 부분을 수정했습니다.
-  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-*/
 #content {
-  /* overflow: hidden;  <- 이 속성이 테이블의 스크롤을 막고 있었습니다. */
   display: flex;
   flex-direction: column;
 }
@@ -695,6 +698,9 @@ body.light-mode .desktop-footer .footer-links a:hover {
   .container {
     padding: 0 20px;
   }
+  .ticker-wrap + .container {
+    padding-top: 50px;
+  }
   header {
     flex-wrap: wrap;
     gap: 16px;
@@ -731,6 +737,9 @@ body.light-mode .desktop-footer .footer-links a:hover {
   }
   .container {
     padding: 0 16px;
+  }
+  .ticker-wrap + .container {
+    padding-top: 50px;
   }
   header {
     flex-direction: column;
