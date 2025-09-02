@@ -107,10 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const levelMap = {
       REA: "독수리",
+      PEA: "독수리",
       RFA: "매",
+      PFA: "매",
       RCR: "학",
+      PCR: "학",
+      RMA: "까치",
+      PMA: "까치",
+
     };
     const tierMap = {
+      0: "예정",
       1: "골드",
       2: "실버",
       3: "브론즈",
