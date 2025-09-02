@@ -96,11 +96,32 @@ document.addEventListener("DOMContentLoaded", () => {
     return `<span class="${className}">${scoreText}</span>`;
   };
 
+  // --- 실력 등급 포맷 함수 --- //
+  const formatSkillLevel = (grade) => {
+    if (!grade || typeof grade !== "string" || grade.length < 4)
+      return grade || "-";
+
+    const levelMap = {
+      REA: "독수리",
+      RFA: "매",
+      RCR: "학",
+    };
+    const tierMap = {
+      1: "골드",
+      2: "실버",
+      3: "브론즈",
+    };
+
+    const level = levelMap[grade.substring(0, 3)];
+    const tier = tierMap[grade.substring(3, 4)];
+
+    return level && tier ? `${level} ${tier}` : grade;
+  };
+
   // --- 데이터 처리 --- //
   const processAllPlayers = () => {
     const playerMap = new Map();
 
-    // 각 코스 및 합산 데이터 순회
     ["total", "courseA", "courseB", "courseC"].forEach((key) => {
       const data = leaderboardData[key];
       if (data && Array.isArray(data)) {
@@ -110,17 +131,18 @@ document.addEventListener("DOMContentLoaded", () => {
               userId: player.userId,
               userNickname: player.userNickname,
               shopName: player.shopName,
-              courseRoundCounts: { A: 0, B: 0, C: 0 }, // 코스별 라운드 수 저장
+              courseRoundCounts: { A: 0, B: 0, C: 0 },
+              grades: {},
             });
           }
           const p = playerMap.get(player.userId);
 
-          // 합산 정보 우선 적용
           if (key === "total") {
             Object.assign(p, player);
           } else {
             const courseInitial = key.charAt(6);
             p.courseRoundCounts[courseInitial] = player.roundCount || 0;
+            p.grades[courseInitial] = player.grade;
           }
         });
       }
@@ -283,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "참여매장",
             "라운드",
             "코스 성적",
+            "실력 등급",
             "보정치",
             "최종 성적",
           ];
@@ -293,7 +316,8 @@ document.addEventListener("DOMContentLoaded", () => {
           h !== "순위" &&
           h !== "닉네임" &&
           h !== "보정치" &&
-          h !== "최종 성적"
+          h !== "최종 성적" &&
+          h !== "실력 등급"
         )
           className = "mobile-hide";
         if (h === "참여매장") className = "mobile-hide";
@@ -348,6 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <td class="mobile-hide">${player.shopName}</td>
               <td class="mobile-hide">${player.roundCount}</td>
               <td class="mobile-hide">${formatSimpleScore(player.score)}</td>
+              <td>${formatSkillLevel(player.grade)}</td>
               <td>${player.revisionGrade}</td>
               <td>${formatFinalScore(player.totalScore)}</td>`;
         return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
@@ -385,14 +410,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const showPlayerModal = (player) => {
     const rank = player.isTieRank ? `T${player.rank}` : player.rank || "-";
 
-    // 라운드 수 계산 로직 수정
-    let totalRounds = player.roundCount; // 합산 데이터가 있으면 우선 사용
+    let totalRounds = player.roundCount;
     if (totalRounds === undefined) {
       totalRounds =
         (player.courseRoundCounts.A || 0) +
         (player.courseRoundCounts.B || 0) +
         (player.courseRoundCounts.C || 0);
     }
+
+    const courseAData = (leaderboardData.courseA || []).find(
+      (p) => p.userId === player.userId
+    );
+    const courseBData = (leaderboardData.courseB || []).find(
+      (p) => p.userId === player.userId
+    );
+    const courseCData = (leaderboardData.courseC || []).find(
+      (p) => p.userId === player.userId
+    );
 
     let detailsHTML = `
       <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
@@ -406,19 +440,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     detailsHTML += `
         <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
-          (leaderboardData.courseA || []).find(
-            (p) => p.userId === player.userId
-          )?.score
+          courseAData?.score
         )}</span></div>
         <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
-          (leaderboardData.courseB || []).find(
-            (p) => p.userId === player.userId
-          )?.score
+          courseBData?.score
         )}</span></div>
         <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-          (leaderboardData.courseC || []).find(
-            (p) => p.userId === player.userId
-          )?.score
+          courseCData?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
+          player.grade ||
+            courseAData?.grade ||
+            courseBData?.grade ||
+            courseCData?.grade
         )}</span></div>
     `;
 
@@ -512,7 +546,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   leaderboardContentElement.addEventListener("click", (e) => {
-    // '합산' 탭일 때만 모달을 띄우도록 수정
     if (activeTab === "total") {
       const row = e.target.closest("tr");
       if (row && row.dataset.userid) {

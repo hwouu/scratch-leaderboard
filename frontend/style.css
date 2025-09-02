@@ -252,7 +252,7 @@ body.light-mode .search-container {
   padding: 10px 14px;
   font-size: 14px;
   outline: none;
-  flex-grow: 1; /* 검색창이 남은 공간을 채우도록 수정 */
+  flex-grow: 1;
   min-width: 0;
 }
 body.light-mode #search-input {
@@ -268,7 +268,7 @@ body.light-mode #search-input {
   cursor: pointer;
   border-radius: 0 7px 7px 0;
   transition: background-color 0.2s;
-  flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 설정 */
+  flex-shrink: 0;
 }
 body.light-mode #search-button {
   background: var(--bg-surface-accent-light);
@@ -356,11 +356,9 @@ table tbody {
   overflow-y: auto;
   flex-grow: 1;
 }
-/* '합산' 탭에서만 클릭 가능하도록 스타일 수정 */
 tbody.clickable tr {
   cursor: pointer;
 }
-
 body.light-mode table {
   background-color: var(--bg-surface-light);
   border-color: var(--border-color-light);
@@ -660,7 +658,7 @@ body.light-mode .search-result-item {
     overflow: auto;
   }
   tbody.clickable tr {
-    -webkit-tap-highlight-color: transparent; /* 터치 시 파란색 하이라이트 제거 */
+    -webkit-tap-highlight-color: transparent;
   }
   .container {
     padding: 0 16px;
@@ -677,13 +675,13 @@ body.light-mode .search-result-item {
   .controls-container {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr auto; /* 검색창과 테마 버튼만 보이도록 수정 */
+    grid-template-columns: 1fr auto;
     gap: 8px;
     order: 3;
   }
   #view-toggle,
   #refresh-button {
-    display: none; /* 모바일에서 토글과 새로고침 버튼 숨김 */
+    display: none;
   }
   .title-container {
     order: 1;
