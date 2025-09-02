@@ -13,6 +13,8 @@
   --accent-blue: #0091ff;
   --accent-red: #ff4d4d;
   --accent-green: #28a745;
+  --accent-yellow: #ffc107;
+  --accent-cyan: #17a2b8;
 
   /* Light Mode */
   --bg-main-light: #f0f2f5;
@@ -62,7 +64,7 @@ body.scrollable-view main.grid-container {
 }
 body.scrollable-view #leaderboard-content {
   height: auto;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 220px);
 }
 
 /* --- Spinner --- */
@@ -107,7 +109,7 @@ body.scrollable-view #leaderboard-content {
 .ticker-wrap {
   width: 100%;
   overflow: hidden;
-  background-color: var(--bg-surface);
+  background-color: var(--accent-blue);
   border-bottom: 2px solid var(--border-color);
   padding: 12px 0;
   flex-shrink: 0;
@@ -121,15 +123,14 @@ body.scrollable-view #leaderboard-content {
   display: inline-block;
   padding: 0 2rem;
   font-size: 16px;
+  color: #fff;
 }
-.ticker-item .name,
-.ticker-item .score {
+.ticker-item .name {
   font-weight: 600;
-  color: #ffffff;
 }
 .ticker-item .rank {
   font-weight: 700;
-  color: var(--accent-blue);
+  color: var(--accent-yellow);
   margin-right: 8px;
 }
 .ticker-item .score {
@@ -139,11 +140,27 @@ body.scrollable-view #leaderboard-content {
 .ticker-item .score-positive {
   color: var(--accent-red);
 }
+.ticker-item .score-negative {
+  color: var(--accent-cyan);
+}
+.ticker-item .score-neutral {
+  color: #fff;
+}
+
 body.light-mode .ticker-wrap {
-  background-color: #333;
+  background-color: #343a40; /* 대비되는 어두운 배경색 */
+  border-bottom: 2px solid #343a40;
+}
+
+/* 어두워진 배경에 맞춰 내부 텍스트 색상을 밝게 조정합니다. */
+body.light-mode .ticker-item {
+  color: #fff; /* 이름 등 기본 텍스트는 흰색 */
 }
 body.light-mode .ticker-item .rank {
-  color: var(--accent-blue);
+  color: var(--accent-yellow); /* 랭크는 노란색으로 강조 */
+}
+body.light-mode .ticker-item .score-neutral {
+  color: #fff; /* 0점(E) 스코어도 흰색으로 */
 }
 
 @keyframes ticker-move {
@@ -489,6 +506,7 @@ body.light-mode .cutoff-column {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 .cutoff-item.empty {
   background-color: transparent;
@@ -621,7 +639,7 @@ body.light-mode .highlight-item {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 .modal-content {
   background: var(--bg-surface);
@@ -696,38 +714,41 @@ body.light-mode .search-result-item {
 }
 
 /* --- Footer --- */
-.site-footer {
-  padding: 20px 0;
+.mobile-footer {
+  display: none;
+}
+.desktop-footer {
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
   text-align: center;
-  font-size: 12px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-  border-top: 1px solid var(--border-color);
 }
-body.light-mode .site-footer {
-  border-top-color: var(--border-color-light);
+body.light-mode .desktop-footer {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
 }
-.footer-links {
+.desktop-footer .footer-links {
   display: flex;
   justify-content: center;
-  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
 }
-.footer-links a {
+.desktop-footer .footer-links a {
   color: var(--text-secondary);
   text-decoration: none;
-  margin: 0 10px;
+  font-size: 18px;
   transition: color 0.2s;
 }
-.footer-links a:hover {
+.desktop-footer .footer-links a:hover {
   color: var(--text-primary);
 }
-body.light-mode .footer-links a:hover {
+body.light-mode .desktop-footer .footer-links a:hover {
   color: var(--text-primary-light);
 }
-.footer-copyright {
-  cursor: default;
+.desktop-footer .footer-copyright {
   font-size: 12px;
-  margin-left: 12px !important;
+  color: var(--text-secondary);
 }
 
 /* --- Responsive Adjustments --- */
@@ -854,9 +875,43 @@ body.light-mode .footer-links a:hover {
     gap: 8px;
   }
 
-  /* Footer Mobile Layout */
-  .footer-links {
+  /* --- Mobile Footer --- */
+  .desktop-footer {
+    display: none;
+  }
+  .mobile-footer {
+    display: block;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+  }
+  body.light-mode .mobile-footer {
+    border-top-color: var(--border-color-light);
+  }
+  .mobile-footer .footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
     flex-wrap: wrap;
-    gap: 12px;
+  }
+  .mobile-footer .footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.2s;
+  }
+  .mobile-footer .footer-links a:hover {
+    color: var(--text-primary);
+  }
+  body.light-mode .mobile-footer .footer-links a:hover {
+    color: var(--text-primary-light);
+  }
+  .footer-copyright-mobile {
+    cursor: default;
+    font-size: 12px;
   }
 }

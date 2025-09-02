@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let allPlayers = [];
   const REFRESH_INTERVAL_MS = 300000;
   let activeTab = localStorage.getItem("activeTab") || "total";
-  let currentViewMode = "leaderboard"; // 'leaderboard' or 'cutoff'
+  // 뷰 모드를 localStorage에서 불러오도록 수정
+  let currentViewMode =
+    localStorage.getItem("currentViewMode") || "leaderboard";
   let isLoading = false;
   let refreshIntervalId = null;
 
@@ -60,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggleButton.innerHTML =
       theme === "light"
         ? '<i class="fas fa-moon"></i>'
-        : '<i class="fas fa-sun"></i>';
+        : '<i class="fa-regular fa-sun"></i>';
   };
 
   const updateBodyLayout = () => {
@@ -89,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatTickerScore = (score) => {
     if (score === null || score === undefined) return "<span>-</span>";
     const scoreValue = parseInt(score, 10);
-    let className = "";
+    let className = "score-neutral";
     if (scoreValue > 0) className = "score-positive";
     if (scoreValue < 0) className = "score-negative";
     const scoreText = scoreValue > 0 ? `+${scoreValue}` : scoreValue;
@@ -252,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
               .map((player) => {
                 const rank = player.isTieRank ? `T${player.rank}` : player.rank;
                 return `
-                <div class="cutoff-item">
+                <div class="cutoff-item" data-userid="${player.userId}">
                     <span class="rank">${rank}</span>
                     <div class="name-id" title="${player.userNickname}">
                         <span class="name">${player.userNickname}</span>
@@ -401,6 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const showPlayerModal = (player) => {
+    if (!player) return;
     const rank = player.isTieRank ? `T${player.rank}` : player.rank || "-";
 
     let totalRounds = player.roundCount;
@@ -513,6 +516,8 @@ document.addEventListener("DOMContentLoaded", () => {
     viewToggleButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         currentViewMode = btn.dataset.view;
+        // 뷰 모드를 localStorage에 저장
+        localStorage.setItem("currentViewMode", currentViewMode);
         viewToggleButtons.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         renderLeaderboard();
@@ -529,9 +534,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   searchButton.addEventListener("click", handleSearch);
 
-  // 한글 입력 버그 수정을 위해 keydown -> keyup, isComposing 체크 로직 추가
   searchInput.addEventListener("keyup", (e) => {
-    if (e.isComposing) return; // 한글 조합 중에는 실행 방지
+    if (e.isComposing) return;
     if (e.key === "Enter") {
       handleSearch();
     }
@@ -547,15 +551,19 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   leaderboardContentElement.addEventListener("click", (e) => {
-    if (activeTab === "total") {
-      const row = e.target.closest("tr");
-      if (row && row.dataset.userid) {
-        const userId = row.dataset.userid;
-        const player = allPlayers.find((p) => p.userId === userId);
-        if (player) {
-          showPlayerModal(player);
-        }
-      }
+    const row = e.target.closest("tr");
+    const cutoffItem = e.target.closest(".cutoff-item");
+
+    let userId = null;
+    if (row && activeTab === "total") {
+      userId = row.dataset.userid;
+    } else if (cutoffItem) {
+      userId = cutoffItem.dataset.userid;
+    }
+
+    if (userId) {
+      const player = allPlayers.find((p) => p.userId === userId);
+      showPlayerModal(player);
     }
   });
 
@@ -563,10 +571,15 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(localStorage.getItem("theme") || "dark");
     document
       .querySelector(`.tab-button[data-target="${activeTab}"]`)
-      .classList.add("active");
+      ?.classList.add("active");
+
     if (viewToggleContainer) {
       viewToggleContainer.classList.toggle("hidden", activeTab !== "total");
+      document
+        .querySelector(`.toggle-btn[data-view="${currentViewMode}"]`)
+        ?.classList.add("active");
     }
+
     renderSchedule();
     fetchData();
     startAutoRefresh();
