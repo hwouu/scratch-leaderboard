@@ -32,7 +32,7 @@ const qualifyingPageHTML = `
     <main class="grid-container">
       <aside class="sidebar">
         </aside>
-      <div id="content"><div class="spinner-container"><div class="spinner"></div></div></div>
+      <div id="content"></div>
     </main>
   </div>
   <footer class="mobile-footer">
@@ -182,13 +182,8 @@ async function initialize(elements) {
   setActiveTabUI();
   setViewModeUI();
 
-  const spinnerOverlay = document.getElementById("spinner-overlay");
-  spinnerOverlay.classList.remove("hidden");
-
   await fetchAndRender(elements);
   startAutoRefresh(elements);
-
-  spinnerOverlay.classList.add("hidden");
 }
 
 /**
