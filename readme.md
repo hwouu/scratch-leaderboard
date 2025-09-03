@@ -20,9 +20,9 @@
 
 | 메인 리더보드 (합산) | 컷오프 뷰 |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| **`<img width="1511" height="945" alt="image" src="https://github.com/user-attachments/assets/8ff2ec45-8583-44c5-aa70-0fea7ecc8c26" />
-`** | **`<img width="1510" height="945" alt="image" src="https://github.com/user-attachments/assets/584125d6-fd7d-4fda-80d4-f31eab53dcd8" />
-`** |
+| <img width="1511" height="945" alt="image" src="https://github.com/user-attachments/assets/8ff2ec45-8583-44c5-aa70-0fea7ecc8c26" />
+ | <img width="1510" height="945" alt="image" src="https://github.com/user-attachments/assets/584125d6-fd7d-4fda-80d4-f31eab53dcd8" />
+ |
 | 합산 및 코스별 순위를 제공하는 기본 랜딩 화면입니다. | 본선 진출이 유력한 상위 32명의 선수를 보여주는 화면입니다. |
 
 \<br\>
