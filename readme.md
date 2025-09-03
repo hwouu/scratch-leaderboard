@@ -19,26 +19,20 @@
 ### PC 버전
 
 | 메인 리더보드 (합산) | 컷오프 뷰 |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| <img width="1511" height="945" alt="image" src="https://github.com/user-attachments/assets/8ff2ec45-8583-44c5-aa70-0fea7ecc8c26" />
- | <img width="1510" height="945" alt="image" src="https://github.com/user-attachments/assets/584125d6-fd7d-4fda-80d4-f31eab53dcd8" />
- |
+| :---: | :---: |
+| \<img width="1511" alt="PC 메인 화면" src="[https://github.com/user-attachments/assets/8ff2ec45-8583-44c5-aa70-0fea7ecc8c26](https://github.com/user-attachments/assets/8ff2ec45-8583-44c5-aa70-0fea7ecc8c26)" /\> | \<img width="1510" alt="PC 컷오프 뷰" src="[https://github.com/user-attachments/assets/584125d6-fd7d-4fda-80d4-f31eab53dcd8](https://github.com/user-attachments/assets/584125d6-fd7d-4fda-80d4-f31eab53dcd8)" /\> |
 | 합산 및 코스별 순위를 제공하는 기본 랜딩 화면입니다. | 본선 진출이 유력한 상위 32명의 선수를 보여주는 화면입니다. |
 
-\<br\>
-
 | 선수 상세 정보 (모달) | 대회 개요 |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| **`[여기에 선수 검색 결과 모달 캡처를 삽입해 주세요]`** | **`[여기에 대회 개요 포스터 모달 캡처를 삽입해 주세요]`** |
+| :---: | :---: |
+| \<img width="1511" alt="PC 선수 상세 정보" src="[https://github.com/user-attachments/assets/6a7ae46a-4e78-47eb-8c09-196e7a461963](https://github.com/user-attachments/assets/6a7ae46a-4e78-47eb-8c09-196e7a461963)" /\> | \<img width="1511" alt="대회 개요" src="[https://github.com/user-attachments/assets/884741ac-c242-49d9-a0f1-a73704c7dd60](https://github.com/user-attachments/assets/884741ac-c242-49d9-a0f1-a73704c7dd60)" /\> |
 | 선수 검색 또는 클릭 시 나타나는 상세 기록입니다. | 대회 방식, 일정, 상금 등 전체 정보를 담은 포스터입니다. |
-
-\<br\>
 
 ### 모바일 버전
 
 | 메인 화면 (모바일) | 선수 상세 정보 (모바일) |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| **`[여기에 모바일 메인 화면 캡처를 삽입해 주세요]`** | **`[여기에 모바일 선수 정보 모달 캡처를 삽입해 주세요]`** |
+| :---: | :---: |
+| \<img width="325" alt="모바일 메인 화면" src="[https://github.com/user-attachments/assets/70ffbb16-0d3d-4a8f-b32a-fcc9de045261](https://github.com/user-attachments/assets/70ffbb16-0d3d-4a8f-b32a-fcc9de045261)" /\> | \<img width="319" alt="모바일 선수 상세 정보" src="[https://github.com/user-attachments/assets/f01aa343-6ce1-4414-bded-ebd667172c61](https://github.com/user-attachments/assets/f01aa343-6ce1-4414-bded-ebd667172c61)" /\> |
 | 모바일 환경에 최적화된 리더보드 UI입니다. | 모바일에서도 선수의 상세 기록을 쉽게 확인할 수 있습니다. |
 
 ## 🛠️ 기술 스택
