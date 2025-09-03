@@ -156,7 +156,7 @@ function renderSidebar(sidebar) {
         <footer class="desktop-footer">
             <div class="footer-links">
                 <a href="https://www.golfzon.com/tournament/v2/view?tournamentId=1250" target="_blank" title="Data from Golfzon"><i class="fas fa-database"></i></a>
-                <a href="https://github.com/hwouu" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
+                <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
                 <a href="mailto:nhw3990@gmail.com" title="Contact"><i class="fas fa-envelope"></i></a>
             </div>
             <div class="footer-copyright">&copy; 2025 Scratch Leaderboard</div>
@@ -167,7 +167,7 @@ function renderMobileFooter(footer) {
   footer.innerHTML = `
         <div class="footer-links">
             <a href="https://www.golfzon.com/tournament/v2/view?tournamentId=1250" target="_blank" title="Data from Golfzon"><i class="fas fa-database"></i></a>
-            <a href="https://github.com/hwouu" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
+            <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
             <a href="mailto:nhw3990@gmail.com" title="Contact"><i class="fas fa-envelope"></i></a>
             <a class="footer-copyright-mobile">&copy; 2025 Scratch Leaderboard</a>
         </div>`;
