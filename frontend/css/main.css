@@ -253,7 +253,8 @@ body.light-mode .tabs {
 }
 #theme-toggle,
 #refresh-button,
-#overview-button {
+#overview-button,
+#sidebar-toggle {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -269,7 +270,8 @@ body.light-mode .tabs {
 }
 body.light-mode #theme-toggle,
 body.light-mode #refresh-button,
-body.light-mode #overview-button {
+body.light-mode #overview-button,
+body.light-mode #sidebar-toggle {
   background: var(--bg-surface-light);
   border-color: var(--border-color-light);
   color: var(--text-primary-light);
@@ -385,16 +387,30 @@ main.grid-container {
   flex-grow: 1;
   min-height: 0;
   padding-bottom: 24px;
+  transition: grid-template-columns 0.4s ease-in-out;
 }
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  transition: opacity 0.4s, width 0.4s, padding 0.4s, margin 0.4s;
+  overflow: hidden;
+}
+main.grid-container.sidebar-collapsed {
+  grid-template-columns: 0 1fr;
+  gap: 0;
+}
+main.grid-container.sidebar-collapsed .sidebar {
+  opacity: 0;
+  width: 0;
+  padding: 0;
+  margin: 0;
 }
 
 #content {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Prevents content from overflowing */
 }
 
 /* Side Panels */
@@ -405,6 +421,7 @@ main.grid-container {
   padding: 24px;
   border: 1px solid var(--border-color);
   flex-shrink: 0;
+  white-space: nowrap; /* Prevent text wrapping during transition */
 }
 body.light-mode .info-panel,
 body.light-mode .highlight-panel {
@@ -717,6 +734,9 @@ body.light-mode .desktop-footer .footer-links a:hover {
   main.grid-container {
     grid-template-columns: 280px 1fr;
   }
+  main.grid-container.sidebar-collapsed {
+    grid-template-columns: 0 1fr;
+  }
 }
 
 /* Mobile */
@@ -772,7 +792,8 @@ body.light-mode .desktop-footer .footer-links a:hover {
     min-width: 0;
   }
   #view-toggle,
-  #refresh-button {
+  #refresh-button,
+  #sidebar-toggle {
     display: none;
   }
   #overview-button {
