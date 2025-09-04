@@ -458,19 +458,20 @@ function renderBracketView(container, data) {
   const isDetailedView = isSidebarCollapsed;
 
   const getPlayerHTML = (player) => {
+    // 이 부분을 수정합니다.
     if (!player) {
-      // 플레이어 정보가 없을 때는 구조를 유지해야 하므로 div로 감쌉니다.
+      // '미정'일 때도 순위와 점수 placeholder를 추가하여 UI 통일성을 맞춥니다.
       return `
         <div class="player-details">
+            <span class="rank">-</span>
             <span class="name">미정</span>
         </div>
-        <div class="player-score">-</div>
+        <span class="player-score">-</span>
       `;
     }
 
     const rank = player.isTieRank ? `T${player.rank}` : player.rank;
 
-    // isDetailedView 상태에 따라 shop-name을 포함하거나 제외합니다.
     const shopNameHTML = isDetailedView
       ? `<span class="shop-name" title="${player.shopName}">${player.shopName}</span>`
       : "";
