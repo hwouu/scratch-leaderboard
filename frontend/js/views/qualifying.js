@@ -47,17 +47,23 @@ const qualifyingPageHTML = `
   </div>
   <footer class="mobile-footer">
     </footer>
-  <div id="search-modal" class="modal-overlay" style="display: none">
+  <div id="search-modal" class="modal-overlay">
     <div class="modal-content">
       <button class="modal-close-button">&times;</button>
       <div id="modal-body"></div>
     </div>
   </div>
-  <div id="overview-modal" class="modal-overlay" style="display: none">
+  <div id="overview-modal" class="modal-overlay">
     <div class="modal-content image-modal">
       <button class="modal-close-button">&times;</button>
       <img src="/assets/tournament-overview.png" alt="대회 개요 포스터"
            onerror="this.onerror=null;this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
+    </div>
+  </div>
+  <div id="full-bracket-modal" class="modal-overlay">
+    <div class="modal-content wide-modal">
+      <button class="modal-close-button">&times;</button>
+      <div id="full-bracket-content"></div>
     </div>
   </div>
 `;
@@ -132,6 +138,7 @@ function renderHeader(header) {
                     <button class="toggle-btn" data-view="cutoff" title="컷오프 보기"><i class="fas fa-users"></i></button>
                     <button class="toggle-btn" data-view="bracket" title="대진표 보기"><i class="fas fa-sitemap"></i></button>
                 </div>
+                <button id="full-bracket-button" title="전체 대진표 보기"><i class="fas fa-project-diagram"></i></button>
                 <div class="search-container">
                     <input type="text" id="search-input" placeholder="닉네임 또는 아이디" />
                     <button id="search-button"><i class="fas fa-search"></i></button>
@@ -632,6 +639,7 @@ function renderScheduleAndCourses(
 // --- 이벤트 핸들러 및 리스너 설정 ---
 function setupEventListeners(elements) {
   const { contentElement, searchModal, overviewModal } = elements;
+  const fullBracketModal = document.getElementById("full-bracket-modal");
 
   document.getElementById("refresh-button").addEventListener("click", () => {
     fetchAndRender(elements);
@@ -674,28 +682,41 @@ function setupEventListeners(elements) {
   });
 
   const searchInput = document.getElementById("search-input");
+  const openModal = (modal) => modal.classList.add("active");
+
   document
     .getElementById("search-button")
-    .addEventListener("click", () => handleSearch(searchInput, searchModal));
+    .addEventListener("click", () =>
+      handleSearch(searchInput, searchModal, openModal)
+    );
   searchInput.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") handleSearch(searchInput, searchModal);
+    if (e.key === "Enter") handleSearch(searchInput, searchModal, openModal);
   });
 
-  searchModal.addEventListener("click", (e) => {
-    if (e.target === searchModal) searchModal.style.display = "none";
-  });
-  searchModal
-    .querySelector(".modal-close-button")
-    .addEventListener("click", () => (searchModal.style.display = "none"));
-  overviewModal.addEventListener("click", (e) => {
-    if (e.target === overviewModal) overviewModal.style.display = "none";
-  });
-  overviewModal
-    .querySelector(".modal-close-button")
-    .addEventListener("click", () => (overviewModal.style.display = "none"));
   document
     .getElementById("overview-button")
-    .addEventListener("click", () => (overviewModal.style.display = "flex"));
+    .addEventListener("click", () => openModal(overviewModal));
+
+  document
+    .getElementById("full-bracket-button")
+    .addEventListener("click", () => {
+      const leaderboardData = getLeaderboardData();
+      if (leaderboardData && leaderboardData.total) {
+        renderFullBracket(leaderboardData.total);
+        openModal(fullBracketModal);
+      }
+    });
+
+  [searchModal, overviewModal, fullBracketModal].forEach((modal) => {
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("active");
+      });
+      modal
+        .querySelector(".modal-close-button")
+        .addEventListener("click", () => modal.classList.remove("active"));
+    }
+  });
 
   contentElement.addEventListener("click", (e) => {
     const target = e.target.closest(
@@ -704,12 +725,12 @@ function setupEventListeners(elements) {
     if (target) {
       const userId = target.dataset.userid;
       const player = getAllPlayers().find((p) => p.userId === userId);
-      if (player) showPlayerModal(player, searchModal);
+      if (player) showPlayerModal(player, searchModal, openModal);
     }
   });
 }
 
-function handleSearch(input, modal) {
+function handleSearch(input, modal, openCallback) {
   const searchTerm = input.value.trim().toLowerCase();
   if (!searchTerm) return;
   const player = getAllPlayers().find(
@@ -719,16 +740,16 @@ function handleSearch(input, modal) {
   );
 
   if (player) {
-    showPlayerModal(player, modal);
+    showPlayerModal(player, modal, openCallback);
   } else {
     const modalBody = modal.querySelector("#modal-body");
     modalBody.innerHTML = `<p><strong>'${input.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
-    modal.style.display = "flex";
+    openCallback(modal);
   }
   input.blur();
 }
 
-function showPlayerModal(player, modal) {
+function showPlayerModal(player, modal, openCallback) {
   if (!player) return;
 
   const leaderboardData = getLeaderboardData();
@@ -751,36 +772,128 @@ function showPlayerModal(player, modal) {
   );
 
   const detailsHTML = `
-      <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
-      <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${
-        player.shopName
-      }</span></div>
-      <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${
-        totalRounds || "-"
-      }</span></div>
-      <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
-        courseAData?.score
-      )}</span></div>
-      <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
-        courseBData?.score
-      )}</span></div>
-      <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-        courseCData?.score
-      )}</span></div>
-      <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
-        player.grade ||
-          courseAData?.grade ||
-          courseBData?.grade ||
-          courseCData?.grade
-      )}</span></div>
-      <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
-        player.revisionGrade ?? "-"
-      }</span></div>
-      <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
-        player.totalScore
-      )}</span></div>`;
+        <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
+        <div class="search-result-item"><span class="result-label">참여 매장</span><span class="result-value">${
+          player.shopName
+        }</span></div>
+        <div class="search-result-item"><span class="result-label">라운드</span><span class="result-value">${
+          totalRounds || "-"
+        }</span></div>
+        <div class="search-result-item"><span class="result-label">A코스</span><span class="result-value">${formatSimpleScore(
+          courseAData?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
+          courseBData?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+          courseCData?.score
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
+          player.grade ||
+            courseAData?.grade ||
+            courseBData?.grade ||
+            courseCData?.grade
+        )}</span></div>
+        <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
+          player.revisionGrade ?? "-"
+        }</span></div>
+        <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
+          player.totalScore
+        )}</span></div>`;
 
   const modalBody = modal.querySelector("#modal-body");
   modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
-  modal.style.display = "flex";
+  openCallback(modal);
+}
+
+/**
+ * 전체 대진표 모달의 HTML을 생성하고 렌더링합니다. (수정된 함수)
+ * @param {Array} data - 상위 32명의 플레이어 데이터
+ */
+function renderFullBracket(data) {
+  const players = data.slice(0, 32);
+  const bracketContent = document.getElementById("full-bracket-content");
+
+  const createPlayerDiv = (player) => {
+    if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
+    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+    return `<div class="bracket-player" title="${player.userNickname} (${rank}위)">
+              <span class="player-rank">${rank}</span>
+              <span class="player-name">${player.userNickname}</span>
+            </div>`;
+  };
+
+  const createEmptyMatch = () =>
+    `<div class="bracket-match">${createPlayerDiv(null)}${createPlayerDiv(
+      null
+    )}</div>`;
+
+  const generateSideBracket = (matches) => {
+    const round32 = matches
+      .map(
+        (match) =>
+          `<div class="bracket-match">${createPlayerDiv(
+            match.p1
+          )}${createPlayerDiv(match.p2)}</div>`
+      )
+      .join("");
+    const round16 = Array(4).fill(createEmptyMatch()).join("");
+    const round8 = Array(2).fill(createEmptyMatch()).join("");
+    const round4 = Array(1).fill(createEmptyMatch()).join("");
+
+    return `
+      <div class="bracket-side">
+        <div class="bracket-round">
+          <h3 class="round-title">32강</h3>
+          <div class="matches-container">${round32}</div>
+        </div>
+        <div class="bracket-round">
+          <h3 class="round-title">16강</h3>
+          <div class="matches-container">${round16}</div>
+        </div>
+        <div class="bracket-round">
+          <h3 class="round-title">8강</h3>
+          <div class="matches-container">${round8}</div>
+        </div>
+        <div class="bracket-round">
+          <h3 class="round-title">4강</h3>
+          <div class="matches-container">${round4}</div>
+        </div>
+      </div>
+    `;
+  };
+
+  const leftMatches = [];
+  const rightMatches = [];
+  for (let i = 0; i < 8; i++) {
+    leftMatches.push({ p1: players[i], p2: players[31 - i] });
+  }
+  for (let i = 8; i < 16; i++) {
+    rightMatches.push({ p1: players[i], p2: players[31 - i] });
+  }
+
+  const leftBracketHTML = generateSideBracket(leftMatches);
+  const rightBracketHTML = generateSideBracket(rightMatches);
+
+  // ▼ 중앙 영역에 3위 결정전 추가
+  const centerHTML = `
+    <div class="bracket-center">
+      <div class="bracket-final-match">
+        <h3 class="round-title">결승전</h3>
+        ${createEmptyMatch()}
+      </div>
+      <div class="bracket-third-place-match">
+        <h3 class="round-title">3위 결정전</h3>
+        ${createEmptyMatch()}
+      </div>
+    </div>
+  `;
+
+  bracketContent.innerHTML = `
+    <div class="bracket-symmetrical-container">
+      ${leftBracketHTML}
+      ${centerHTML}
+      ${rightBracketHTML}
+    </div>
+  `;
 }

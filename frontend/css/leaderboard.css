@@ -171,6 +171,9 @@ body.light-mode .cutoff-item.empty {
   overflow-y: auto;
   height: 100%;
   align-content: start;
+  /* 아이템이 세로로 먼저 채워지도록 설정 */
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, auto);
 }
 .matchup {
   background-color: var(--bg-surface);

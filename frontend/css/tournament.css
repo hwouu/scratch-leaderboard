@@ -108,3 +108,151 @@ body.light-mode .player {
 .final-match {
   align-self: center;
 }
+/* --- Full Bracket Modal Styles --- (이 부분을 통째로 교체) */
+.bracket-symmetrical-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-width: 1300px; /* 좌우 잘림 방지를 위해 최소 너비 조정 */
+}
+
+.bracket-side {
+  display: flex;
+  flex-direction: row;
+}
+
+.bracket-symmetrical-container .bracket-side:last-child {
+  flex-direction: row-reverse;
+}
+
+.bracket-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; /* 결승전과 3위전을 세로로 배치 */
+  align-items: center;
+  padding: 0 20px;
+  height: 100%;
+}
+
+.bracket-final-match,
+.bracket-third-place-match {
+  min-width: 180px;
+}
+
+.bracket-round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-grow: 1;
+  min-width: 180px; /* 좌우 잘림 방지를 위해 최소 너비 조정 */
+  padding: 10px;
+}
+.round-title {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 15px; /* 14px -> 15px */
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.matches-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+.bracket-match {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  flex-grow: 1;
+  padding: 8px 0;
+}
+.bracket-player {
+  padding: 8px 5px; /* 6px 10px -> 8px 5px */
+  background-color: var(--bg-surface-accent);
+  border-radius: 5px;
+  display: block; /* flex -> block */
+  text-align: center; /* 새로 추가 */
+  width: 100%;
+  font-size: 14px; /* 13px -> 14px */
+  border: 1px solid var(--border-color);
+  margin: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bracket-player.placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+body.light-mode .bracket-player {
+  background-color: var(--bg-surface-accent-light);
+  border-color: var(--border-color-light);
+}
+.player-rank {
+  font-weight: bold;
+  color: var(--accent-blue);
+  margin-right: 8px;
+  min-width: 25px;
+  text-align: right;
+}
+.player-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Symmetrical Connectors --- */
+.bracket-side .bracket-match::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 2px;
+  background-color: var(--border-color);
+}
+.bracket-side:first-child .bracket-match::after {
+  left: 100%;
+}
+.bracket-side:last-child .bracket-match::after {
+  right: 100%;
+}
+
+.bracket-side .bracket-match::before {
+  content: "";
+  position: absolute;
+  height: calc(50% + 10px);
+  width: 2px;
+  background-color: var(--border-color);
+}
+.bracket-side:first-child .bracket-match::before {
+  left: calc(100% + 10px);
+}
+.bracket-side:last-child .bracket-match::before {
+  right: calc(100% + 10px);
+}
+
+.matches-container .bracket-match:nth-child(2n-1)::before {
+  top: 50%;
+}
+.matches-container .bracket-match:nth-child(2n)::before {
+  bottom: 50%;
+}
+
+.bracket-side .bracket-round:last-child .bracket-match::before {
+  display: none;
+}
+
+/* 4강에서 결승으로 이어지는 연결선 */
+.bracket-side .bracket-round:last-child .bracket-match::after {
+  width: 30px;
+}
+.bracket-side:first-child .bracket-round:last-child .bracket-match::after {
+  left: 100%;
+}
+.bracket-side:last-child .bracket-round:last-child .bracket-match::after {
+  right: 100%;
+}
