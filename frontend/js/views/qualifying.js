@@ -464,7 +464,7 @@ function renderBracketView(container, data) {
       return `
         <div class="player-details">
             <span class="rank">-</span>
-            <span class="name">미정</span>
+            <span class="name">TBA</span>
         </div>
         <span class="player-score">-</span>
       `;
