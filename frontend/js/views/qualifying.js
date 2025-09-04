@@ -9,6 +9,7 @@ import {
 // --- 상태 변수 ---
 let activeTab = localStorage.getItem("activeTab") || "total";
 let currentViewMode = localStorage.getItem("currentViewMode") || "leaderboard";
+let isSidebarCollapsed = localStorage.getItem("isSidebarCollapsed") === "true";
 let refreshIntervalId = null;
 const REFRESH_INTERVAL_MS = 300000; // 5분
 
@@ -21,6 +22,15 @@ const tournamentSchedule = [
   { name: "[결승/3위전]", start: "2025-10-01", end: "2025-10-04" },
 ];
 
+const courseInfoByDate = {
+  예선: ["김제 스파힐스 CC", "사츠마 골프리조트", "지산 CC - 동/남"],
+  "32강": ["오투 골프&리조트 - 함백/태백", "해피니스 CC - HIDDEN/HEALING"],
+  "16강": ["피닉스 골드 골프 방콕", "라오라오베이 골프 리조트 - EAST"],
+  "8강": ["이천 실크밸리 GC - SILK/VALLEY", "스톤비치 CC"],
+  준결승: ["로드힐스 골프&리조트 - 힐스/로드", "알파인 골프리조트 치앙마이"],
+  결승: ["이글릿지 CC - 닉팔도", "광주 무등 GGC"],
+};
+
 // --- 템플릿 HTML ---
 const qualifyingPageHTML = `
   <div class="ticker-wrap">
@@ -29,7 +39,7 @@ const qualifyingPageHTML = `
   <div class="container">
     <header>
       </header>
-    <main class="grid-container">
+    <main id="main-grid" class="grid-container">
       <aside class="sidebar">
         </aside>
       <div id="content"></div>
@@ -62,12 +72,17 @@ export function renderQualifyingPage(app) {
   renderSidebar(app.querySelector(".sidebar"));
   renderMobileFooter(app.querySelector(".mobile-footer"));
 
+  if (isSidebarCollapsed) {
+    document.getElementById("main-grid").classList.add("sidebar-collapsed");
+  }
+
   const elements = {
     contentElement: document.getElementById("content"),
     lastUpdatedElement: document.getElementById("last-updated-time"),
     tickerElement: document.querySelector(".ticker"),
     highlightContentElement: document.getElementById("highlight-content"),
     scheduleListElement: document.getElementById("dynamic-schedule-list"),
+    courseListElement: document.getElementById("dynamic-course-list"),
     mobileScheduleInfo: document.getElementById("mobile-schedule-info"),
     searchModal: document.getElementById("search-modal"),
     overviewModal: document.getElementById("overview-modal"),
@@ -115,12 +130,14 @@ function renderHeader(header) {
                 <div id="view-toggle" class="view-toggle icon-toggle">
                     <button class="toggle-btn" data-view="leaderboard" title="리더보드 보기"><i class="fas fa-list-ol"></i></button>
                     <button class="toggle-btn" data-view="cutoff" title="컷오프 보기"><i class="fas fa-users"></i></button>
+                    <button class="toggle-btn" data-view="bracket" title="대진표 보기"><i class="fas fa-sitemap"></i></button>
                 </div>
                 <div class="search-container">
                     <input type="text" id="search-input" placeholder="닉네임 또는 아이디" />
                     <button id="search-button"><i class="fas fa-search"></i></button>
                 </div>
                 <button id="refresh-button" title="새로고침"><i class="fas fa-sync-alt"></i></button>
+                <button id="sidebar-toggle" title="사이드바 열기/닫기"><i class="fas fa-expand"></i></button>
                 <button id="overview-button" title="대회 개요"><i class="fas fa-file-alt"></i></button>
                 <button id="theme-toggle" title="테마 변경"><i class="${themeIconClass}"></i></button>
             </div>
@@ -142,11 +159,7 @@ function renderSidebar(sidebar) {
             </div>
             <div class="info-group">
                 <span class="info-label">코스 정보</span>
-                <ul class="store-list">
-                    <li>A코스 - 김제 스파힐스 CC</li>
-                    <li>B코스 - 사츠마 골프리조트</li>
-                    <li>C코스 - 지산 CC - 동/남</li>
-                </ul>
+                <ul id="dynamic-course-list" class="store-list"></ul>
             </div>
         </div>
         <div class="highlight-panel">
@@ -204,7 +217,11 @@ async function fetchAndRender(elements) {
     renderContent(elements.contentElement);
     renderTicker(elements.tickerElement, leaderboardData.total);
     renderHighlights(elements.highlightContentElement, leaderboardData.total);
-    renderSchedule(elements.scheduleListElement, elements.mobileScheduleInfo);
+    renderScheduleAndCourses(
+      elements.scheduleListElement,
+      elements.courseListElement,
+      elements.mobileScheduleInfo
+    );
   } else {
     elements.contentElement.innerHTML = `<div class="error-container"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title">데이터 로딩 실패</h3><p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p></div>`;
   }
@@ -287,8 +304,17 @@ function renderContent(container) {
   const leaderboardData = getLeaderboardData();
   const data = leaderboardData[activeTab] || [];
 
-  if (activeTab === "total" && currentViewMode === "cutoff") {
-    renderCutoffView(container, data);
+  if (activeTab === "total") {
+    switch (currentViewMode) {
+      case "cutoff":
+        renderCutoffView(container, data);
+        break;
+      case "bracket":
+        renderBracketView(container, data);
+        break;
+      default:
+        renderLeaderboardView(container, data);
+    }
   } else {
     renderLeaderboardView(container, data);
   }
@@ -382,7 +408,7 @@ function renderLeaderboardView(container, data) {
     })
     .join("");
 
-  container.innerHTML = `<table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table>`;
+  container.innerHTML = `<div class="table-container"><table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table></div>`;
 }
 
 function renderCutoffView(container, data) {
@@ -417,6 +443,77 @@ function renderCutoffView(container, data) {
     )
     .join("");
   container.innerHTML = `<div class="cutoff-container">${columnsHTML}</div>`;
+}
+
+function renderBracketView(container, data) {
+  const players = data.slice(0, 32);
+  const matchups = [];
+
+  for (let i = 0; i < 16; i++) {
+    const player1 = players[i];
+    const player2 = players[31 - i];
+    matchups.push({ p1: player1, p2: player2 });
+  }
+
+  const isDetailedView = isSidebarCollapsed;
+
+  const getPlayerHTML = (player) => {
+    if (!player) {
+      // 플레이어 정보가 없을 때는 구조를 유지해야 하므로 div로 감쌉니다.
+      return `
+        <div class="player-details">
+            <span class="name">미정</span>
+        </div>
+        <div class="player-score">-</div>
+      `;
+    }
+
+    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+
+    // isDetailedView 상태에 따라 shop-name을 포함하거나 제외합니다.
+    const shopNameHTML = isDetailedView
+      ? `<span class="shop-name" title="${player.shopName}">${player.shopName}</span>`
+      : "";
+
+    return `
+        <div class="player-details">
+            <span class="rank">${rank}</span>
+            <span class="name" title="${player.userNickname}">${
+      player.userNickname
+    }</span>
+            ${shopNameHTML}
+        </div>
+        <span class="player-score">${formatSimpleScore(
+          player.totalScore
+        )}</span>
+    `;
+  };
+
+  const bracketHTML = matchups
+    .map((match, index) => {
+      // player div에 isDetailedView 상태를 클래스로 추가합니다.
+      const detailClass = isDetailedView ? "detailed-view" : "";
+      return `
+      <div class="matchup">
+        <div class="matchup-header">Match ${index + 1}</div>
+        <div class="matchup-body">
+            <div class="player p1 ${detailClass}" ${
+        match.p1 ? `data-userid="${match.p1.userId}"` : ""
+      }>
+                ${getPlayerHTML(match.p1)}
+            </div>
+            <div class="vs">VS</div>
+            <div class="player p2 ${detailClass}" ${
+        match.p2 ? `data-userid="${match.p2.userId}"` : ""
+      }>
+                ${getPlayerHTML(match.p2)}
+            </div>
+        </div>
+      </div>`;
+    })
+    .join("");
+
+  container.innerHTML = `<div class="bracket-container">${bracketHTML}</div>`;
 }
 
 function renderTicker(element, data) {
@@ -456,13 +553,19 @@ function renderHighlights(element, data) {
   }
 }
 
-function renderSchedule(listElement, mobileElement) {
+function renderScheduleAndCourses(
+  scheduleListElement,
+  courseListElement,
+  mobileElement
+) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
   let currentEvent = null,
-    nextEvent = null;
-  let currentEventIndex = tournamentSchedule.findIndex((event) => {
+    nextEvent = null,
+    currentEventName = "예선";
+
+  const currentEventIndex = tournamentSchedule.findIndex((event) => {
     const startDate = new Date(event.start + "T00:00:00");
     const endDate = new Date(event.end + "T23:59:59");
     return now >= startDate && now <= endDate;
@@ -470,6 +573,10 @@ function renderSchedule(listElement, mobileElement) {
 
   if (currentEventIndex !== -1) {
     currentEvent = tournamentSchedule[currentEventIndex];
+    currentEventName = currentEvent.name
+      .match(/\[(.*?)\]/)[1]
+      .replace(/전$/, "");
+    if (currentEventName.includes("결승")) currentEventName = "결승";
     if (currentEventIndex + 1 < tournamentSchedule.length) {
       nextEvent = tournamentSchedule[currentEventIndex + 1];
     }
@@ -477,9 +584,15 @@ function renderSchedule(listElement, mobileElement) {
     nextEvent = tournamentSchedule.find(
       (event) => new Date(event.start + "T00:00:00") > now
     );
+    // 현재 진행 중인 대회가 없으면, 다음 대회의 코스 또는 기본 예선 코스를 보여줄 수 있습니다.
+    // 여기서는 예선 코스를 기본값으로 사용합니다.
+    const nextEventName =
+      nextEvent?.name.match(/\[(.*?)\]/)[1].replace(/전$/, "") || "예선";
+    currentEventName = courseInfoByDate[nextEventName] ? nextEventName : "예선";
   }
 
-  if (listElement) {
+  // Render Schedule
+  if (scheduleListElement) {
     let scheduleHTML = "";
     if (currentEvent) {
       const start = currentEvent.start.substring(5).replace("-", ".");
@@ -491,10 +604,19 @@ function renderSchedule(listElement, mobileElement) {
       const end = nextEvent.end.substring(5).replace("-", ".");
       scheduleHTML += `<li><span class="event-status upcoming">예정</span> ${nextEvent.name} ${start} ~ ${end}</li>`;
     }
-    listElement.innerHTML =
+    scheduleListElement.innerHTML =
       scheduleHTML || "<li>모든 일정이 종료되었습니다.</li>";
   }
 
+  // Render Courses
+  if (courseListElement) {
+    const courses = courseInfoByDate[currentEventName] || [];
+    courseListElement.innerHTML = courses
+      .map((course) => `<li>${course}</li>`)
+      .join("");
+  }
+
+  // Render Mobile Header
   if (mobileElement) {
     if (currentEvent) {
       const start = currentEvent.start.substring(5).replace("-", ".");
@@ -512,6 +634,16 @@ function setupEventListeners(elements) {
 
   document.getElementById("refresh-button").addEventListener("click", () => {
     fetchAndRender(elements);
+  });
+
+  document.getElementById("sidebar-toggle").addEventListener("click", () => {
+    const mainGrid = document.getElementById("main-grid");
+    isSidebarCollapsed = !isSidebarCollapsed;
+    localStorage.setItem("isSidebarCollapsed", isSidebarCollapsed);
+    mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
+    if (activeTab === "total" && currentViewMode === "bracket") {
+      renderContent(contentElement);
+    }
   });
 
   document.querySelector(".tabs").addEventListener("click", (e) => {
@@ -566,7 +698,7 @@ function setupEventListeners(elements) {
 
   contentElement.addEventListener("click", (e) => {
     const target = e.target.closest(
-      "tr[data-userid], .cutoff-item[data-userid]"
+      "tr[data-userid], .cutoff-item[data-userid], .bracket-container .player[data-userid]"
     );
     if (target) {
       const userId = target.dataset.userid;
