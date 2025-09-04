@@ -1,4 +1,10 @@
 /* Leaderboard Table */
+.table-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+}
 table {
   width: 100%;
   border-collapse: separate;
@@ -10,7 +16,6 @@ table {
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
-  /* overflow: hidden;  <- 이 줄을 제거하여 스크롤 문제를 해결합니다. */
 }
 table thead,
 table tbody {
@@ -98,6 +103,7 @@ tbody tr:last-child td {
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   height: 100%;
+  overflow-y: auto;
 }
 .cutoff-column {
   background-color: var(--bg-surface);
@@ -156,7 +162,138 @@ body.light-mode .cutoff-item.empty {
   font-weight: 700;
 }
 
+/* Bracket View */
+.bracket-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 4px;
+  overflow-y: auto;
+  height: 100%;
+  align-content: start;
+}
+.matchup {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.matchup:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+body.light-mode .matchup {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+body.light-mode .matchup:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+.matchup-header {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--bg-surface-accent);
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+body.light-mode .matchup-header {
+  background-color: var(--bg-surface-accent-light);
+  border-bottom-color: var(--border-color-light);
+}
+.matchup-body {
+  padding: 12px;
+}
+.matchup .player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: var(--bg-surface-accent);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+.matchup .player:hover {
+  background-color: #3a3d3f;
+}
+body.light-mode .matchup .player {
+  background-color: var(--bg-surface-accent-light);
+}
+body.light-mode .matchup .player:hover {
+  background-color: #e9ecef;
+}
+.matchup .vs {
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 8px 0;
+  font-size: 12px;
+}
+.player-details {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 0;
+}
+.player .rank {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  flex-basis: 40px; /* 순위 너비 고정 */
+  flex-shrink: 0;
+}
+.player .name {
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-basis: 50%; /* 닉네임 기본 너비 */
+  flex-grow: 1;
+}
+.player .shop-name {
+  display: none; /* 기본적으로 숨김 */
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-basis: 50%; /* 매장명 기본 너비 */
+  text-align: right;
+}
+/* 상세 뷰일 때만 매장명을 표시 */
+.player.detailed-view .shop-name {
+  display: inline;
+}
+/* 상세 뷰일 때는 닉네임과 매장명이 공간을 나눠 갖도록 조정 */
+.player.detailed-view .name {
+  flex-basis: 50%;
+}
+.matchup .player-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-red);
+  flex-shrink: 0;
+  margin-left: 10px;
+  flex-basis: 40px; /* 최종 성적 너비 고정 */
+  text-align: right;
+}
+
 /* --- Responsive Adjustments for Leaderboard --- */
+@media (min-width: 1200px) {
+  .bracket-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 /* Tablet */
 @media (min-width: 769px) and (max-width: 1100px) {
   .tablet-hide,
@@ -201,6 +338,9 @@ body.light-mode .cutoff-item.empty {
   .cutoff-item {
     padding: 10px;
     gap: 8px;
+  }
+  .bracket-container {
+    grid-template-columns: 1fr;
   }
 }
 /* --- End of Responsive Adjustments for Leaderboard --- */
