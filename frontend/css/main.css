@@ -920,3 +920,9 @@ body.light-mode .desktop-footer .footer-links a:hover {
     font-size: 12px;
   }
 }
+
+@media (max-width: 768px) {
+  #full-bracket-button {
+    display: none;
+  }
+}
