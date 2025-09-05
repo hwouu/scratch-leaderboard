@@ -1,7 +1,4 @@
 import { route } from "./router.js";
-import { inject } from "@vercel/analytics";
-
-inject();
 
 /**
  * 전역 UI 요소에 대한 이벤트 리스너를 설정합니다.
