@@ -328,11 +328,6 @@ function renderContent(container) {
 }
 
 function renderLeaderboardView(container, data) {
-  if (!data || !Array.isArray(data) || data.length === 0) {
-    container.innerHTML = `<p style="padding: 20px;">표시할 데이터가 없습니다.</p>`;
-    return;
-  }
-
   const headersConfig = {
     total: [
       { key: "순위" },
