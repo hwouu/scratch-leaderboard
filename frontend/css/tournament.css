@@ -1,3 +1,14 @@
+/* --- 추가된 깜빡임 애니메이션 --- */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
 .tournament-container {
   display: flex;
   flex-direction: row;
@@ -108,19 +119,37 @@ body.light-mode .player {
 .final-match {
   align-self: center;
 }
-/* --- Full Bracket Modal Styles --- (이 부분을 통째로 교체) */
+
+/* --- Full Bracket Modal Styles --- */
+#full-bracket-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
 .bracket-symmetrical-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
-  height: 100%;
-  min-width: 1300px; /* 좌우 잘림 방지를 위해 최소 너비 조정 */
+  flex-grow: 1;
+  min-height: 0;
 }
 
 .bracket-side {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 .bracket-symmetrical-container .bracket-side:last-child {
@@ -130,7 +159,7 @@ body.light-mode .player {
 .bracket-center {
   display: flex;
   flex-direction: column;
-  justify-content: space-around; /* 결승전과 3위전을 세로로 배치 */
+  justify-content: space-around;
   align-items: center;
   padding: 0 20px;
   height: 100%;
@@ -138,7 +167,13 @@ body.light-mode .player {
 
 .bracket-final-match,
 .bracket-third-place-match {
-  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bracket-final-match {
+  margin-bottom: 40px;
 }
 
 .bracket-round {
@@ -146,63 +181,79 @@ body.light-mode .player {
   flex-direction: column;
   justify-content: space-around;
   flex-grow: 1;
-  min-width: 180px; /* 좌우 잘림 방지를 위해 최소 너비 조정 */
-  padding: 10px;
+  min-width: 150px;
+  padding: 5px;
 }
+
 .round-title {
   text-align: center;
   color: var(--text-secondary);
-  font-size: 15px; /* 14px -> 15px */
-  margin-top: 0;
-  margin-bottom: 10px;
+  font-size: 13px;
+  margin: 0 0 5px 0;
   font-weight: 600;
+  flex-shrink: 0;
 }
+
 .matches-container {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   flex-grow: 1;
+  gap: 4px;
 }
+
 .bracket-match {
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
   flex-grow: 1;
-  padding: 8px 0;
+  padding: 2px 0;
 }
+
+/* <<-- 1. 선수 박스 정렬 방식 수정 -->> */
 .bracket-player {
-  padding: 8px 5px; /* 6px 10px -> 8px 5px */
+  padding: 5px 10px; /* 좌우 패딩 재조정 */
   background-color: var(--bg-surface-accent);
-  border-radius: 5px;
-  display: block; /* flex -> block */
-  text-align: center; /* 새로 추가 */
-  width: 100%;
-  font-size: 14px; /* 13px -> 14px */
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  width: 160px;
+  font-size: 15px;
   border: 1px solid var(--border-color);
-  margin: 2px 0;
+  margin: 2px auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-sizing: border-box;
 }
+
 .bracket-player.placeholder {
   color: var(--text-secondary);
   opacity: 0.7;
+  justify-content: center;
 }
+
 body.light-mode .bracket-player {
   background-color: var(--bg-surface-accent-light);
   border-color: var(--border-color-light);
 }
+
+/* <<-- 1. 순위(Rank) 영역 고정 너비 설정 -->> */
 .player-rank {
   font-weight: bold;
   color: var(--accent-blue);
-  margin-right: 8px;
-  min-width: 25px;
-  text-align: right;
+  width: 35px; /* 고정 너비 부여 */
+  text-align: center; /* 고정 너비 안에서 중앙 정렬 */
+  margin-right: 5px; /* 이름과의 간격 */
+  flex-shrink: 0; /* 너비가 줄어들지 않도록 설정 */
 }
+
 .player-name {
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-grow: 1; /* 남는 공간을 모두 차지하도록 설정 */
 }
 
 /* --- Symmetrical Connectors --- */
@@ -210,8 +261,8 @@ body.light-mode .bracket-player {
   content: "";
   position: absolute;
   top: 50%;
-  width: 10px;
-  height: 2px;
+  width: 8px;
+  height: 1px;
   background-color: var(--border-color);
 }
 .bracket-side:first-child .bracket-match::after {
@@ -224,15 +275,15 @@ body.light-mode .bracket-player {
 .bracket-side .bracket-match::before {
   content: "";
   position: absolute;
-  height: calc(50% + 10px);
-  width: 2px;
+  height: calc(50% + 2px);
+  width: 1px;
   background-color: var(--border-color);
 }
 .bracket-side:first-child .bracket-match::before {
-  left: calc(100% + 10px);
+  left: calc(100% + 8px);
 }
 .bracket-side:last-child .bracket-match::before {
-  right: calc(100% + 10px);
+  right: calc(100% + 8px);
 }
 
 .matches-container .bracket-match:nth-child(2n-1)::before {
@@ -246,13 +297,51 @@ body.light-mode .bracket-player {
   display: none;
 }
 
-/* 4강에서 결승으로 이어지는 연결선 */
 .bracket-side .bracket-round:last-child .bracket-match::after {
-  width: 30px;
+  width: 15px;
 }
 .bracket-side:first-child .bracket-round:last-child .bracket-match::after {
   left: 100%;
 }
 .bracket-side:last-child .bracket-round:last-child .bracket-match::after {
   right: 100%;
+}
+
+/* --- Modal Footer --- */
+.modal-footer-info {
+  text-align: center;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.live-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+/* <<-- 2. LIVE 배지에 애니메이션 속성 추가 -->> */
+.live-badge {
+  background-color: var(--accent-red);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  animation: blink 1.5s ease-in-out infinite; /* 깜빡임 애니메이션 적용 */
+}
+
+#current-time {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.notice {
+  font-size: 12px;
+  color: var(white);
+  margin: 0;
 }

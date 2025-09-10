@@ -635,6 +635,7 @@ function renderScheduleAndCourses(
 function setupEventListeners(elements) {
   const { contentElement, searchModal, overviewModal } = elements;
   const fullBracketModal = document.getElementById("full-bracket-modal");
+  let timeInterval = null;
 
   document.getElementById("refresh-button").addEventListener("click", () => {
     fetchAndRender(elements);
@@ -699,17 +700,34 @@ function setupEventListeners(elements) {
       if (leaderboardData && leaderboardData.total) {
         renderFullBracket(leaderboardData.total);
         openModal(fullBracketModal);
+
+        const timeElement = document.getElementById("current-time");
+        if (timeElement) {
+          const updateTime = () => {
+            timeElement.textContent = new Date().toLocaleString("ko-KR");
+          };
+          updateTime();
+          timeInterval = setInterval(updateTime, 1000);
+        }
       }
     });
 
   [searchModal, overviewModal, fullBracketModal].forEach((modal) => {
     if (modal) {
+      const closeModal = () => {
+        modal.classList.remove("active");
+        if (modal.id === "full-bracket-modal" && timeInterval) {
+          clearInterval(timeInterval);
+          timeInterval = null;
+        }
+      };
+
       modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.classList.remove("active");
+        if (e.target === modal) closeModal();
       });
       modal
         .querySelector(".modal-close-button")
-        .addEventListener("click", () => modal.classList.remove("active"));
+        .addEventListener("click", closeModal);
     }
   });
 
@@ -802,7 +820,7 @@ function showPlayerModal(player, modal, openCallback) {
 }
 
 /**
- * 전체 대진표 모달의 HTML을 생성하고 렌더링합니다. (수정된 함수)
+ * 전체 대진표 모달의 HTML을 생성하고 렌더링합니다.
  * @param {Array} data - 상위 32명의 플레이어 데이터
  */
 function renderFullBracket(data) {
@@ -870,7 +888,6 @@ function renderFullBracket(data) {
   const leftBracketHTML = generateSideBracket(leftMatches);
   const rightBracketHTML = generateSideBracket(rightMatches);
 
-  // ▼ 중앙 영역에 3위 결정전 추가
   const centerHTML = `
     <div class="bracket-center">
       <div class="bracket-final-match">
@@ -884,11 +901,23 @@ function renderFullBracket(data) {
     </div>
   `;
 
+  const footerHTML = `
+    <div class="modal-footer-info">
+        <div class="live-info">
+            <span class="live-badge">LIVE</span>
+            <span id="current-time"></span>
+        </div>
+        <p class="notice">예상 순위이므로 실시간으로 변경될 수 있습니다.</p>
+    </div>
+  `;
+
   bracketContent.innerHTML = `
+    <h2 class="modal-title">토너먼트 대진표</h2>
     <div class="bracket-symmetrical-container">
       ${leftBracketHTML}
       ${centerHTML}
       ${rightBracketHTML}
     </div>
+    ${footerHTML}
   `;
 }
