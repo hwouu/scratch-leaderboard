@@ -310,9 +310,6 @@ body.light-mode .bracket-player {
 /* --- Modal Footer --- */
 .modal-footer-info {
   text-align: center;
-  padding-top: 8px;
-  margin-top: 8px;
-  border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -328,7 +325,7 @@ body.light-mode .bracket-player {
 .live-badge {
   background-color: var(--accent-red);
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 4px;
@@ -336,12 +333,12 @@ body.light-mode .bracket-player {
 }
 
 #current-time {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .notice {
-  font-size: 12px;
+  font-size: 13px;
   color: var(white);
   margin: 0;
 }
