@@ -483,17 +483,29 @@ function renderBracketView(container, bracketData) {
     if (!player) {
       return `<div class="player-details"><span class="rank">-</span><span class="name">TBA</span></div><span class="player-score">-</span>`;
     }
-    const { userNickname, preliminaryRank, score } = player;
+    const { userNickname, preliminaryRank, score, userId } = player;
+
+    const fullPlayer = getAllPlayers().find(
+      (p) => p.userNo === player.userNo || p.userId === userId
+    );
+    const shopName = fullPlayer ? fullPlayer.shopName : "";
+    const shopNameHTML = shopName
+      ? `<span class="player-shop" title="${shopName}">${shopName}</span>`
+      : "";
+
     return `
       <div class="player-details">
           <span class="rank" title="예선 ${preliminaryRank}위">${preliminaryRank}</span>
-          <span class="name" title="${userNickname}">${userNickname}</span>
+          <div class="name-wrapper">
+             <span class="name" title="${userNickname}">${userNickname}</span>
+             ${shopNameHTML}
+          </div>
       </div>
       <span class="player-score">${formatSimpleScore(score)}</span>`;
   };
 
   const bracketHTML = Object.values(matchups)
-    .map((match, index) => {
+    .map((match) => {
       const [player1, player2] = match;
       let p1_class = "",
         p2_class = "";
@@ -501,21 +513,17 @@ function renderBracketView(container, bracketData) {
       const p1_score = player1?.score;
       const p2_score = player2?.score;
 
-      // 한쪽만 스코어가 있어도 승리 처리
       if (p1_score !== undefined && p2_score === undefined) {
         p1_class = "winning";
       } else if (p2_score !== undefined && p1_score === undefined) {
         p2_class = "winning";
-      }
-      // 둘 다 스코어가 있을 경우 비교
-      else if (p1_score !== undefined && p2_score !== undefined) {
+      } else if (p1_score !== undefined && p2_score !== undefined) {
         if (p1_score < p2_score) p1_class = "winning";
         else if (p2_score < p1_score) p2_class = "winning";
       }
 
       return `
           <div class="matchup">
-              <div class="matchup-header">Match ${index + 1}</div>
               <div class="matchup-body">
                   <div class="player p1 ${p1_class}" data-userid="${
         player1.userId
@@ -583,7 +591,7 @@ function renderScheduleAndCourses(
 
   let currentEvent = null,
     nextEvent = null;
-  let currentEventName = "예선"; // 기본값
+  let currentEventName = "예선";
 
   const currentEventIndex = tournamentSchedule.findIndex((event) => {
     const startDate = new Date(event.start + "T00:00:00");
@@ -627,8 +635,14 @@ function renderScheduleAndCourses(
 
   if (courseListElement) {
     const courses = courseInfoByDate[currentEventName] || [];
+    const courseLabels = ["A", "B", "C"];
     courseListElement.innerHTML = courses
-      .map((course) => `<li>${course}</li>`)
+      .map((course, index) => {
+        const label = courseLabels[index]
+          ? `<strong>${courseLabels[index]}코스:</strong> `
+          : "";
+        return `<li>${label}${course}</li>`;
+      })
       .join("");
   }
 

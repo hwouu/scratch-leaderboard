@@ -359,3 +359,23 @@ body.light-mode .matchup .player:hover {
   color: var(--accent-color);
   font-weight: bold;
 }
+
+/* 대진표 뷰에서 이름과 매장을 감싸는 컨테이너 */
+.bracket-container .name-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 텍스트 좌측 정렬 */
+  margin-left: 8px;
+  overflow: hidden; /* 이름이나 매장이 길 경우를 대비 */
+}
+
+/* 대진표 뷰에서 플레이어 매장 이름 스타일 */
+.bracket-container .player-shop {
+  font-size: 0.8em;
+  color: var(--secondary-text-color);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px; /* 매장 이름이 표시될 최대 너비 (조정 가능) */
+}
