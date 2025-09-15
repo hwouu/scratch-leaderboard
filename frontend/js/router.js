@@ -1,86 +1,67 @@
-import { renderQualifyingPage } from "./views/qualifying.js";
-import { renderTournamentPage } from "./views/tournament.js";
+import { renderLeaderboardPage } from "./views/leaderboard.js";
 
-// 대회 일정 정의
-const TOURNAMENT_SCHEDULE = {
-  qualifying: { start: "2025-09-01", end: "2025-09-14", path: "/qualifying" },
-  round32: { start: "2025-09-15", end: "2025-09-18", path: "/32" },
-  round16: { start: "2025-09-19", end: "2025-09-22", path: "/16" },
-  quarterfinals: {
-    start: "2025-09-23",
-    end: "2025-09-26",
-    path: "/quarterfinals",
-  },
-  semifinals: { start: "2025-09-27", end: "2025-09-30", path: "/semifinals" },
-  final: { start: "2025-10-01", end: "2025-10-04", path: "/final" },
-  thirdplace: { start: "2025-10-01", end: "2025-10-04", path: "/thirdplace" },
-};
-
-// URL 경로와 렌더링 함수를 매핑
+// 라우트 설정: 모든 경로가 leaderboard.js를 사용하도록 통합
 const routes = {
-  "/": renderQualifyingPage,
-  "/qualifying": renderQualifyingPage,
-  "/32": () => renderTournamentPage("32강"),
-  "/16": () => renderTournamentPage("16강"),
-  "/quarterfinals": () => renderTournamentPage("8강"),
-  "/semifinals": () => renderTournamentPage("4강"),
-  "/final": () => renderTournamentPage("결승"),
-  "/thirdplace": () => renderTournamentPage("3-4위전"),
+  "/leaderboard/qualifying": (app) => renderLeaderboardPage("qualifying", app),
+  "/leaderboard/32": (app) => renderLeaderboardPage("32", app),
+  "/leaderboard/16": (app) => renderLeaderboardPage("16", app),
+  "/leaderboard/8": (app) => renderLeaderboardPage("8", app),
+  "/leaderboard/4": (app) => renderLeaderboardPage("4", app),
+  "/leaderboard/final": (app) => renderLeaderboardPage("final", app),
 };
-
-const app = document.getElementById("app");
 
 /**
- * 현재 날짜에 맞는 대회 페이지 경로를 찾아 반환합니다.
- * @returns {string} 현재 진행 중인 대회의 경로
+ * 현재 날짜에 맞는 페이지 경로를 결정합니다.
+ * @returns {string} 현재 대회 단계에 맞는 경로
  */
 function getPathForCurrentDate() {
   const now = new Date();
-  // const now = new Date("2025-09-16T00:00:00"); // 테스트용 날짜
-  now.setHours(0, 0, 0, 0);
+  const schedule = {
+    qualifying: { endDate: new Date("2025-09-14T23:59:59") },
+    32: { endDate: new Date("2025-09-18T23:59:59") },
+    16: { endDate: new Date("2025-09-22T23:59:59") },
+    8: { endDate: new Date("2025-09-26T23:59:59") },
+    4: { endDate: new Date("2025-09-30T23:59:59") },
+    final: { endDate: new Date("2025-10-04T23:59:59") },
+  };
 
-  for (const key in TOURNAMENT_SCHEDULE) {
-    const event = TOURNAMENT_SCHEDULE[key];
-    const startDate = new Date(event.start + "T00:00:00");
-    const endDate = new Date(event.end + "T23:59:59");
-    if (now >= startDate && now <= endDate) {
-      return event.path;
+  for (const stage in schedule) {
+    if (now <= schedule[stage].endDate) {
+      return `/leaderboard/${stage}`;
     }
   }
-  // 진행 중인 대회가 없으면 예선 페이지를 기본값으로
-  return "/qualifying";
+
+  // 모든 대회가 끝났으면 마지막 단계 페이지를 보여줌
+  return "/leaderboard/final";
 }
 
 /**
  * URL 경로에 따라 적절한 페이지를 렌더링합니다.
  */
 export function route() {
-  const path = window.location.pathname;
+  let path = window.location.pathname;
 
-  // 만약 사용자가 메인 페이지('/')로 접속했다면,
-  // 날짜에 맞는 페이지로 자동으로 리디렉션합니다.
-  if (path === "/") {
-    const currentPath = getPathForCurrentDate();
-    // 브라우저 주소창의 URL을 변경하고, route 함수를 다시 호출
-    window.history.pushState({}, "", currentPath);
-    route();
-    return;
+  if (path.endsWith("/")) {
+    path = path.slice(0, -1);
   }
 
-  // 해당 경로에 맞는 렌더링 함수를 찾습니다.
-  const render =
-    routes[path] ||
-    (() => {
-      app.innerHTML = `<h1>404 Not Found</h1><p>페이지를 찾을 수 없습니다.</p>`;
-    });
+  // 루트 경로 접속 시, 날짜에 맞는 페이지로 리디렉션
+  if (path === "") {
+    path = getPathForCurrentDate();
+    window.history.replaceState({}, "", path);
+  }
 
-  // 페이지 내용을 비우고 새로운 페이지를 렌더링
-  app.innerHTML = "";
-  render(app);
+  const renderFunc = routes[path];
+  const app = document.getElementById("app");
+
+  if (renderFunc && app) {
+    app.innerHTML = ""; // 페이지 전환 시 이전 내용 삭제
+    renderFunc(app);
+  } else if (app) {
+    // 404 페이지 처리
+    app.innerHTML = "<h1>404 Not Found</h1><p>페이지를 찾을 수 없습니다.</p>";
+  }
 }
 
-// 브라우저의 뒤로가기/앞으로가기 버튼을 처리
+// 브라우저 뒤로가기/앞으로가기 이벤트 처리
 window.addEventListener("popstate", route);
-
-// 페이지가 처음 로드될 때 라우팅 실행
-document.addEventListener("DOMContentLoaded", route);

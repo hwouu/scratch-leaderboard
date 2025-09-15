@@ -1,21 +1,20 @@
-const API_ENDPOINT = "/api";
-
 let leaderboardData = {};
 let prevLeaderboardData = {};
 let allPlayers = [];
 let lastFetchTime = null;
 
 /**
- * 서버에서 리더보드 데이터를 가져옵니다.
+ * 서버에서 특정 스테이지의 리더보드 데이터를 가져옵니다.
+ * @param {string} stage - 가져올 데이터의 스테이지 (e.g., 'qualifying', '32')
  * @returns {Promise<Object>} 성공 시 리더보드 데이터, 실패 시 에러 객체
  */
-export async function fetchLeaderboardData() {
+export async function fetchLeaderboardData(stage) {
+  const API_ENDPOINT = `/api?stage=${stage}`;
   try {
     const response = await fetch(API_ENDPOINT);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    // 이전 데이터와 현재 데이터를 업데이트합니다.
     prevLeaderboardData = { ...leaderboardData };
     leaderboardData = await response.json();
 
@@ -51,7 +50,7 @@ function processAllPlayers() {
         if (key === "total") {
           Object.assign(p, player);
         } else {
-          const courseInitial = key.charAt(6);
+          const courseInitial = key.charAt(6); // courseA -> A
           p.courseRoundCounts[courseInitial] = player.roundCount || 0;
           p.grades[courseInitial] = player.grade;
         }
@@ -61,23 +60,8 @@ function processAllPlayers() {
   allPlayers = Array.from(playerMap.values());
 }
 
-/**
- * 캐시된 리더보드 데이터를 반환합니다.
- * @returns {Object} 리더보드 데이터
- */
+// --- Getter 함수들 (변경 없음) ---
 export const getLeaderboardData = () => leaderboardData;
-/**
- * 캐시된 이전 리더보드 데이터를 반환합니다.
- * @returns {Object} 이전 리derboard 데이터
- */
 export const getPrevLeaderboardData = () => prevLeaderboardData;
-/**
- * 캐시된 모든 플레이어 목록을 반환합니다.
- * @returns {Array} 모든 플레이어 목록
- */
 export const getAllPlayers = () => allPlayers;
-/**
- * 마지막으로 데이터를 가져온 시간을 반환합니다.
- * @returns {Date} 마지막 fetch 시간
- */
 export const getLastFetchTime = () => lastFetchTime;

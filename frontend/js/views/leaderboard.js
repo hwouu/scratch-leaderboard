@@ -7,6 +7,7 @@ import {
 } from "../services/api.js";
 
 // --- 상태 변수 ---
+let currentStage = "qualifying";
 let activeTab = localStorage.getItem("activeTab") || "total";
 let currentViewMode = localStorage.getItem("currentViewMode") || "leaderboard";
 let isSidebarCollapsed = localStorage.getItem("isSidebarCollapsed") === "true";
@@ -31,8 +32,17 @@ const courseInfoByDate = {
   결승: ["이글릿지 CC - 닉팔도", "광주 무등 GGC"],
 };
 
+const stageNames = {
+  qualifying: "예선전",
+  32: "32강",
+  16: "16강",
+  8: "8강",
+  4: "4강",
+  final: "결승",
+};
+
 // --- 템플릿 HTML ---
-const qualifyingPageHTML = `
+const leaderboardPageHTML = `
   <div class="ticker-wrap">
     <div class="ticker"></div>
   </div>
@@ -69,12 +79,15 @@ const qualifyingPageHTML = `
 `;
 
 /**
- * 예선전 페이지의 전체 구조를 렌더링하고 초기화합니다.
+ * 리더보드 페이지의 전체 구조를 렌더링하고 초기화합니다.
+ * @param {string} stage - 렌더링할 스테이지 (e.g., 'qualifying', '32')
  * @param {HTMLElement} app - 앱의 루트 요소
  */
-export function renderQualifyingPage(app) {
-  app.innerHTML = qualifyingPageHTML;
-  renderHeader(app.querySelector("header"));
+export function renderLeaderboardPage(stage, app) {
+  currentStage = stage;
+  app.innerHTML = leaderboardPageHTML;
+
+  renderHeader(app.querySelector("header"), stage);
   renderSidebar(app.querySelector(".sidebar"));
   renderMobileFooter(app.querySelector(".mobile-footer"));
 
@@ -94,14 +107,41 @@ export function renderQualifyingPage(app) {
     overviewModal: document.getElementById("overview-modal"),
   };
 
-  initialize(elements);
+  initialize(elements, stage);
 }
 
 // --- 템플릿 렌더링 함수들 ---
-function renderHeader(header) {
+function renderHeader(header, stage) {
   const currentTheme = localStorage.getItem("theme") || "dark";
   const themeIconClass =
     currentTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
+
+  const tabsHTML = `
+    <button class="tab-button" data-target="total">합산</button>
+    <button class="tab-button" data-target="courseA">A코스</button>
+    <button class="tab-button" data-target="courseB">B코스</button>
+    ${
+      stage === "qualifying"
+        ? '<button class="tab-button" data-target="courseC">C코스</button>'
+        : ""
+    }
+  `;
+
+  const dropdownHTML = `
+    <select id="tabs-dropdown">
+        <option value="total">합산</option>
+        <option value="courseA">A코스</option>
+        <option value="courseB">B코스</option>
+        ${
+          stage === "qualifying" ? '<option value="courseC">C코스</option>' : ""
+        }
+    </select>
+  `;
+
+  const bracketToggleHTML =
+    stage !== "qualifying"
+      ? `<button class="toggle-btn" data-view="bracket" title="대진표 보기"><i class="fas fa-sitemap"></i></button>`
+      : "";
 
   header.innerHTML = `
         <div class="title-container">
@@ -110,33 +150,23 @@ function renderHeader(header) {
                 <span class="live-indicator">LIVE</span>
             </div>
             <div class="subtitle">
-                <span class="subtitle-text">골목대장 토너먼트 1st</span>
+                <span class="subtitle-text">골목대장 토너먼트 1st - ${
+                  stageNames[stage] || "토너먼트"
+                }</span>
                 <span class="last-updated">마지막 업데이트: <span id="last-updated-time"></span></span>
             </div>
             <div id="mobile-schedule-info" class="mobile-show"></div>
         </div>
         <div class="header-controls-row">
             <div class="header-center">
-                <div class="tabs desktop-show">
-                    <button class="tab-button" data-target="total">합산</button>
-                    <button class="tab-button" data-target="courseA">A코스</button>
-                    <button class="tab-button" data-target="courseB">B코스</button>
-                    <button class="tab-button" data-target="courseC">C코스</button>
-                </div>
-                <div class="tabs-dropdown-container mobile-show">
-                    <select id="tabs-dropdown">
-                        <option value="total">합산</option>
-                        <option value="courseA">A코스</option>
-                        <option value="courseB">B코스</option>
-                        <option value="courseC">C코스</option>
-                    </select>
-                </div>
+                <div class="tabs desktop-show">${tabsHTML}</div>
+                <div class="tabs-dropdown-container mobile-show">${dropdownHTML}</div>
             </div>
             <div class="controls-container">
                 <div id="view-toggle" class="view-toggle icon-toggle">
                     <button class="toggle-btn" data-view="leaderboard" title="리더보드 보기"><i class="fas fa-list-ol"></i></button>
                     <button class="toggle-btn" data-view="cutoff" title="컷오프 보기"><i class="fas fa-users"></i></button>
-                    <button class="toggle-btn" data-view="bracket" title="대진표 보기"><i class="fas fa-sitemap"></i></button>
+                    ${bracketToggleHTML}
                 </div>
                 <button id="full-bracket-button" title="전체 대진표 보기"><i class="fas fa-project-diagram"></i></button>
                 <div class="search-container">
@@ -193,34 +223,25 @@ function renderMobileFooter(footer) {
         </div>`;
 }
 
-/**
- * 페이지 초기화, 이벤트 리스너 설정, 데이터 로드
- */
-async function initialize(elements) {
-  setupEventListeners(elements);
-
+async function initialize(elements, stage) {
+  setupEventListeners(elements, stage);
   setActiveTabUI();
   setViewModeUI();
-
-  await fetchAndRender(elements);
-  startAutoRefresh(elements);
+  await fetchAndRender(elements, stage);
+  startAutoRefresh(elements, stage);
 }
 
-/**
- * 데이터 패치 및 전체 화면 렌더링
- */
-async function fetchAndRender(elements) {
+async function fetchAndRender(elements, stage) {
   const spinnerOverlay = document.getElementById("spinner-overlay");
   const refreshButton = document.getElementById("refresh-button");
   spinnerOverlay.classList.remove("hidden");
   if (refreshButton) refreshButton.querySelector("i").classList.add("fa-spin");
 
-  const { success } = await fetchLeaderboardData();
+  const { success } = await fetchLeaderboardData(stage);
   if (success) {
     const leaderboardData = getLeaderboardData();
     elements.lastUpdatedElement.textContent =
       getLastFetchTime().toLocaleTimeString("ko-KR");
-
     renderContent(elements.contentElement);
     renderTicker(elements.tickerElement, leaderboardData.total);
     renderHighlights(elements.highlightContentElement, leaderboardData.total);
@@ -237,15 +258,14 @@ async function fetchAndRender(elements) {
     refreshButton.querySelector("i").classList.remove("fa-spin");
 }
 
-function startAutoRefresh(elements) {
+function startAutoRefresh(elements, stage) {
   if (refreshIntervalId) clearInterval(refreshIntervalId);
   refreshIntervalId = setInterval(
-    () => fetchAndRender(elements),
+    () => fetchAndRender(elements, stage),
     REFRESH_INTERVAL_MS
   );
 }
 
-// --- UI 상태 업데이트 함수 ---
 function setActiveTabUI() {
   document
     .querySelectorAll(".tab-button")
@@ -268,7 +288,6 @@ function setViewModeUI() {
   if (currentViewBtn) currentViewBtn.classList.add("active");
 }
 
-// --- 데이터 포맷 함수 ---
 const formatFinalScore = (score) =>
   score === null || score === undefined
     ? "<span>-</span>"
@@ -306,18 +325,25 @@ const formatSkillLevel = (grade) => {
   return level && tier ? `${level} ${tier}` : grade;
 };
 
-// --- 메인 렌더링 함수들 ---
 function renderContent(container) {
   const leaderboardData = getLeaderboardData();
   const data = leaderboardData[activeTab] || [];
 
   if (activeTab === "total") {
+    if (currentStage === "qualifying" && currentViewMode === "bracket") {
+      currentViewMode = "leaderboard";
+      setViewModeUI();
+    }
     switch (currentViewMode) {
       case "cutoff":
         renderCutoffView(container, data);
         break;
       case "bracket":
-        renderBracketView(container, data);
+        if (currentStage !== "qualifying") {
+          renderBracketView(container, leaderboardData.brackets);
+        } else {
+          renderLeaderboardView(container, data);
+        }
         break;
       default:
         renderLeaderboardView(container, data);
@@ -328,6 +354,7 @@ function renderContent(container) {
 }
 
 function renderLeaderboardView(container, data) {
+  const isQualifying = currentStage === "qualifying";
   const headersConfig = {
     total: [
       { key: "순위" },
@@ -336,7 +363,7 @@ function renderLeaderboardView(container, data) {
       { key: "라운드", class: "mobile-hide" },
       { key: "A", class: "mobile-hide" },
       { key: "B", class: "mobile-hide" },
-      { key: "C", class: "mobile-hide" },
+      ...(isQualifying ? [{ key: "C", class: "mobile-hide" }] : []),
       { key: "보정치" },
       { key: "최종 성적" },
     ],
@@ -367,49 +394,44 @@ function renderLeaderboardView(container, data) {
         if (player.rank < prevPlayer.rank) rankChangeClass = "flash-up";
         else if (player.rank > prevPlayer.rank) rankChangeClass = "flash-down";
       }
-
+      const scores = player.scores || [];
+      const qualifyingCells = isQualifying
+        ? `<td class="mobile-hide">${formatSimpleScore(scores[2]?.score)}</td>`
+        : "";
       const rowCells =
         activeTab === "total"
           ? `<td class="rank">${rank}</td>
-               <td class="nickname">${
-                 player.userNickname
-               }<span class="user-id">(${
+             <td class="nickname">${
+               player.userNickname
+             }<span class="user-id">(${
               player.userId
             })</span><span class="shop-name-mobile">${
               player.shopName
             }</span></td>
-               <td class="mobile-hide">${player.shopName}</td>
-               <td class="mobile-hide">${player.roundCount}</td>
-               <td class="mobile-hide">${formatSimpleScore(
-                 player.scores[0]?.score
-               )}</td>
-               <td class="mobile-hide">${formatSimpleScore(
-                 player.scores[1]?.score
-               )}</td>
-               <td class="mobile-hide">${formatSimpleScore(
-                 player.scores[2]?.score
-               )}</td>
-               <td>${player.revisionGrade}</td>
-               <td>${formatFinalScore(player.totalScore)}</td>`
+             <td class="mobile-hide">${player.shopName}</td>
+             <td class="mobile-hide">${player.roundCount}</td>
+             <td class="mobile-hide">${formatSimpleScore(scores[0]?.score)}</td>
+             <td class="mobile-hide">${formatSimpleScore(scores[1]?.score)}</td>
+             ${qualifyingCells}
+             <td>${player.revisionGrade}</td>
+             <td>${formatFinalScore(player.totalScore)}</td>`
           : `<td class="rank">${rank}</td>
-               <td class="nickname">${
-                 player.userNickname
-               }<span class="user-id">(${
+             <td class="nickname">${
+               player.userNickname
+             }<span class="user-id">(${
               player.userId
             })</span><span class="shop-name-mobile">${
               player.shopName
             }</span></td>
-               <td class="tablet-hide mobile-hide">${player.shopName}</td>
-               <td class="mobile-hide">${player.roundCount}</td>
-               <td>${formatSimpleScore(player.score)}</td>
-               <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
-               <td>${player.revisionGrade}</td>
-               <td>${formatFinalScore(player.totalScore)}</td>`;
-
+             <td class="tablet-hide mobile-hide">${player.shopName}</td>
+             <td class="mobile-hide">${player.roundCount}</td>
+             <td>${formatSimpleScore(player.score)}</td>
+             <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
+             <td>${player.revisionGrade}</td>
+             <td>${formatFinalScore(player.totalScore)}</td>`;
       return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
     })
     .join("");
-
   container.innerHTML = `<div class="table-container"><table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table></div>`;
 }
 
@@ -418,9 +440,7 @@ function renderCutoffView(container, data) {
   let columns = [[], [], [], []];
   cutoffData.forEach((player, index) => {
     const columnIndex = Math.floor(index / 8);
-    if (columns[columnIndex]) {
-      columns[columnIndex].push(player);
-    }
+    if (columns[columnIndex]) columns[columnIndex].push(player);
   });
   const columnsHTML = columns
     .map(
@@ -447,72 +467,69 @@ function renderCutoffView(container, data) {
   container.innerHTML = `<div class="cutoff-container">${columnsHTML}</div>`;
 }
 
-function renderBracketView(container, data) {
-  const players = data.slice(0, 32);
-  const matchups = [];
-
-  for (let i = 0; i < 16; i++) {
-    const player1 = players[i];
-    const player2 = players[31 - i];
-    matchups.push({ p1: player1, p2: player2 });
+function renderBracketView(container, bracketData) {
+  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
+    container.innerHTML = `<div class="error-container"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title">대진표 정보 없음</h3><p class="error-message">현재 대진표 데이터를 불러올 수 없습니다.</p></div>`;
+    return;
   }
 
-  const isDetailedView = isSidebarCollapsed;
+  const matchups = {};
+  bracketData.forEach((player) => {
+    if (!matchups[player.groupNo]) matchups[player.groupNo] = [];
+    matchups[player.groupNo].push(player);
+  });
 
   const getPlayerHTML = (player) => {
-    // 이 부분을 수정합니다.
     if (!player) {
-      // '미정'일 때도 순위와 점수 placeholder를 추가하여 UI 통일성을 맞춥니다.
-      return `
-        <div class="player-details">
-            <span class="rank">-</span>
-            <span class="name">TBA</span>
-        </div>
-        <span class="player-score">-</span>
-      `;
+      return `<div class="player-details"><span class="rank">-</span><span class="name">TBA</span></div><span class="player-score">-</span>`;
     }
-
-    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
-
-    const shopNameHTML = isDetailedView
-      ? `<span class="shop-name" title="${player.shopName}">${player.shopName}</span>`
-      : "";
-
+    const { userNickname, preliminaryRank, score } = player;
     return `
-        <div class="player-details">
-            <span class="rank">${rank}</span>
-            <span class="name" title="${player.userNickname}">${
-      player.userNickname
-    }</span>
-            ${shopNameHTML}
-        </div>
-        <span class="player-score">${formatSimpleScore(
-          player.totalScore
-        )}</span>
-    `;
+      <div class="player-details">
+          <span class="rank" title="예선 ${preliminaryRank}위">${preliminaryRank}</span>
+          <span class="name" title="${userNickname}">${userNickname}</span>
+      </div>
+      <span class="player-score">${formatSimpleScore(score)}</span>`;
   };
 
-  const bracketHTML = matchups
+  const bracketHTML = Object.values(matchups)
     .map((match, index) => {
-      // player div에 isDetailedView 상태를 클래스로 추가합니다.
-      const detailClass = isDetailedView ? "detailed-view" : "";
+      const [player1, player2] = match;
+      let p1_class = "",
+        p2_class = "";
+
+      const p1_score = player1?.score;
+      const p2_score = player2?.score;
+
+      // 한쪽만 스코어가 있어도 승리 처리
+      if (p1_score !== undefined && p2_score === undefined) {
+        p1_class = "winning";
+      } else if (p2_score !== undefined && p1_score === undefined) {
+        p2_class = "winning";
+      }
+      // 둘 다 스코어가 있을 경우 비교
+      else if (p1_score !== undefined && p2_score !== undefined) {
+        if (p1_score < p2_score) p1_class = "winning";
+        else if (p2_score < p1_score) p2_class = "winning";
+      }
+
       return `
-      <div class="matchup">
-        <div class="matchup-header">Match ${index + 1}</div>
-        <div class="matchup-body">
-            <div class="player p1 ${detailClass}" ${
-        match.p1 ? `data-userid="${match.p1.userId}"` : ""
-      }>
-                ${getPlayerHTML(match.p1)}
-            </div>
-            <div class="vs">VS</div>
-            <div class="player p2 ${detailClass}" ${
-        match.p2 ? `data-userid="${match.p2.userId}"` : ""
-      }>
-                ${getPlayerHTML(match.p2)}
-            </div>
-        </div>
-      </div>`;
+          <div class="matchup">
+              <div class="matchup-header">Match ${index + 1}</div>
+              <div class="matchup-body">
+                  <div class="player p1 ${p1_class}" data-userid="${
+        player1.userId
+      }">
+                      ${getPlayerHTML(player1)}
+                  </div>
+                  <div class="vs">VS</div>
+                  <div class="player p2 ${p2_class}" data-userid="${
+        player2.userId
+      }">
+                      ${getPlayerHTML(player2)}
+                  </div>
+              </div>
+          </div>`;
     })
     .join("");
 
@@ -565,8 +582,8 @@ function renderScheduleAndCourses(
   now.setHours(0, 0, 0, 0);
 
   let currentEvent = null,
-    nextEvent = null,
-    currentEventName = "예선";
+    nextEvent = null;
+  let currentEventName = "예선"; // 기본값
 
   const currentEventIndex = tournamentSchedule.findIndex((event) => {
     const startDate = new Date(event.start + "T00:00:00");
@@ -587,14 +604,11 @@ function renderScheduleAndCourses(
     nextEvent = tournamentSchedule.find(
       (event) => new Date(event.start + "T00:00:00") > now
     );
-    // 현재 진행 중인 대회가 없으면, 다음 대회의 코스 또는 기본 예선 코스를 보여줄 수 있습니다.
-    // 여기서는 예선 코스를 기본값으로 사용합니다.
     const nextEventName =
       nextEvent?.name.match(/\[(.*?)\]/)[1].replace(/전$/, "") || "예선";
     currentEventName = courseInfoByDate[nextEventName] ? nextEventName : "예선";
   }
 
-  // Render Schedule
   if (scheduleListElement) {
     let scheduleHTML = "";
     if (currentEvent) {
@@ -611,7 +625,6 @@ function renderScheduleAndCourses(
       scheduleHTML || "<li>모든 일정이 종료되었습니다.</li>";
   }
 
-  // Render Courses
   if (courseListElement) {
     const courses = courseInfoByDate[currentEventName] || [];
     courseListElement.innerHTML = courses
@@ -619,7 +632,6 @@ function renderScheduleAndCourses(
       .join("");
   }
 
-  // Render Mobile Header
   if (mobileElement) {
     if (currentEvent) {
       const start = currentEvent.start.substring(5).replace("-", ".");
@@ -631,14 +643,13 @@ function renderScheduleAndCourses(
   }
 }
 
-// --- 이벤트 핸들러 및 리스너 설정 ---
-function setupEventListeners(elements) {
+function setupEventListeners(elements, stage) {
   const { contentElement, searchModal, overviewModal } = elements;
   const fullBracketModal = document.getElementById("full-bracket-modal");
   let timeInterval = null;
 
   document.getElementById("refresh-button").addEventListener("click", () => {
-    fetchAndRender(elements);
+    fetchAndRender(elements, stage);
   });
 
   document.getElementById("sidebar-toggle").addEventListener("click", () => {
@@ -697,8 +708,13 @@ function setupEventListeners(elements) {
     .getElementById("full-bracket-button")
     .addEventListener("click", () => {
       const leaderboardData = getLeaderboardData();
-      if (leaderboardData && leaderboardData.total) {
-        renderFullBracket(leaderboardData.total);
+      const bracketSource =
+        currentStage !== "qualifying" && leaderboardData.brackets
+          ? leaderboardData.brackets
+          : leaderboardData.total;
+
+      if (bracketSource) {
+        renderFullBracket(bracketSource);
         openModal(fullBracketModal);
 
         const timeElement = document.getElementById("current-time");
@@ -721,7 +737,6 @@ function setupEventListeners(elements) {
           timeInterval = null;
         }
       };
-
       modal.addEventListener("click", (e) => {
         if (e.target === modal) closeModal();
       });
@@ -780,9 +795,17 @@ function showPlayerModal(player, modal, openCallback) {
   const courseBData = (leaderboardData.courseB || []).find(
     (p) => p.userId === player.userId
   );
-  const courseCData = (leaderboardData.courseC || []).find(
-    (p) => p.userId === player.userId
-  );
+  const courseCData =
+    currentStage === "qualifying"
+      ? (leaderboardData.courseC || []).find((p) => p.userId === player.userId)
+      : null;
+
+  const courseCHTML =
+    currentStage === "qualifying"
+      ? `<div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
+          courseCData?.score
+        )}</span></div>`
+      : "";
 
   const detailsHTML = `
         <div class="search-result-item"><span class="result-label">순위</span><span class="result-value rank">${rank}</span></div>
@@ -798,14 +821,9 @@ function showPlayerModal(player, modal, openCallback) {
         <div class="search-result-item"><span class="result-label">B코스</span><span class="result-value">${formatSimpleScore(
           courseBData?.score
         )}</span></div>
-        <div class="search-result-item"><span class="result-label">C코스</span><span class="result-value">${formatSimpleScore(
-          courseCData?.score
-        )}</span></div>
+        ${courseCHTML}
         <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
-          player.grade ||
-            courseAData?.grade ||
-            courseBData?.grade ||
-            courseCData?.grade
+          player.grade || courseAData?.grade || courseBData?.grade
         )}</span></div>
         <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
           player.revisionGrade ?? "-"
@@ -819,21 +837,33 @@ function showPlayerModal(player, modal, openCallback) {
   openCallback(modal);
 }
 
-/**
- * 전체 대진표 모달의 HTML을 생성하고 렌더링합니다.
- * @param {Array} data - 상위 32명의 플레이어 데이터
- */
 function renderFullBracket(data) {
-  const players = data.slice(0, 32);
   const bracketContent = document.getElementById("full-bracket-content");
+  let players;
+
+  if (currentStage !== "qualifying" && data[0]?.preliminaryRank !== undefined) {
+    players = [...data].sort((a, b) => a.preliminaryRank - b.preliminaryRank);
+  } else {
+    players = data.slice(0, 32);
+  }
 
   const createPlayerDiv = (player) => {
     if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
-    const rank = player.isTieRank ? `T${player.rank}` : player.rank;
-    return `<div class="bracket-player" title="${player.userNickname} (${rank}위)">
-              <span class="player-rank">${rank}</span>
-              <span class="player-name">${player.userNickname}</span>
-            </div>`;
+    const rank =
+      player.preliminaryRank !== undefined
+        ? player.preliminaryRank
+        : player.rank;
+    const nickname = player.userNickname;
+    const score =
+      player.preliminaryScore !== undefined
+        ? player.preliminaryScore
+        : player.totalScore;
+    return `<div class="bracket-player" title="${nickname} (${rank}위, ${formatSimpleScore(
+      score
+    )})">
+                    <span class="player-rank">${rank}</span>
+                    <span class="player-name">${nickname}</span>
+                </div>`;
   };
 
   const createEmptyMatch = () =>
@@ -853,71 +883,49 @@ function renderFullBracket(data) {
     const round16 = Array(4).fill(createEmptyMatch()).join("");
     const round8 = Array(2).fill(createEmptyMatch()).join("");
     const round4 = Array(1).fill(createEmptyMatch()).join("");
-
     return `
       <div class="bracket-side">
-        <div class="bracket-round">
-          <h3 class="round-title">32강</h3>
-          <div class="matches-container">${round32}</div>
-        </div>
-        <div class="bracket-round">
-          <h3 class="round-title">16강</h3>
-          <div class="matches-container">${round16}</div>
-        </div>
-        <div class="bracket-round">
-          <h3 class="round-title">8강</h3>
-          <div class="matches-container">${round8}</div>
-        </div>
-        <div class="bracket-round">
-          <h3 class="round-title">4강</h3>
-          <div class="matches-container">${round4}</div>
-        </div>
-      </div>
-    `;
+        <div class="bracket-round"><h3 class="round-title">${
+          stageNames[currentStage] || "32강"
+        }</h3><div class="matches-container">${round32}</div></div>
+        <div class="bracket-round"><h3 class="round-title">16강</h3><div class="matches-container">${round16}</div></div>
+        <div class="bracket-round"><h3 class="round-title">8강</h3><div class="matches-container">${round8}</div></div>
+        <div class="bracket-round"><h3 class="round-title">4강</h3><div class="matches-container">${round4}</div></div>
+      </div>`;
   };
 
-  const leftMatches = [];
-  const rightMatches = [];
-  for (let i = 0; i < 8; i++) {
-    leftMatches.push({ p1: players[i], p2: players[31 - i] });
+  const matchups = [];
+  for (let i = 0; i < 16; i++) {
+    matchups.push({ p1: players[i], p2: players[31 - i] });
   }
-  for (let i = 8; i < 16; i++) {
-    rightMatches.push({ p1: players[i], p2: players[31 - i] });
-  }
+
+  const leftMatches = matchups.slice(0, 8);
+  const rightMatches = matchups.slice(8, 16);
 
   const leftBracketHTML = generateSideBracket(leftMatches);
   const rightBracketHTML = generateSideBracket(rightMatches);
 
   const centerHTML = `
-    <div class="bracket-center">
-      <div class="bracket-final-match">
-        <h3 class="round-title">결승전</h3>
-        ${createEmptyMatch()}
-      </div>
-      <div class="bracket-third-place-match">
-        <h3 class="round-title">3위 결정전</h3>
-        ${createEmptyMatch()}
-      </div>
-    </div>
-  `;
+        <div class="bracket-center">
+            <div class="bracket-final-match"><h3 class="round-title">결승전</h3>${createEmptyMatch()}</div>
+            <div class="bracket-third-place-match"><h3 class="round-title">3위 결정전</h3>${createEmptyMatch()}</div>
+        </div>
+    `;
 
   const footerHTML = `
-    <div class="modal-footer-info">
-        <div class="live-info">
-            <span class="live-badge">LIVE</span>
-            <span id="current-time"></span>
+        <div class="modal-footer-info">
+            <div class="live-info"><span class="live-badge">LIVE</span> <span id="current-time"></span></div>
+            <p class="notice">대진표는 이전 라운드 최종 성적 기준이며, 실시간 순위와 다를 수 있습니다.</p>
         </div>
-        <p class="notice">예상 순위이므로 실시간으로 변경될 수 있습니다.</p>
-    </div>
-  `;
+    `;
 
   bracketContent.innerHTML = `
-    <h2 class="modal-title">토너먼트 대진표</h2>
-    <div class="bracket-symmetrical-container">
-      ${leftBracketHTML}
-      ${centerHTML}
-      ${rightBracketHTML}
-    </div>
-    ${footerHTML}
-  `;
+        <h2 class="modal-title">토너먼트 대진표</h2>
+        <div class="bracket-symmetrical-container">
+            ${leftBracketHTML}
+            ${centerHTML}
+            ${rightBracketHTML}
+        </div>
+        ${footerHTML}
+    `;
 }
