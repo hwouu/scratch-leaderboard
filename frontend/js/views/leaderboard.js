@@ -861,6 +861,11 @@ function renderFullBracket(data) {
     players = data.slice(0, 32);
   }
 
+  // 플레이어가 32명 미만일 경우, TBD로 채움
+  while (players.length < 32) {
+    players.push(null);
+  }
+
   const createPlayerDiv = (player) => {
     if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
     const rank =
@@ -908,13 +913,36 @@ function renderFullBracket(data) {
       </div>`;
   };
 
-  const matchups = [];
-  for (let i = 0; i < 16; i++) {
-    matchups.push({ p1: players[i], p2: players[31 - i] });
-  }
+  // 실제 토너먼트 시드 배정 순서
+  const leftSideRanks = [
+    [1, 32],
+    [16, 17],
+    [8, 25],
+    [9, 24],
+    [5, 28],
+    [12, 21],
+    [4, 29],
+    [13, 20],
+  ];
+  const rightSideRanks = [
+    [3, 30],
+    [14, 19],
+    [6, 27],
+    [11, 22],
+    [7, 26],
+    [10, 23],
+    [2, 31],
+    [15, 18],
+  ];
 
-  const leftMatches = matchups.slice(0, 8);
-  const rightMatches = matchups.slice(8, 16);
+  const leftMatches = leftSideRanks.map((ranks) => ({
+    p1: players[ranks[0] - 1],
+    p2: players[ranks[1] - 1],
+  }));
+  const rightMatches = rightSideRanks.map((ranks) => ({
+    p1: players[ranks[0] - 1],
+    p2: players[ranks[1] - 1],
+  }));
 
   const leftBracketHTML = generateSideBracket(leftMatches);
   const rightBracketHTML = generateSideBracket(rightMatches);
@@ -929,7 +957,7 @@ function renderFullBracket(data) {
   const footerHTML = `
         <div class="modal-footer-info">
             <div class="live-info"><span class="live-badge">LIVE</span> <span id="current-time"></span></div>
-            <p class="notice">대진표는 이전 라운드 최종 성적 기준입니다.</p>
+            <p class="notice">대진표는 이전 라운드 최종 성적 기준이며, 실시간 순위와 다를 수 있습니다.</p>
         </div>
     `;
 
