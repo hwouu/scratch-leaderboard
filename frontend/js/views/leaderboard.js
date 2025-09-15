@@ -929,7 +929,7 @@ function renderFullBracket(data) {
   const footerHTML = `
         <div class="modal-footer-info">
             <div class="live-info"><span class="live-badge">LIVE</span> <span id="current-time"></span></div>
-            <p class="notice">대진표는 이전 라운드 최종 성적 기준이며, 실시간 순위와 다를 수 있습니다.</p>
+            <p class="notice">대진표는 이전 라운드 최종 성적 기준입니다.</p>
         </div>
     `;
 
