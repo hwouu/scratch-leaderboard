@@ -4,6 +4,7 @@ import {
   getPrevLeaderboardData,
   getAllPlayers,
   getLastFetchTime,
+  fetchStageData, // 수정: fetchStageData 임포트
 } from "../services/api.js";
 
 // --- 상태 변수 ---
@@ -718,27 +719,23 @@ function setupEventListeners(elements, stage) {
     .getElementById("overview-button")
     .addEventListener("click", () => openModal(overviewModal));
 
+  // =================================================================
+  // 수정된 부분 1: '전체 대진표 보기' 버튼 이벤트 리스너
+  // renderFullBracket 함수를 인수 없이 호출하여 자체적으로 데이터를 가져오게 합니다.
+  // =================================================================
   document
     .getElementById("full-bracket-button")
     .addEventListener("click", () => {
-      const leaderboardData = getLeaderboardData();
-      const bracketSource =
-        currentStage !== "qualifying" && leaderboardData.brackets
-          ? leaderboardData.brackets
-          : leaderboardData.total;
+      renderFullBracket(); // 인수 없이 호출
+      openModal(fullBracketModal);
 
-      if (bracketSource) {
-        renderFullBracket(bracketSource);
-        openModal(fullBracketModal);
-
-        const timeElement = document.getElementById("current-time");
-        if (timeElement) {
-          const updateTime = () => {
-            timeElement.textContent = new Date().toLocaleString("ko-KR");
-          };
-          updateTime();
-          timeInterval = setInterval(updateTime, 1000);
-        }
+      const timeElement = document.getElementById("current-time");
+      if (timeElement) {
+        const updateTime = () => {
+          timeElement.textContent = new Date().toLocaleString("ko-KR");
+        };
+        updateTime();
+        timeInterval = setInterval(updateTime, 1000);
       }
     });
 
@@ -851,123 +848,151 @@ function showPlayerModal(player, modal, openCallback) {
   openCallback(modal);
 }
 
-function renderFullBracket(data) {
+// =================================================================
+// 수정된 부분 2: renderFullBracket 함수
+// 대진표 구조를 항상 32강부터 그리도록 고정하고, 각 라운드 데이터를 비동기로 불러옵니다.
+// =================================================================
+async function renderFullBracket() {
   const bracketContent = document.getElementById("full-bracket-content");
-  let players;
 
-  if (currentStage !== "qualifying" && data[0]?.preliminaryRank !== undefined) {
-    players = [...data].sort((a, b) => a.preliminaryRank - b.preliminaryRank);
-  } else {
-    players = data.slice(0, 32);
-  }
-
-  // 플레이어가 32명 미만일 경우, TBD로 채움
-  while (players.length < 32) {
-    players.push(null);
-  }
-
-  const createPlayerDiv = (player) => {
-    if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
-    const rank =
-      player.preliminaryRank !== undefined
-        ? player.preliminaryRank
-        : player.rank;
-    const nickname = player.userNickname;
-    const score =
-      player.preliminaryScore !== undefined
-        ? player.preliminaryScore
-        : player.totalScore;
-    return `<div class="bracket-player" title="${nickname} (${rank}위, ${formatSimpleScore(
-      score
-    )})">
-                    <span class="player-rank">${rank}</span>
-                    <span class="player-name">${nickname}</span>
-                </div>`;
-  };
-
-  const createEmptyMatch = () =>
-    `<div class="bracket-match">${createPlayerDiv(null)}${createPlayerDiv(
-      null
-    )}</div>`;
-
-  const generateSideBracket = (matches) => {
-    const round32 = matches
-      .map(
-        (match) =>
-          `<div class="bracket-match">${createPlayerDiv(
-            match.p1
-          )}${createPlayerDiv(match.p2)}</div>`
-      )
-      .join("");
-    const round16 = Array(4).fill(createEmptyMatch()).join("");
-    const round8 = Array(2).fill(createEmptyMatch()).join("");
-    const round4 = Array(1).fill(createEmptyMatch()).join("");
-    return `
-      <div class="bracket-side">
-        <div class="bracket-round"><h3 class="round-title">${
-          stageNames[currentStage] || "32강"
-        }</h3><div class="matches-container">${round32}</div></div>
-        <div class="bracket-round"><h3 class="round-title">16강</h3><div class="matches-container">${round16}</div></div>
-        <div class="bracket-round"><h3 class="round-title">8강</h3><div class="matches-container">${round8}</div></div>
-        <div class="bracket-round"><h3 class="round-title">4강</h3><div class="matches-container">${round4}</div></div>
-      </div>`;
-  };
-
-  // 실제 토너먼트 시드 배정 순서
-  const leftSideRanks = [
-    [1, 32],
-    [16, 17],
-    [8, 25],
-    [9, 24],
-    [5, 28],
-    [12, 21],
-    [4, 29],
-    [13, 20],
-  ];
-  const rightSideRanks = [
-    [3, 30],
-    [14, 19],
-    [6, 27],
-    [11, 22],
-    [7, 26],
-    [10, 23],
-    [2, 31],
-    [15, 18],
+  // 1. 대진표의 기본 HTML 구조를 먼저 생성합니다.
+  const rounds = [
+    { name: "32강", class: "round-of-32", players: 32 },
+    { name: "16강", class: "round-of-16", players: 16 },
+    { name: "8강", class: "round-of-8", players: 8 },
+    { name: "4강", class: "round-of-4", players: 4 },
   ];
 
-  const leftMatches = leftSideRanks.map((ranks) => ({
-    p1: players[ranks[0] - 1],
-    p2: players[ranks[1] - 1],
-  }));
-  const rightMatches = rightSideRanks.map((ranks) => ({
-    p1: players[ranks[0] - 1],
-    p2: players[ranks[1] - 1],
-  }));
-
-  const leftBracketHTML = generateSideBracket(leftMatches);
-  const rightBracketHTML = generateSideBracket(rightMatches);
+  const sidesHTML = () => `
+    <div class="bracket-side">
+      ${rounds
+        .map(
+          (r) => `
+        <div class="bracket-round ${r.class}">
+          <h3 class="round-title">${r.name}</h3>
+          <div class="matches-container">
+            ${Array(r.players / 4)
+              .fill(
+                '<div class="bracket-match"><div class="bracket-player placeholder">TBD</div><div class="bracket-player placeholder">TBD</div></div>'
+              )
+              .join("")}
+          </div>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+  `;
 
   const centerHTML = `
-        <div class="bracket-center">
-            <div class="bracket-final-match"><h3 class="round-title">결승전</h3>${createEmptyMatch()}</div>
-            <div class="bracket-third-place-match"><h3 class="round-title">3위 결정전</h3>${createEmptyMatch()}</div>
-        </div>
-    `;
+    <div class="bracket-center">
+        <div class="bracket-final-match"><h3 class="round-title">결승전</h3><div class="bracket-match">${createEmptyMatchHTML()}</div></div>
+        <div class="bracket-third-place-match"><h3 class="round-title">3위 결정전</h3><div class="bracket-match">${createEmptyMatchHTML()}</div></div>
+    </div>`;
 
   const footerHTML = `
-        <div class="modal-footer-info">
-            <div class="live-info"><span class="live-badge">LIVE</span> <span id="current-time"></span></div>
-            <p class="notice">대진표는 이전 라운드 최종 성적 기준이며, 실시간 순위와 다를 수 있습니다.</p>
-        </div>
-    `;
+    <div class="modal-footer-info">
+        <div class="live-info"><span class="live-badge">LIVE</span> <span id="current-time"></span></div>
+        <p class="notice">대진표는 이전 라운드 최종 성적 기준이며, 실시간 순위와 다를 수 있습니다.</p>
+    </div>`;
 
   bracketContent.innerHTML = `
-        <h2 class="modal-title">토너먼트 대진표</h2>
-        <div class="bracket-symmetrical-container">
-            ${leftBracketHTML}
-            ${centerHTML}
-            ${rightBracketHTML}
-        </div>
-        ${footerHTML}
-    `;
+    <h2 class="modal-title">토너먼트 대진표</h2>
+    <div class="bracket-symmetrical-container">
+        ${sidesHTML()}
+        ${centerHTML}
+        ${sidesHTML()}
+    </div>
+    ${footerHTML}
+  `;
+
+  // 2. 각 라운드에 필요한 데이터를 비동기적으로 가져옵니다.
+  try {
+    const [data32, data16] = await Promise.all([
+      fetchStageData("32"),
+      fetchStageData("16"),
+      // TODO: 8강, 4강 등 데이터 fetch 추가
+    ]);
+
+    if (data32?.brackets) {
+      populateBracketRound(bracketContent, data32.brackets, 32);
+    }
+    if (data16?.brackets) {
+      populateBracketRound(bracketContent, data16.brackets, 16);
+    }
+    // TODO: 8강, 4강 등 populate 호출 추가
+  } catch (error) {
+    console.error("전체 대진표 데이터를 가져오는 데 실패했습니다.", error);
+    bracketContent.querySelector(
+      ".bracket-symmetrical-container"
+    ).innerHTML = `<p style="text-align:center; color: var(--text-secondary);">대진표를 불러오는 중 오류가 발생했습니다.</p>`;
+  }
+}
+
+/**
+ * =================================================================
+ * 추가된 헬퍼 함수 1: populateBracketRound
+ * 특정 라운드의 대진표 데이터를 받아 HTML 요소를 채웁니다.
+ * =================================================================
+ */
+function populateBracketRound(bracketContent, players, roundNumber) {
+  const roundClass = `.round-of-${roundNumber}`;
+  const [leftSide, rightSide] = bracketContent.querySelectorAll(
+    `.bracket-side ${roundClass}`
+  );
+
+  if (!leftSide || !rightSide) return;
+
+  const leftMatchesContainer = leftSide.querySelector(".matches-container");
+  const rightMatchesContainer = rightSide.querySelector(".matches-container");
+  leftMatchesContainer.innerHTML = "";
+  rightMatchesContainer.innerHTML = "";
+
+  const sortedPlayers = players.sort((a, b) => a.slotNo - b.slotNo);
+
+  const halfPoint = roundNumber / 2;
+  const leftPlayers = sortedPlayers.filter(
+    (p) => p.slotNo >= 1 && p.slotNo <= halfPoint
+  );
+  const rightPlayers = sortedPlayers.filter(
+    (p) => p.slotNo > halfPoint && p.slotNo <= roundNumber
+  );
+
+  for (let i = 0; i < leftPlayers.length; i += 2) {
+    const match = document.createElement("div");
+    match.className = "bracket-match";
+    match.innerHTML =
+      createPlayerDivHTML(leftPlayers[i]) +
+      createPlayerDivHTML(leftPlayers[i + 1]);
+    leftMatchesContainer.appendChild(match);
+  }
+
+  for (let i = 0; i < rightPlayers.length; i += 2) {
+    const match = document.createElement("div");
+    match.className = "bracket-match";
+    match.innerHTML =
+      createPlayerDivHTML(rightPlayers[i]) +
+      createPlayerDivHTML(rightPlayers[i + 1]);
+    rightMatchesContainer.appendChild(match);
+  }
+}
+
+/**
+ * =================================================================
+ * 추가된 헬퍼 함수 2: createPlayerDivHTML / createEmptyMatchHTML
+ * 대진표에 들어갈 선수 div 또는 빈 매치 div의 HTML을 생성합니다.
+ * =================================================================
+ */
+function createPlayerDivHTML(player) {
+  if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
+  const rank = player.preliminaryRank || player.rank;
+  const nickname = player.userNickname;
+  return `<div class="bracket-player" title="${nickname} (${rank}위)">
+                <span class="player-rank">${rank}</span>
+                <span class="player-name">${nickname}</span>
+            </div>`;
+}
+
+function createEmptyMatchHTML() {
+  return createPlayerDivHTML(null) + createPlayerDivHTML(null);
 }
