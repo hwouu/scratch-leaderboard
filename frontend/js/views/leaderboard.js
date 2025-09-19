@@ -385,7 +385,7 @@ function renderLeaderboardView(container, data) {
     .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
     .join("")}</tr></thead>`;
 
-  const prevData = getPrevLeaderboardData()[activeTab] || [];
+  const prevData = getPrevLeaderboardData()?.[activeTab] || [];
   const bodyHTML = data
     .map((player) => {
       const rank = player.isTieRank ? `T${player.rank}` : player.rank;
