@@ -848,10 +848,8 @@ function showPlayerModal(player, modal, openCallback) {
   openCallback(modal);
 }
 
-// =================================================================
-// 수정된 부분 2: renderFullBracket 함수
-// 대진표 구조를 항상 32강부터 그리도록 고정하고, 각 라운드 데이터를 비동기로 불러옵니다.
-// =================================================================
+// hwouu/scratch-leaderboard/scratch-leaderboard-fc14ac7c05975e55c43dbe5e7b91cd3557efe3e1/frontend/js/views/leaderboard.js
+
 async function renderFullBracket() {
   const bracketContent = document.getElementById("full-bracket-content");
 
@@ -886,8 +884,8 @@ async function renderFullBracket() {
 
   const centerHTML = `
     <div class="bracket-center">
-        <div class="bracket-final-match"><h3 class="round-title">결승전</h3><div class="bracket-match">${createEmptyMatchHTML()}</div></div>
-        <div class="bracket-third-place-match"><h3 class="round-title">3위 결정전</h3><div class="bracket-match">${createEmptyMatchHTML()}</div></div>
+        <div class="bracket-final-match"><h3 class="round-title">결승전</h3><div class="bracket-match" id="final-match"></div></div>
+        <div class="bracket-third-place-match"><h3 class="round-title">3위 결정전</h3><div class="bracket-match" id="third-place-match"></div></div>
     </div>`;
 
   const footerHTML = `
@@ -908,19 +906,46 @@ async function renderFullBracket() {
 
   // 2. 각 라운드에 필요한 데이터를 비동기적으로 가져옵니다.
   try {
-    const [data32, data16] = await Promise.all([
+    const [data32, data16, data8, data4, dataFinal] = await Promise.all([
       fetchStageData("32"),
       fetchStageData("16"),
-      // TODO: 8강, 4강 등 데이터 fetch 추가
+      fetchStageData("8"),
+      fetchStageData("4"),
+      fetchStageData("final"),
     ]);
 
-    if (data32?.brackets) {
+    if (data32?.brackets)
       populateBracketRound(bracketContent, data32.brackets, 32);
-    }
-    if (data16?.brackets) {
+    if (data16?.brackets)
       populateBracketRound(bracketContent, data16.brackets, 16);
+    if (data8?.brackets)
+      populateBracketRound(bracketContent, data8.brackets, 8);
+    if (data4?.brackets)
+      populateBracketRound(bracketContent, data4.brackets, 4);
+
+    // 결승 및 3위전 데이터 처리
+    if (dataFinal?.brackets) {
+      // 결승전 (groupNo: 1)
+      const finalMatchPlayers = dataFinal.brackets
+        .filter((p) => p.groupNo === 1)
+        .sort((a, b) => a.slotNo - b.slotNo);
+      document.getElementById("final-match").innerHTML =
+        createPlayerDivHTML(finalMatchPlayers[0]) +
+        createPlayerDivHTML(finalMatchPlayers[1]);
+
+      // 3위 결정전 (groupNo: 2)
+      const thirdPlaceMatchPlayers = dataFinal.brackets
+        .filter((p) => p.groupNo === 2)
+        .sort((a, b) => a.slotNo - b.slotNo);
+      document.getElementById("third-place-match").innerHTML =
+        createPlayerDivHTML(thirdPlaceMatchPlayers[0]) +
+        createPlayerDivHTML(thirdPlaceMatchPlayers[1]);
+    } else {
+      // 데이터가 없을 경우 TBD로 표시
+      document.getElementById("final-match").innerHTML = createEmptyMatchHTML();
+      document.getElementById("third-place-match").innerHTML =
+        createEmptyMatchHTML();
     }
-    // TODO: 8강, 4강 등 populate 호출 추가
   } catch (error) {
     console.error("전체 대진표 데이터를 가져오는 데 실패했습니다.", error);
     bracketContent.querySelector(
