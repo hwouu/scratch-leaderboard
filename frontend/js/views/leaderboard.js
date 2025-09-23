@@ -4,7 +4,7 @@ import {
   getPrevLeaderboardData,
   getAllPlayers,
   getLastFetchTime,
-  fetchStageData, // 수정: fetchStageData 임포트
+  fetchStageData,
 } from "../services/api.js";
 
 // --- 상태 변수 ---
@@ -354,6 +354,14 @@ function renderContent(container) {
   }
 }
 
+function renderEmptyView(container, headers) {
+  const headHTML = `<thead><tr>${headers
+    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
+    .join("")}</tr></thead>`;
+  const bodyHTML = `<tbody><tr class="placeholder-row"><td colspan="${headers.length}">등록된 데이터가 없습니다.</td></tr></tbody>`;
+  container.innerHTML = `<div class="table-container"><table>${headHTML}${bodyHTML}</table></div>`;
+}
+
 function renderLeaderboardView(container, data) {
   const isQualifying = currentStage === "qualifying";
   const headersConfig = {
@@ -381,6 +389,12 @@ function renderLeaderboardView(container, data) {
   };
   const headers =
     activeTab === "total" ? headersConfig.total : headersConfig.course;
+
+  if (!data || data.length === 0) {
+    renderEmptyView(container, headers);
+    return;
+  }
+
   const headHTML = `<thead><tr>${headers
     .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
     .join("")}</tr></thead>`;
@@ -437,6 +451,10 @@ function renderLeaderboardView(container, data) {
 }
 
 function renderCutoffView(container, data) {
+  if (!data || data.length === 0) {
+    container.innerHTML = `<div class="cutoff-container"><div class="placeholder-container" style="width:100%;"><p>등록된 데이터가 없습니다.</p></div></div>`;
+    return;
+  }
   const cutoffData = data.slice(0, 32);
   let columns = [[], [], [], []];
   cutoffData.forEach((player, index) => {
@@ -470,79 +488,153 @@ function renderCutoffView(container, data) {
 
 function renderBracketView(container, bracketData) {
   if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
-    container.innerHTML = `<div class="error-container"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title">대진표 정보 없음</h3><p class="error-message">현재 대진표 데이터를 불러올 수 없습니다.</p></div>`;
+    container.innerHTML = `
+      <div class="bracket-split-container">
+        <div class="bracket-matchups-container">
+          <div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>
+        </div>
+        <div class="bracket-leaderboard-container">
+          ${renderBracketLeaderboard([], true)}
+        </div>
+      </div>`;
     return;
   }
 
-  const matchups = {};
-  bracketData.forEach((player) => {
-    if (!matchups[player.groupNo]) matchups[player.groupNo] = [];
-    matchups[player.groupNo].push(player);
-  });
+  const matchups = bracketData.reduce((acc, player) => {
+    if (!acc[player.groupNo]) acc[player.groupNo] = [];
+    acc[player.groupNo].push(player);
+    return acc;
+  }, {});
 
+  const allPlayers = getAllPlayers();
   const getPlayerHTML = (player) => {
     if (!player) {
       return `<div class="player-details"><span class="rank">-</span><span class="name">TBA</span></div><span class="player-score">-</span>`;
     }
     const { userNickname, preliminaryRank, score, userId } = player;
-
-    const fullPlayer = getAllPlayers().find(
-      (p) => p.userNo === player.userNo || p.userId === userId
-    );
-    const shopName = fullPlayer ? fullPlayer.shopName : "";
-    const shopNameHTML = shopName
-      ? `<span class="player-shop" title="${shopName}">${shopName}</span>`
-      : "";
+    const fullPlayer = allPlayers.find((p) => p.userId === userId);
 
     return `
       <div class="player-details">
           <span class="rank" title="예선 ${preliminaryRank}위">${preliminaryRank}</span>
           <div class="name-wrapper">
-             <span class="name" title="${userNickname}">${userNickname}</span>
-             ${shopNameHTML}
+             <span class="name" title="${userNickname}">${userNickname} (${userId})</span>
+             <span class="player-shop">${fullPlayer?.shopName || ""}</span>
           </div>
       </div>
       <span class="player-score">${formatSimpleScore(score)}</span>`;
   };
 
-  const bracketHTML = Object.values(matchups)
+  const matchupsHTML = Object.values(matchups)
     .map((match) => {
-      const [player1, player2] = match;
+      const [player1, player2] = match.sort((a, b) => a.slotNo - b.slotNo);
       let p1_class = "",
         p2_class = "";
 
       const p1_score = player1?.score;
       const p2_score = player2?.score;
+      const p1_hasScore = typeof p1_score === "number";
+      const p2_hasScore = typeof p2_score === "number";
 
-      if (p1_score !== undefined && p2_score === undefined) {
+      if (p1_hasScore && !p2_hasScore) {
         p1_class = "winning";
-      } else if (p2_score !== undefined && p1_score === undefined) {
+      } else if (!p1_hasScore && p2_hasScore) {
         p2_class = "winning";
-      } else if (p1_score !== undefined && p2_score !== undefined) {
+      } else if (p1_hasScore && p2_hasScore) {
         if (p1_score < p2_score) p1_class = "winning";
         else if (p2_score < p1_score) p2_class = "winning";
       }
 
       return `
-          <div class="matchup">
-              <div class="matchup-body">
-                  <div class="player p1 ${p1_class}" data-userid="${
-        player1.userId
-      }">
-                      ${getPlayerHTML(player1)}
-                  </div>
-                  <div class="vs">VS</div>
-                  <div class="player p2 ${p2_class}" data-userid="${
-        player2.userId
-      }">
-                      ${getPlayerHTML(player2)}
-                  </div>
-              </div>
-          </div>`;
+        <div class="matchup">
+            <div class="player p1 ${p1_class}" data-userid="${
+        player1?.userId || ""
+      }">${getPlayerHTML(player1)}</div>
+            <div class="vs">VS</div>
+            <div class="player p2 ${p2_class}" data-userid="${
+        player2?.userId || ""
+      }">${getPlayerHTML(player2)}</div>
+        </div>`;
     })
     .join("");
 
-  container.innerHTML = `<div class="bracket-container">${bracketHTML}</div>`;
+  const leaderboardHTML = renderBracketLeaderboard(bracketData);
+
+  container.innerHTML = `
+    <div class="bracket-split-container">
+      <div class="bracket-matchups-container">${matchupsHTML}</div>
+      <div class="bracket-leaderboard-container">${leaderboardHTML}</div>
+    </div>`;
+}
+
+function renderBracketLeaderboard(players, isEmpty = false) {
+  const headers = [
+    { key: "순위" },
+    { key: "닉네임" },
+    { key: "A" },
+    { key: "B" },
+    { key: "현재 성적" },
+  ];
+  const headHTML = `<thead><tr>${headers
+    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
+    .join("")}</tr></thead>`;
+
+  if (isEmpty) {
+    return `<div class="table-container"><table>${headHTML}<tbody><tr class="placeholder-row"><td colspan="${headers.length}">경기 데이터가 없습니다.</td></tr></tbody></table></div>`;
+  }
+
+  const sortedPlayers = [...players].sort(
+    (a, b) => (a.score ?? 999) - (b.score ?? 999)
+  );
+
+  let rank = 0;
+  let lastScore = -Infinity;
+  sortedPlayers.forEach((p, i) => {
+    if (p.score !== lastScore) {
+      rank = i + 1;
+      lastScore = p.score;
+    }
+    p.currentRank = rank;
+  });
+
+  sortedPlayers.forEach((p, i) => {
+    const nextPlayerHasSameScore =
+      i + 1 < sortedPlayers.length && sortedPlayers[i + 1].score === p.score;
+    const prevPlayerHasSameScore =
+      i > 0 && sortedPlayers[i - 1].score === p.score;
+    p.isTie = nextPlayerHasSameScore || prevPlayerHasSameScore;
+  });
+
+  const courseData = getLeaderboardData();
+
+  const bodyHTML = sortedPlayers
+    .map((player) => {
+      const displayRank =
+        player.score === null || player.score === undefined
+          ? "-"
+          : player.isTie
+          ? `T${player.currentRank}`
+          : player.currentRank;
+
+      const courseAData = (courseData.courseA || []).find(
+        (p) => p.userId === player.userId
+      );
+      const courseBData = (courseData.courseB || []).find(
+        (p) => p.userId === player.userId
+      );
+
+      return `
+      <tr data-userid="${player.userId}">
+        <td class="rank">${displayRank}</td>
+        <td class="nickname">${player.userNickname}</td>
+        <td>${formatSimpleScore(courseAData?.score)}</td>
+        <td>${formatSimpleScore(courseBData?.score)}</td>
+        <td>${formatFinalScore(player.score)}</td>
+      </tr>`;
+    })
+    .join("");
+
+  return `<div class="table-container"><table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table></div>`;
 }
 
 function renderTicker(element, data) {
@@ -719,14 +811,10 @@ function setupEventListeners(elements, stage) {
     .getElementById("overview-button")
     .addEventListener("click", () => openModal(overviewModal));
 
-  // =================================================================
-  // 수정된 부분 1: '전체 대진표 보기' 버튼 이벤트 리스너
-  // renderFullBracket 함수를 인수 없이 호출하여 자체적으로 데이터를 가져오게 합니다.
-  // =================================================================
   document
     .getElementById("full-bracket-button")
     .addEventListener("click", () => {
-      renderFullBracket(); // 인수 없이 호출
+      renderFullBracket();
       openModal(fullBracketModal);
 
       const timeElement = document.getElementById("current-time");
@@ -759,12 +847,24 @@ function setupEventListeners(elements, stage) {
 
   contentElement.addEventListener("click", (e) => {
     const target = e.target.closest(
-      "tr[data-userid], .cutoff-item[data-userid], .bracket-container .player[data-userid]"
+      "tr[data-userid], .cutoff-item[data-userid], .player[data-userid]"
     );
     if (target) {
       const userId = target.dataset.userid;
-      const player = getAllPlayers().find((p) => p.userId === userId);
-      if (player) showPlayerModal(player, searchModal, openModal);
+      if (!userId || userId === "null") return;
+
+      const allPlayersList = getAllPlayers();
+      const bracketPlayers = getLeaderboardData()?.brackets || [];
+
+      let player = bracketPlayers.find((p) => p.userId === userId);
+      const fullPlayerInfo = allPlayersList.find((p) => p.userId === userId);
+
+      if (fullPlayerInfo) {
+        player = { ...fullPlayerInfo, ...player };
+        showPlayerModal(player, searchModal, openModal);
+      } else if (player) {
+        showPlayerModal(player, searchModal, openModal);
+      }
     }
   });
 }
@@ -794,7 +894,7 @@ function showPlayerModal(player, modal, openCallback) {
   const leaderboardData = getLeaderboardData();
   const rank = player.isTieRank ? `T${player.rank}` : player.rank || "-";
   let totalRounds = player.roundCount;
-  if (totalRounds === undefined) {
+  if (totalRounds === undefined && player.courseRoundCounts) {
     totalRounds =
       (player.courseRoundCounts.A || 0) +
       (player.courseRoundCounts.B || 0) +
@@ -840,7 +940,7 @@ function showPlayerModal(player, modal, openCallback) {
           player.revisionGrade ?? "-"
         }</span></div>
         <div class="search-result-item"><span class="result-label">최종 성적</span><span class="result-value final-score">${formatSimpleScore(
-          player.totalScore
+          player.totalScore ?? player.score
         )}</span></div>`;
 
   const modalBody = modal.querySelector("#modal-body");
@@ -848,12 +948,9 @@ function showPlayerModal(player, modal, openCallback) {
   openCallback(modal);
 }
 
-// hwouu/scratch-leaderboard/scratch-leaderboard-fc14ac7c05975e55c43dbe5e7b91cd3557efe3e1/frontend/js/views/leaderboard.js
-
 async function renderFullBracket() {
   const bracketContent = document.getElementById("full-bracket-content");
 
-  // 1. 대진표의 기본 HTML 구조를 먼저 생성합니다.
   const rounds = [
     { name: "32강", class: "round-of-32", players: 32 },
     { name: "16강", class: "round-of-16", players: 16 },
@@ -904,7 +1001,6 @@ async function renderFullBracket() {
     ${footerHTML}
   `;
 
-  // 2. 각 라운드에 필요한 데이터를 비동기적으로 가져옵니다.
   try {
     const [data32, data16, data8, data4, dataFinal] = await Promise.all([
       fetchStageData("32"),
@@ -923,9 +1019,7 @@ async function renderFullBracket() {
     if (data4?.brackets)
       populateBracketRound(bracketContent, data4.brackets, 4);
 
-    // 결승 및 3위전 데이터 처리
     if (dataFinal?.brackets) {
-      // 결승전 (groupNo: 1)
       const finalMatchPlayers = dataFinal.brackets
         .filter((p) => p.groupNo === 1)
         .sort((a, b) => a.slotNo - b.slotNo);
@@ -933,7 +1027,6 @@ async function renderFullBracket() {
         createPlayerDivHTML(finalMatchPlayers[0]) +
         createPlayerDivHTML(finalMatchPlayers[1]);
 
-      // 3위 결정전 (groupNo: 2)
       const thirdPlaceMatchPlayers = dataFinal.brackets
         .filter((p) => p.groupNo === 2)
         .sort((a, b) => a.slotNo - b.slotNo);
@@ -941,7 +1034,6 @@ async function renderFullBracket() {
         createPlayerDivHTML(thirdPlaceMatchPlayers[0]) +
         createPlayerDivHTML(thirdPlaceMatchPlayers[1]);
     } else {
-      // 데이터가 없을 경우 TBD로 표시
       document.getElementById("final-match").innerHTML = createEmptyMatchHTML();
       document.getElementById("third-place-match").innerHTML =
         createEmptyMatchHTML();
@@ -954,12 +1046,6 @@ async function renderFullBracket() {
   }
 }
 
-/**
- * =================================================================
- * 추가된 헬퍼 함수 1: populateBracketRound
- * 특정 라운드의 대진표 데이터를 받아 HTML 요소를 채웁니다.
- * =================================================================
- */
 function populateBracketRound(bracketContent, players, roundNumber) {
   const roundClass = `.round-of-${roundNumber}`;
   const [leftSide, rightSide] = bracketContent.querySelectorAll(
@@ -1002,12 +1088,6 @@ function populateBracketRound(bracketContent, players, roundNumber) {
   }
 }
 
-/**
- * =================================================================
- * 추가된 헬퍼 함수 2: createPlayerDivHTML / createEmptyMatchHTML
- * 대진표에 들어갈 선수 div 또는 빈 매치 div의 HTML을 생성합니다.
- * =================================================================
- */
 function createPlayerDivHTML(player) {
   if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
   const rank = player.preliminaryRank || player.rank;

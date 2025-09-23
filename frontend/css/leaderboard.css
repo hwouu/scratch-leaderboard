@@ -1,4 +1,3 @@
-/* Leaderboard Table */
 .table-container {
   display: flex;
   flex-direction: column;
@@ -45,7 +44,6 @@ tbody tr {
   width: 100%;
   table-layout: fixed;
 }
-
 body.light-mode th,
 body.light-mode td {
   border-bottom-color: var(--border-color-light);
@@ -72,7 +70,6 @@ thead tr th:last-child {
 tbody tr:last-child td {
   border-bottom: none;
 }
-
 .rank {
   font-size: 18px;
   font-weight: 700;
@@ -96,8 +93,6 @@ tbody tr:last-child td {
 .shop-name-mobile {
   display: none;
 }
-
-/* Cutoff View */
 .cutoff-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -127,14 +122,8 @@ body.light-mode .cutoff-column {
   gap: 12px;
   cursor: pointer;
 }
-.cutoff-item.empty {
-  background-color: transparent;
-}
 body.light-mode .cutoff-item {
   background-color: var(--bg-surface-accent-light);
-}
-body.light-mode .cutoff-item.empty {
-  background-color: transparent;
 }
 .cutoff-item .rank {
   font-size: 16px;
@@ -161,143 +150,150 @@ body.light-mode .cutoff-item.empty {
   font-size: 16px;
   font-weight: 700;
 }
-
-/* Bracket View */
-.bracket-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  padding: 4px;
-  overflow-y: auto;
+.placeholder-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
-  align-content: start;
-  /* 아이템이 세로로 먼저 채워지도록 설정 */
-  grid-auto-flow: column;
-  grid-template-rows: repeat(4, auto);
+  min-height: 200px;
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+body.light-mode .placeholder-container {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+}
+.table-container .placeholder-row td {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+.bracket-split-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+.bracket-matchups-container {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bracket-leaderboard-container {
+  flex: 1;
+  min-width: 0;
+  border-left: 1px solid var(--border-color);
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+}
+body.light-mode .bracket-leaderboard-container {
+  border-color: var(--border-color-light);
 }
 .matchup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.matchup:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
 }
 body.light-mode .matchup {
   background-color: var(--bg-surface-light);
   border-color: var(--border-color-light);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-body.light-mode .matchup:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-.matchup-header {
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background-color: var(--bg-surface-accent);
-  border-bottom: 1px solid var(--border-color);
-  text-align: center;
-}
-body.light-mode .matchup-header {
-  background-color: var(--bg-surface-accent-light);
-  border-bottom-color: var(--border-color-light);
-}
-.matchup-body {
-  padding: 12px;
 }
 .matchup .player {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  border-radius: 6px;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
   background-color: var(--bg-surface-accent);
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: background-color 0.2s;
-  width: 100%;
-}
-.matchup .player:hover {
-  background-color: #3a3d3f;
 }
 body.light-mode .matchup .player {
   background-color: var(--bg-surface-accent-light);
+}
+.matchup .player:hover {
+  background-color: var(--bg-hover);
 }
 body.light-mode .matchup .player:hover {
   background-color: #e9ecef;
 }
 .matchup .vs {
-  text-align: center;
-  font-weight: 700;
+  font-weight: bold;
   color: var(--text-secondary);
-  padding: 8px 0;
-  font-size: 12px;
 }
-.player-details {
+.matchup .player-details {
   display: flex;
   align-items: center;
-  flex-grow: 1;
-  min-width: 0;
+  gap: 10px;
+  overflow: hidden;
 }
-.player .rank {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent-blue);
-  flex-basis: 40px; /* 순위 너비 고정 */
-  flex-shrink: 0;
+.matchup .player-details .rank {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: var(--bg-main);
+  border-radius: 5px;
+  padding: 3px 6px;
 }
-.player .name {
-  font-weight: 600;
-  font-size: 15px;
+body.light-mode .matchup .player-details .rank {
+  background-color: var(--bg-main-light);
+}
+.matchup .name-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+}
+.matchup .name-wrapper .name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-basis: 50%; /* 닉네임 기본 너비 */
-  flex-grow: 1;
+  font-weight: 600;
 }
-.player .shop-name {
-  display: none; /* 기본적으로 숨김 */
-  font-size: 13px;
+.matchup .player-shop {
+  font-size: 0.8rem;
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-basis: 50%; /* 매장명 기본 너비 */
-  text-align: right;
-}
-/* 상세 뷰일 때만 매장명을 표시 */
-.player.detailed-view .shop-name {
-  display: inline;
-}
-/* 상세 뷰일 때는 닉네임과 매장명이 공간을 나눠 갖도록 조정 */
-.player.detailed-view .name {
-  flex-basis: 50%;
+  margin-top: 2px;
 }
 .matchup .player-score {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--accent-red);
-  flex-shrink: 0;
-  margin-left: 10px;
-  flex-basis: 40px; /* 최종 성적 너비 고정 */
-  text-align: right;
+  font-size: 1.1rem;
+  font-weight: bold;
 }
-
-/* --- Responsive Adjustments for Leaderboard --- */
+.matchup .player.winning {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+  animation: winning-glow 2s infinite alternate ease-in-out;
+}
+@keyframes winning-glow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 193, 7, 0.2);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+  }
+}
 @media (min-width: 1200px) {
   .bracket-container {
     grid-template-columns: repeat(4, 1fr);
   }
 }
-
-/* Tablet */
 @media (min-width: 769px) and (max-width: 1100px) {
   .tablet-hide,
   .mobile-hide {
@@ -313,8 +309,22 @@ body.light-mode .matchup .player:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* Mobile */
+@media (max-width: 1024px) {
+  .bracket-split-container {
+    flex-direction: column;
+    height: auto;
+  }
+  .bracket-leaderboard-container {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+  }
+  body.light-mode .bracket-leaderboard-container {
+    border-color: var(--border-color-light);
+  }
+}
 @media (max-width: 768px) {
   tbody.clickable tr {
     -webkit-tap-highlight-color: transparent;
@@ -342,40 +352,7 @@ body.light-mode .matchup .player:hover {
     padding: 10px;
     gap: 8px;
   }
-  .bracket-container {
-    grid-template-columns: 1fr;
+  .matchup {
+    flex-direction: column;
   }
-}
-/* --- End of Responsive Adjustments for Leaderboard --- */
-
-/* 대진표에서 이기고 있는 선수 하이라이트 */
-.bracket-container .player.winning {
-  border-color: #0091ff; /* 파란색 테두리 */
-  background-color: var(--highlight-bg-color);
-  box-shadow: 0 0 8px rgba(0, 145, 255, 0.3); /* 그림자 효과 */
-}
-
-.bracket-container .player.winning .name {
-  color: var(--accent-color);
-  font-weight: bold;
-}
-
-/* 대진표 뷰에서 이름과 매장을 감싸는 컨테이너 */
-.bracket-container .name-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* 텍스트 좌측 정렬 */
-  margin-left: 8px;
-  overflow: hidden; /* 이름이나 매장이 길 경우를 대비 */
-}
-
-/* 대진표 뷰에서 플레이어 매장 이름 스타일 */
-.bracket-container .player-shop {
-  font-size: 0.8em;
-  color: var(--secondary-text-color);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px; /* 매장 이름이 표시될 최대 너비 (조정 가능) */
 }
