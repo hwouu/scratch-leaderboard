@@ -4,8 +4,7 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor
 
-# 각 토너먼트 단계별 API 엔드포인트
-# 16강, 8강 등은 실제 URL로 추후 교체해야 합니다.
+# API endpoints for each tournament stage
 API_URLS = {
     "qualifying": {
         "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3609/stroke?gender=0&page=1&size=100",
@@ -21,30 +20,38 @@ API_URLS = {
     },
     "16": {
         "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/3613",
-        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3613/stroke?gender=0&page=1&size=10",
-        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3614/stroke?gender=0&page=1&size=10",
-        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3615/stroke?gender=0&page=1&size=10",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3613/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3614/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3615/stroke?gender=0&page=1&size=100",
     },
-
     "8": {
         "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/3616",
-        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3616/stroke?gender=0&page=1&size=10",
-        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3617/stroke?gender=0&page=1&size=10",
-        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3618/stroke?gender=0&page=1&size=10",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3616/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3617/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3618/stroke?gender=0&page=1&size=100",
     },
-    
     "4": {
         "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/3619",
-        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3619/stroke?gender=0&page=1&size=10",
-        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3620/stroke?gender=0&page=1&size=10",
-        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3621/stroke?gender=0&page=1&size=10",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3619/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3620/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3621/stroke?gender=0&page=1&size=100",
     },
-    # 4강, 결승 등 추후 추가
+    "final": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/3622",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3622/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3623/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3624/stroke?gender=0&page=1&size=100",
+    },
+    "third-place": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/3625",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/3625/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3626/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3627/stroke?gender=0&page=1&size=100",
+    },
 }
 
 def fetch_url(url):
-    """지정된 URL에서 데이터를 가져와 JSON으로 반환합니다."""
-    # URL이 플레이스홀더인 경우 실제 요청을 보내지 않음
+    """Fetches data from a single URL and returns the JSON response."""
     if "_URL" in url:
         return {"error": "URL not configured for this stage yet."}
     try:
@@ -60,7 +67,7 @@ def fetch_url(url):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        """GET 요청을 처리합니다."""
+        """Handles GET requests."""
         parsed_path = urlparse(self.path)
         query_components = parse_qs(parsed_path.query)
         stage = query_components.get("stage", ["qualifying"])[0]
