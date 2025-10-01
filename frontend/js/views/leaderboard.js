@@ -507,17 +507,107 @@ function renderBracketView(container, bracketData) {
   };
 
   if (currentStage === "final") {
-    if (
-      !bracketData ||
-      !Array.isArray(bracketData) ||
-      bracketData.length === 0
-    ) {
-      container.innerHTML = `<div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>`;
-      return;
-    }
+    // final 스테이지에서는 결승과 3위결정전 데이터를 모두 가져와야 함
+    renderFinalStageWithThirdPlace(container);
+    return;
+  }
 
-    const finalMatchPlayers = bracketData.filter((p) => p.groupNo === 1);
-    const thirdPlaceMatchPlayers = bracketData.filter((p) => p.groupNo === 2);
+  // 기존의 32강, 16강 등 다른 토너먼트 스테이지 렌더링 로직
+  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
+    container.innerHTML = `
+      <div class="bracket-split-container">
+        <div class="bracket-matchups-container">
+          <div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>
+        </div>
+        <div class="bracket-leaderboard-container">
+          ${renderBracketLeaderboard([], true)}
+        </div>
+      </div>`;
+    return;
+  }
+
+  const matchups = bracketData.reduce((acc, player) => {
+    if (!acc[player.groupNo]) {
+      acc[player.groupNo] = [];
+    }
+    acc[player.groupNo].push(player);
+    return acc;
+  }, {});
+
+  const matchupsHTML = Object.values(matchups)
+    .map((match) => {
+      const [player1, player2] = match.sort((a, b) => a.slotNo - b.slotNo);
+      let p1_class = "",
+        p2_class = "";
+
+      const p1_score = player1?.score;
+      const p2_score = player2?.score;
+      const p1_hasScore = typeof p1_score === "number";
+      const p2_hasScore = typeof p2_score === "number";
+
+      if (p1_hasScore && !p2_hasScore) {
+        p1_class = "winning";
+      } else if (!p1_hasScore && p2_hasScore) {
+        p2_class = "winning";
+      } else if (p1_hasScore && p2_hasScore) {
+        if (p1_score < p2_score) p1_class = "winning";
+        else if (p2_score < p1_score) p2_class = "winning";
+      }
+
+      return `
+        <div class="matchup">
+            <div class="player p1 ${p1_class}" data-userid="${
+        player1?.userId || ""
+      }">${getPlayerHTML(player1)}</div>
+            <div class="vs">VS</div>
+            <div class="player p2 ${p2_class}" data-userid="${
+        player2?.userId || ""
+      }">${getPlayerHTML(player2)}</div>
+        </div>`;
+    })
+    .join("");
+
+  const leaderboardHTML = renderBracketLeaderboard(bracketData);
+
+  container.innerHTML = `
+    <div class="bracket-split-container">
+      <div class="bracket-matchups-container">${matchupsHTML}</div>
+      <div class="bracket-leaderboard-container">${leaderboardHTML}</div>
+    </div>`;
+}
+
+/**
+ * final 스테이지에서 결승과 3위결정전을 모두 표시하는 함수
+ */
+async function renderFinalStageWithThirdPlace(container) {
+  try {
+    // 결승과 3위결정전 데이터를 동시에 가져오기
+    const [finalData, thirdPlaceData] = await Promise.all([
+      fetchStageData("final"),
+      fetchStageData("third-place"),
+    ]);
+
+    const finalMatchPlayers = finalData?.brackets || [];
+    const thirdPlaceMatchPlayers = thirdPlaceData?.brackets || [];
+
+    const allPlayers = getAllPlayers();
+    const getPlayerHTML = (player) => {
+      if (!player) {
+        return `<div class="player-details"><span class="rank">-</span><span class="name">TBA</span></div><span class="player-score">-</span>`;
+      }
+      const { userNickname, preliminaryRank, score, userId } = player;
+      const fullPlayer = allPlayers.find((p) => p.userId === userId);
+
+      return `
+        <div class="player-details">
+            <span class="rank" title="예선 ${preliminaryRank}위">${preliminaryRank}</span>
+            <div class="name-wrapper">
+               <span class="name" title="${userNickname}">${userNickname} (${userId})</span>
+               <span class="player-shop">${fullPlayer?.shopName || ""}</span>
+            </div>
+        </div>
+        <span class="player-score">${formatSimpleScore(score)}</span>`;
+    };
 
     const createMatchupHTML = (players, title) => {
       if (!players || players.length === 0) {
@@ -567,73 +657,14 @@ function renderBracketView(container, bracketData) {
       `;
     };
 
+    // 결승과 3위결정전을 위아래로 배치
     container.innerHTML =
       createMatchupHTML(finalMatchPlayers, "결승") +
       createMatchupHTML(thirdPlaceMatchPlayers, "3위 결정전");
-
-    return; // final 스테이지 렌더링 완료 후 함수 종료
+  } catch (error) {
+    console.error("Final stage 데이터를 가져오는 데 실패했습니다:", error);
+    container.innerHTML = `<div class="placeholder-container"><p>데이터를 불러오는 중 오류가 발생했습니다.</p></div>`;
   }
-
-  // 기존의 32강, 16강 등 다른 토너먼트 스테이지 렌더링 로직
-  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
-    container.innerHTML = `
-      <div class="bracket-split-container">
-        <div class="bracket-matchups-container">
-          <div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>
-        </div>
-        <div class="bracket-leaderboard-container">
-          ${renderBracketLeaderboard([], true)}
-        </div>
-      </div>`;
-    return;
-  }
-
-  const matchups = bracketData.reduce((acc, player) => {
-    if (!acc[player.groupNo]) acc[player.groupNo] = [];
-    acc[player.groupNo].push(player);
-    return acc;
-  }, {});
-
-  const matchupsHTML = Object.values(matchups)
-    .map((match) => {
-      const [player1, player2] = match.sort((a, b) => a.slotNo - b.slotNo);
-      let p1_class = "",
-        p2_class = "";
-
-      const p1_score = player1?.score;
-      const p2_score = player2?.score;
-      const p1_hasScore = typeof p1_score === "number";
-      const p2_hasScore = typeof p2_score === "number";
-
-      if (p1_hasScore && !p2_hasScore) {
-        p1_class = "winning";
-      } else if (!p1_hasScore && p2_hasScore) {
-        p2_class = "winning";
-      } else if (p1_hasScore && p2_hasScore) {
-        if (p1_score < p2_score) p1_class = "winning";
-        else if (p2_score < p1_score) p2_class = "winning";
-      }
-
-      return `
-        <div class="matchup">
-            <div class="player p1 ${p1_class}" data-userid="${
-        player1?.userId || ""
-      }">${getPlayerHTML(player1)}</div>
-            <div class="vs">VS</div>
-            <div class="player p2 ${p2_class}" data-userid="${
-        player2?.userId || ""
-      }">${getPlayerHTML(player2)}</div>
-        </div>`;
-    })
-    .join("");
-
-  const leaderboardHTML = renderBracketLeaderboard(bracketData);
-
-  container.innerHTML = `
-    <div class="bracket-split-container">
-      <div class="bracket-matchups-container">${matchupsHTML}</div>
-      <div class="bracket-leaderboard-container">${leaderboardHTML}</div>
-    </div>`;
 }
 
 function renderBracketLeaderboard(players, isEmpty = false) {
