@@ -39,7 +39,7 @@ const stageNames = {
   16: "16강",
   8: "8강",
   4: "4강",
-  final: "결승",
+  final: "결승전 | 3위 결정전",
 };
 
 // --- 템플릿 HTML ---
@@ -659,7 +659,7 @@ async function renderFinalStageWithThirdPlace(container) {
 
     // 결승과 3위결정전을 위아래로 배치
     container.innerHTML =
-      createMatchupHTML(finalMatchPlayers, "결승") +
+      createMatchupHTML(finalMatchPlayers, "결승전") +
       createMatchupHTML(thirdPlaceMatchPlayers, "3위 결정전");
   } catch (error) {
     console.error("Final stage 데이터를 가져오는 데 실패했습니다:", error);
