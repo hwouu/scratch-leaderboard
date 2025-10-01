@@ -1002,13 +1002,15 @@ async function renderFullBracket() {
   `;
 
   try {
-    const [data32, data16, data8, data4, dataFinal] = await Promise.all([
-      fetchStageData("32"),
-      fetchStageData("16"),
-      fetchStageData("8"),
-      fetchStageData("4"),
-      fetchStageData("final"),
-    ]);
+    const [data32, data16, data8, data4, dataThirdPlace, dataFinal] =
+      await Promise.all([
+        fetchStageData("32"),
+        fetchStageData("16"),
+        fetchStageData("8"),
+        fetchStageData("4"),
+        fetchStageData("third-place"),
+        fetchStageData("final"),
+      ]);
 
     if (data32?.brackets)
       populateBracketRound(bracketContent, data32.brackets, 32);
@@ -1026,15 +1028,18 @@ async function renderFullBracket() {
       document.getElementById("final-match").innerHTML =
         createPlayerDivHTML(finalMatchPlayers[0]) +
         createPlayerDivHTML(finalMatchPlayers[1]);
+    } else {
+      document.getElementById("final-match").innerHTML = createEmptyMatchHTML();
+    }
 
-      const thirdPlaceMatchPlayers = dataFinal.brackets
-        .filter((p) => p.groupNo === 2)
-        .sort((a, b) => a.slotNo - b.slotNo);
+    if (dataThirdPlace?.brackets) {
+      const thirdPlaceMatchPlayers = dataThirdPlace.brackets.sort(
+        (a, b) => a.slotNo - b.slotNo
+      );
       document.getElementById("third-place-match").innerHTML =
         createPlayerDivHTML(thirdPlaceMatchPlayers[0]) +
         createPlayerDivHTML(thirdPlaceMatchPlayers[1]);
     } else {
-      document.getElementById("final-match").innerHTML = createEmptyMatchHTML();
       document.getElementById("third-place-match").innerHTML =
         createEmptyMatchHTML();
     }
