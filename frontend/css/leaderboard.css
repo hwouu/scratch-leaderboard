@@ -356,3 +356,19 @@ body.light-mode .matchup .player-details .rank {
     flex-direction: column;
   }
 }
+.final-stage-section {
+  margin-bottom: 32px;
+}
+
+.final-stage-section:last-child {
+  margin-bottom: 0;
+}
+
+.final-stage-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}

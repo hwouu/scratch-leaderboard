@@ -487,25 +487,6 @@ function renderCutoffView(container, data) {
 }
 
 function renderBracketView(container, bracketData) {
-  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
-    container.innerHTML = `
-      <div class="bracket-split-container">
-        <div class="bracket-matchups-container">
-          <div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>
-        </div>
-        <div class="bracket-leaderboard-container">
-          ${renderBracketLeaderboard([], true)}
-        </div>
-      </div>`;
-    return;
-  }
-
-  const matchups = bracketData.reduce((acc, player) => {
-    if (!acc[player.groupNo]) acc[player.groupNo] = [];
-    acc[player.groupNo].push(player);
-    return acc;
-  }, {});
-
   const allPlayers = getAllPlayers();
   const getPlayerHTML = (player) => {
     if (!player) {
@@ -524,6 +505,94 @@ function renderBracketView(container, bracketData) {
       </div>
       <span class="player-score">${formatSimpleScore(score)}</span>`;
   };
+
+  if (currentStage === "final") {
+    if (
+      !bracketData ||
+      !Array.isArray(bracketData) ||
+      bracketData.length === 0
+    ) {
+      container.innerHTML = `<div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>`;
+      return;
+    }
+
+    const finalMatchPlayers = bracketData.filter((p) => p.groupNo === 1);
+    const thirdPlaceMatchPlayers = bracketData.filter((p) => p.groupNo === 2);
+
+    const createMatchupHTML = (players, title) => {
+      if (!players || players.length === 0) {
+        return "";
+      }
+
+      const [player1, player2] = players.sort((a, b) => a.slotNo - b.slotNo);
+      let p1_class = "",
+        p2_class = "";
+
+      const p1_score = player1?.score;
+      const p2_score = player2?.score;
+      const p1_hasScore = typeof p1_score === "number";
+      const p2_hasScore = typeof p2_score === "number";
+
+      if (p1_hasScore && !p2_hasScore) {
+        p1_class = "winning";
+      } else if (!p1_hasScore && p2_hasScore) {
+        p2_class = "winning";
+      } else if (p1_hasScore && p2_hasScore) {
+        if (p1_score < p2_score) p1_class = "winning";
+        else if (p2_score < p1_score) p2_class = "winning";
+      }
+
+      const matchupHTML = `
+        <div class="matchup">
+          <div class="player p1 ${p1_class}" data-userid="${
+        player1?.userId || ""
+      }">${getPlayerHTML(player1)}</div>
+          <div class="vs">VS</div>
+          <div class="player p2 ${p2_class}" data-userid="${
+        player2?.userId || ""
+      }">${getPlayerHTML(player2)}</div>
+        </div>
+      `;
+
+      const leaderboardHTML = renderBracketLeaderboard(players);
+
+      return `
+        <div class="final-stage-section">
+          <h2 class="final-stage-title">${title}</h2>
+          <div class="bracket-split-container">
+            <div class="bracket-matchups-container">${matchupHTML}</div>
+            <div class="bracket-leaderboard-container">${leaderboardHTML}</div>
+          </div>
+        </div>
+      `;
+    };
+
+    container.innerHTML =
+      createMatchupHTML(finalMatchPlayers, "결승") +
+      createMatchupHTML(thirdPlaceMatchPlayers, "3위 결정전");
+
+    return; // final 스테이지 렌더링 완료 후 함수 종료
+  }
+
+  // 기존의 32강, 16강 등 다른 토너먼트 스테이지 렌더링 로직
+  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
+    container.innerHTML = `
+      <div class="bracket-split-container">
+        <div class="bracket-matchups-container">
+          <div class="placeholder-container"><p>대진표 정보가 없습니다.</p></div>
+        </div>
+        <div class="bracket-leaderboard-container">
+          ${renderBracketLeaderboard([], true)}
+        </div>
+      </div>`;
+    return;
+  }
+
+  const matchups = bracketData.reduce((acc, player) => {
+    if (!acc[player.groupNo]) acc[player.groupNo] = [];
+    acc[player.groupNo].push(player);
+    return acc;
+  }, {});
 
   const matchupsHTML = Object.values(matchups)
     .map((match) => {
