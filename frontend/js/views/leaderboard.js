@@ -671,8 +671,8 @@ function renderBracketLeaderboard(players, isEmpty = false) {
   const headers = [
     { key: "순위" },
     { key: "닉네임" },
-    { key: "A" },
-    { key: "B" },
+    { key: "A코스" },
+    { key: "B코스" },
     { key: "현재 성적" },
   ];
   const headHTML = `<thead><tr>${headers
