@@ -70,8 +70,14 @@ const leaderboardPageHTML = `
   <div id="overview-modal" class="modal-overlay">
     <div class="modal-content image-modal">
       <button class="modal-close-button">&times;</button>
-      <img src="/assets/2nd_overview.png" alt="대회 개요 포스터"
-           onerror="this.onerror=null;this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
+      <div class="overview-images-container">
+        <img src="/assets/2nd_overview.png" alt="대회 개요 포스터" class="overview-image"
+             onerror="this.onerror=null;this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
+        <img src="/assets/2nd_handicap.png" alt="대회 보정치" class="overview-image"
+             onerror="this.onerror=null;this.src='https://placehold.co/800x600/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
+        <img src="/assets/course_and_winning_price.png" alt="코스 및 상금 정보" class="overview-image"
+             onerror="this.onerror=null;this.src='https://placehold.co/800x600/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
+      </div>
     </div>
   </div>
   <div id="full-bracket-modal" class="modal-overlay">
