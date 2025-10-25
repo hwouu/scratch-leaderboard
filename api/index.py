@@ -48,6 +48,14 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3626/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/3627/stroke?gender=0&page=1&size=100",
     },
+    # 2nd 토너먼트 URLs
+    "2nd-qualifying": {
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7382/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7383/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7384/stroke?gender=0&page=1&size=100",
+        "courseC": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7385/stroke?gender=0&page=1&size=100",
+    },
+    # 64강, 32강 등은 추후 추가 예정
 }
 
 def fetch_url(url):

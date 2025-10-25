@@ -1,13 +1,25 @@
 import { renderLeaderboardPage } from "./views/leaderboard.js";
+import { renderLeaderboard2ndPage } from "./views/leaderboard-2nd.js";
 
-// 라우트 설정: 모든 경로가 leaderboard.js를 사용하도록 통합
+// 라우트 설정: 1st와 2nd 토너먼트 모두 지원
 const routes = {
+  // 1st 토너먼트 (기존)
   "/leaderboard/qualifying": (app) => renderLeaderboardPage("qualifying", app),
   "/leaderboard/32": (app) => renderLeaderboardPage("32", app),
   "/leaderboard/16": (app) => renderLeaderboardPage("16", app),
   "/leaderboard/8": (app) => renderLeaderboardPage("8", app),
   "/leaderboard/4": (app) => renderLeaderboardPage("4", app),
   "/leaderboard/final": (app) => renderLeaderboardPage("final", app),
+
+  // 2nd 토너먼트 (새로 추가)
+  "/leaderboard-2nd/qualifying": (app) =>
+    renderLeaderboard2ndPage("2nd-qualifying", app),
+  "/leaderboard-2nd/64": (app) => renderLeaderboard2ndPage("2nd-64", app),
+  "/leaderboard-2nd/32": (app) => renderLeaderboard2ndPage("2nd-32", app),
+  "/leaderboard-2nd/16": (app) => renderLeaderboard2ndPage("2nd-16", app),
+  "/leaderboard-2nd/8": (app) => renderLeaderboard2ndPage("2nd-8", app),
+  "/leaderboard-2nd/4": (app) => renderLeaderboard2ndPage("2nd-4", app),
+  "/leaderboard-2nd/final": (app) => renderLeaderboard2ndPage("2nd-final", app),
 };
 
 /**
@@ -17,8 +29,8 @@ const routes = {
 function getPathForCurrentDate() {
   const now = new Date();
 
-  // 각 스테이지의 시작일과 종료일을 명확하게 정의
-  const schedule = {
+  // 1st 토너먼트 스케줄
+  const schedule1st = {
     qualifying: {
       start: new Date("2025-09-01T00:00:00"),
       end: new Date("2025-09-14T23:59:59"),
@@ -45,36 +57,83 @@ function getPathForCurrentDate() {
     },
   };
 
-  // 객체 키 순서에 의존하지 않도록 명시적인 순서 배열 사용
-  const scheduleOrder = ["qualifying", "32", "16", "8", "4", "final"];
+  // 2nd 토너먼트 스케줄
+  const schedule2nd = {
+    qualifying: {
+      start: new Date("2025-10-24T00:00:00"),
+      end: new Date("2025-11-09T23:59:59"),
+    },
+    64: {
+      start: new Date("2025-11-10T00:00:00"),
+      end: new Date("2025-11-16T23:59:59"),
+    },
+    32: {
+      start: new Date("2025-11-17T00:00:00"),
+      end: new Date("2025-11-23T23:59:59"),
+    },
+    16: {
+      start: new Date("2025-11-24T00:00:00"),
+      end: new Date("2025-11-27T23:59:59"),
+    },
+    8: {
+      start: new Date("2025-11-28T00:00:00"),
+      end: new Date("2025-12-01T23:59:59"),
+    },
+    4: {
+      start: new Date("2025-12-02T00:00:00"),
+      end: new Date("2025-12-04T23:59:59"),
+    },
+    final: {
+      start: new Date("2025-12-05T00:00:00"),
+      end: new Date("2025-12-07T23:59:59"),
+    },
+  };
 
-  // 현재 날짜가 어떤 스테이지의 기간에 포함되는지 확인
-  for (const stage of scheduleOrder) {
-    const event = schedule[stage];
+  // 2nd 토너먼트 기간 체크 (최신 대회 우선)
+  const schedule2ndOrder = ["qualifying", "64", "32", "16", "8", "4", "final"];
+  for (const stage of schedule2ndOrder) {
+    const event = schedule2nd[stage];
+    if (now >= event.start && now <= event.end) {
+      return `/leaderboard-2nd/${stage}`;
+    }
+  }
+
+  // 1st 토너먼트 기간 체크
+  const schedule1stOrder = ["qualifying", "32", "16", "8", "4", "final"];
+  for (const stage of schedule1stOrder) {
+    const event = schedule1st[stage];
     if (now >= event.start && now <= event.end) {
       return `/leaderboard/${stage}`;
     }
   }
 
   // 진행 중인 대회가 없을 경우
-  const firstEventStart = schedule.qualifying.start;
-  const lastEventEnd = schedule.final.end;
+  const firstEventStart = schedule1st.qualifying.start;
+  const lastEventEnd = schedule2nd.final.end;
 
   if (now < firstEventStart) {
-    return "/leaderboard/qualifying"; // 대회가 시작하기 전이면 예선 페이지
+    return "/leaderboard/qualifying"; // 1st 대회가 시작하기 전이면 1st 예선 페이지
   } else if (now > lastEventEnd) {
-    return "/leaderboard/final"; // 대회가 모두 끝났으면 결승 페이지
+    return "/leaderboard-2nd/final"; // 모든 대회가 끝났으면 2nd 결승 페이지
   }
 
   // 스테이지 사이의 공백 기간일 경우, 다가올 스테이지 페이지를 보여줌
-  for (const stage of scheduleOrder) {
-    if (now < schedule[stage].start) {
+  // 2nd 토너먼트 우선 체크
+  for (const stage of schedule2ndOrder) {
+    if (now < schedule2nd[stage].start) {
+      return `/leaderboard-2nd/${stage}`;
+    }
+  }
+
+  // 1st 토너먼트 체크
+  for (const stage of schedule1stOrder) {
+    if (now < schedule1st[stage].start) {
       return `/leaderboard/${stage}`;
     }
   }
 
-  // 모든 조건에 해당하지 않을 경우의 기본값
-  return "/leaderboard/qualifying";
+  // 모든 조건에 해당하지 않을 경우의 기본값: 2nd 토너먼트 예선 (현재 진행 중)
+  return "/leaderboard-2nd/qualifying";
 }
 
 /**
