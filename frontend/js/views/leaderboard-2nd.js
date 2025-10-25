@@ -474,15 +474,13 @@ function renderCutoffView(container, data) {
         ${columnData
           .map((player) => {
             const rank = player.isTieRank ? `T${player.rank}` : player.rank;
-            return `<div class="cutoff-item" data-userid="${player.userId}">
+            return `<div class="cutoff-item" data-userid="${
+              player.userId
+            }" title="${player.userNickname} (${
+              player.userId
+            }) - ${formatSimpleScore(player.totalScore)}">
                       <span class="rank">${rank}</span>
-                      <div class="name-id" title="${player.userNickname}">
-                        <span class="name">${player.userNickname}</span>
-                        <span class="id">(${player.userId})</span>
-                      </div>
-                      <span class="score final-score">${formatSimpleScore(
-                        player.totalScore
-                      )}</span>
+                      <span class="name">${player.userNickname}</span>
                     </div>`;
           })
           .join("")}

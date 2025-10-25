@@ -116,8 +116,8 @@ body.light-mode th {
 /* ===== CUTOFF VIEW STYLES ===== */
 .cutoff-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 16px;
   height: 100%;
   overflow-y: auto;
 }
@@ -125,51 +125,39 @@ body.light-mode th {
 .cutoff-column {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 12px;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .cutoff-item {
   background-color: var(--bg-surface-accent);
-  padding: 12px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
+  min-height: 36px;
 }
 
 .cutoff-item .rank {
   font-size: 16px;
-  width: 30px;
+  width: 32px;
   text-align: center;
   flex-shrink: 0;
-}
-
-.cutoff-item .name-id {
-  flex-grow: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 700;
 }
 
 .cutoff-item .name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.cutoff-item .id {
-  font-size: 12px;
-  color: var(--text-secondary);
-  display: block;
-}
-
-.cutoff-item .score {
-  font-size: 16px;
-  font-weight: 700;
+  flex-grow: 1;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===== LIGHT MODE CUTOFF STYLES ===== */
@@ -369,7 +357,8 @@ body.light-mode .matchup .player-details .rank {
   }
 
   .cutoff-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
   }
 }
 
@@ -416,16 +405,27 @@ body.light-mode .matchup .player-details .rank {
   }
 
   .cutoff-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
   }
 
   .cutoff-column {
-    padding: 12px;
+    padding: 8px;
   }
 
   .cutoff-item {
-    padding: 10px;
+    padding: 6px 8px;
     gap: 8px;
+    min-height: 32px;
+  }
+
+  .cutoff-item .rank {
+    font-size: 14px;
+    width: 28px;
+  }
+
+  .cutoff-item .name {
+    font-size: 13px;
   }
 
   .matchup {
