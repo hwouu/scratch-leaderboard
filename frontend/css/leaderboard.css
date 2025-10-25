@@ -160,6 +160,13 @@ body.light-mode th {
   text-overflow: ellipsis;
 }
 
+.cutoff-item .score {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff4d4d;
+  flex-shrink: 0;
+}
+
 /* ===== LIGHT MODE CUTOFF STYLES ===== */
 body.light-mode .cutoff-column {
   background-color: var(--bg-surface-light);
@@ -426,6 +433,12 @@ body.light-mode .matchup .player-details .rank {
 
   .cutoff-item .name {
     font-size: 13px;
+  }
+
+  .cutoff-item .score {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff4d4d;
   }
 
   .matchup {

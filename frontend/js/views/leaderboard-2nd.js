@@ -482,11 +482,12 @@ function renderCutoffView(container, data) {
             const rank = player.isTieRank ? `T${player.rank}` : player.rank;
             return `<div class="cutoff-item" data-userid="${
               player.userId
-            }" title="${player.userNickname} (${
-              player.userId
-            }) - ${formatSimpleScore(player.totalScore)}">
+            }" title="${player.userNickname} (${player.userId})">
                       <span class="rank">${rank}</span>
                       <span class="name">${player.userNickname}</span>
+                      <span class="score">${formatSimpleScore(
+                        player.totalScore
+                      )}</span>
                     </div>`;
           })
           .join("")}
