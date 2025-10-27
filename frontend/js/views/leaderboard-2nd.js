@@ -486,9 +486,16 @@ function renderCutoffView(container, data) {
             const rank = player.isTieRank ? `T${player.rank}` : player.rank;
             return `<div class="cutoff-item" data-userid="${
               player.userId
-            }" title="${player.userNickname} (${player.userId})">
+            }" title="${player.userNickname} (${player.userId}) - ${
+              player.shopName || "매장 정보 없음"
+            }">
                       <span class="rank">${rank}</span>
-                      <span class="name">${player.userNickname}</span>
+                      <div class="name-container">
+                        <span class="name">${player.userNickname}</span>
+                        <span class="shop-name">${
+                          player.shopName || "매장 정보 없음"
+                        }</span>
+                      </div>
                       <span class="score">${formatSimpleScore(
                         player.totalScore
                       )}</span>
