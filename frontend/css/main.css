@@ -800,6 +800,13 @@ body.light-mode .desktop-footer .footer-links a:hover {
   display: none !important;
 }
 
+/* Desktop - Remove padding for full width */
+@media (min-width: 1200px) {
+  .container {
+    padding: 0;
+  }
+}
+
 /* Tablet */
 @media (min-width: 769px) and (max-width: 1100px) {
   .container {
