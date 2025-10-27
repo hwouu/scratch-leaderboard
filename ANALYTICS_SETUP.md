@@ -24,13 +24,18 @@
 
 ```html
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X34KCRC07N"></script>
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-X34KCRC07N"
+></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
 
-  gtag('config', 'G-X34KCRC07N');
+  gtag("config", "G-X34KCRC07N");
 </script>
 ```
 
@@ -38,10 +43,10 @@
 
 ## 2. Vercel Analytics 설정
 
-### 자동 활성화
+### CDN 방식 활성화
 
-- 이미 `@vercel/analytics` 패키지가 설치되어 있음
-- `app.js`에서 `inject()` 함수 호출로 활성화됨
+- HTML에 Vercel Analytics CDN 스크립트가 포함되어 있음
+- 자동으로 페이지 뷰와 성능 메트릭을 수집
 - 별도 설정 불필요
 
 ### Vercel 대시보드에서 확인

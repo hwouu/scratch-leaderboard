@@ -1,5 +1,4 @@
 import { route } from "./router.js";
-import { inject } from "@vercel/analytics";
 
 /**
  * 전역 UI 요소에 대한 이벤트 리스너를 설정합니다.
@@ -29,9 +28,6 @@ function initializeGlobalListeners() {
  * 애플리케이션을 초기화하고 시작합니다.
  */
 function init() {
-  // Vercel Analytics 초기화
-  inject();
-
   // 전역 이벤트 리스너 설정
   initializeGlobalListeners();
 
