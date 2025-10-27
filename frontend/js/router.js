@@ -1,5 +1,6 @@
 import { renderLeaderboardPage } from "./views/leaderboard.js";
 import { renderLeaderboard2ndPage } from "./views/leaderboard-2nd.js";
+import { trackPageView, AnalyticsEvents } from "./utils/analytics.js";
 
 // 라우트 설정: 1st와 2nd 토너먼트 모두 지원
 const routes = {
@@ -160,9 +161,20 @@ export function route() {
   if (renderFunc && app) {
     app.innerHTML = ""; // 페이지 전환 시 이전 내용 삭제
     renderFunc(app);
+
+    // 페이지 뷰 추적
+    trackPageView(path, document.title);
+
+    // 리더보드 페이지 뷰 이벤트 추적
+    if (path.includes("/leaderboard")) {
+      const tournament = path.includes("2nd") ? "2nd" : "1st";
+      const stage = path.split("/").pop();
+      trackPageView(path, `${tournament} 토너먼트 ${stage} 단계`);
+    }
   } else if (app) {
     // 404 페이지 처리
     app.innerHTML = "<h1>404 Not Found</h1><p>페이지를 찾을 수 없습니다.</p>";
+    trackPageView(path, "404 Not Found");
   }
 }
 
