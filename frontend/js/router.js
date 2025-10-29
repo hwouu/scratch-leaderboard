@@ -23,6 +23,82 @@ const routes = {
   "/leaderboard-2nd/final": (app) => renderLeaderboard2ndPage("2nd-final", app),
 };
 
+function ensureMetaTag(nameOrProperty, key, value) {
+  let selector =
+    nameOrProperty === "name"
+      ? `meta[name="${key}"]`
+      : `meta[property="${key}"]`;
+  let el = document.querySelector(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(nameOrProperty, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", value);
+}
+
+function ensureLinkTag(rel, href) {
+  let el = document.querySelector(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+}
+
+function getSeoForPath(path) {
+  const baseTitle = "스크래치 리더보드 | 골프존 리더보드 LIVE";
+  const baseDesc =
+    "스크래치/골프존 리더보드 실시간 순위. 골목대장 토너먼트 예선·본선·결승 정보를 제공합니다.";
+  const baseKeywords =
+    "스크래치 리더보드, 스크래치 골목대장, 골프존 리더보드, 화전스크래치, 스크린골프 리더보드, 골프 토너먼트, 실시간 순위, 골목대장 토너먼트";
+
+  const stageLabel = (stage) =>
+    ({
+      qualifying: "예선",
+      64: "64강",
+      32: "32강",
+      16: "16강",
+      8: "8강",
+      4: "4강",
+      final: "결승전",
+    }[stage] || "리더보드");
+
+  if (path.startsWith("/leaderboard-2nd/")) {
+    const stage = path.split("/").pop();
+    const label = stageLabel(stage);
+    return {
+      title: `골목대장 토너먼트 2nd ${label} | 스크래치 리더보드`,
+      desc: `골목대장 토너먼트 2nd ${label} 실시간 순위와 대진표를 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
+  if (path.startsWith("/leaderboard/")) {
+    const stage = path.split("/").pop();
+    const label = stageLabel(stage);
+    return {
+      title: `골목대장 토너먼트 1st ${label} | 스크래치 리더보드`,
+      desc: `골목대장 토너먼트 1st ${label} 실시간 순위와 선수 기록을 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
+  return { title: baseTitle, desc: baseDesc, keywords: baseKeywords };
+}
+
+function updateSeoForPath(path) {
+  const { title, desc, keywords } = getSeoForPath(path);
+  document.title = title;
+  ensureMetaTag("name", "description", desc);
+  ensureMetaTag("name", "keywords", keywords);
+  ensureMetaTag("property", "og:title", title);
+  ensureMetaTag("property", "og:description", desc);
+  ensureMetaTag("property", "og:url", `${location.origin}${path}`);
+  ensureMetaTag("name", "twitter:title", title);
+  ensureMetaTag("name", "twitter:description", desc);
+  ensureLinkTag("canonical", `${location.origin}${path}`);
+}
+
 /**
  * 현재 날짜에 맞는 페이지 경로를 결정합니다.
  * @returns {string} 현재 대회 단계에 맞는 경로
@@ -162,6 +238,9 @@ export function route() {
     app.innerHTML = ""; // 페이지 전환 시 이전 내용 삭제
     renderFunc(app);
 
+    // SEO 메타 업데이트
+    updateSeoForPath(path);
+
     // 페이지 뷰 추적
     trackPageView(path, document.title);
 
@@ -174,6 +253,7 @@ export function route() {
   } else if (app) {
     // 404 페이지 처리
     app.innerHTML = "<h1>404 Not Found</h1><p>페이지를 찾을 수 없습니다.</p>";
+    updateSeoForPath(path);
     trackPageView(path, "404 Not Found");
   }
 }

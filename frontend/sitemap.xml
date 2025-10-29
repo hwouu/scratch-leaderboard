@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://scratch-leaderboard.vercel.app/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <!-- 1st tournament -->
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/qualifying</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/32</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/16</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/8</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/4</loc><changefreq>hourly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard/final</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <!-- 2nd tournament -->
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/qualifying</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/64</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/32</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/16</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/8</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/4</loc><changefreq>hourly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://scratch-leaderboard.vercel.app/leaderboard-2nd/final</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
+</urlset>
+

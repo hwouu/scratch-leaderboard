@@ -12,6 +12,14 @@
   ],
   "routes": [
     {
+      "src": "/sitemap.xml",
+      "dest": "/frontend/sitemap.xml"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/frontend/robots.txt"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.py"
     },
