@@ -12,6 +12,10 @@
   ],
   "routes": [
     {
+      "src": "/naverfd55d672e5fda74b13390393f8d3c4fe.html",
+      "dest": "/frontend/assets/naverfd55d672e5fda74b13390393f8d3c4fe.html"
+    },
+    {
       "src": "/sitemap.xml",
       "dest": "/frontend/sitemap.xml"
     },
