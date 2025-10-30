@@ -44,7 +44,7 @@ body.light-mode {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -277,6 +277,35 @@ body.light-mode #full-bracket-button {
   background: var(--bg-surface-light);
   border-color: var(--border-color-light);
   color: var(--text-primary-light);
+}
+
+/* Global scrollbar styling (dark + light) */
+/* WebKit-based browsers */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px; /* horizontal bar */
+}
+*::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 8px;
+}
+body.light-mode *::-webkit-scrollbar-track {
+  background: var(--bg-surface-light);
+}
+body.light-mode *::-webkit-scrollbar-thumb {
+  background-color: var(--border-color-light);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-surface);
+}
+body.light-mode * {
+  scrollbar-color: var(--border-color-light) var(--bg-surface-light);
 }
 .search-container {
   display: flex;
