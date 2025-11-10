@@ -1260,23 +1260,23 @@ async function renderFullBracket() {
       ]);
 
     if (data64?.brackets)
-      populateBracketRound(bracketContent, data64.brackets, 64);
+      populateBracketRound(bracketContent, data64.brackets, 64, data64?.total);
     if (data32?.brackets)
-      populateBracketRound(bracketContent, data32.brackets, 32);
+      populateBracketRound(bracketContent, data32.brackets, 32, data32?.total);
     if (data16?.brackets)
-      populateBracketRound(bracketContent, data16.brackets, 16);
+      populateBracketRound(bracketContent, data16.brackets, 16, data16?.total);
     if (data8?.brackets)
-      populateBracketRound(bracketContent, data8.brackets, 8);
+      populateBracketRound(bracketContent, data8.brackets, 8, data8?.total);
     if (data4?.brackets)
-      populateBracketRound(bracketContent, data4.brackets, 4);
+      populateBracketRound(bracketContent, data4.brackets, 4, data4?.total);
 
     if (dataFinal?.brackets) {
       const finalMatchPlayers = dataFinal.brackets
         .filter((p) => p.groupNo === 1)
         .sort((a, b) => a.slotNo - b.slotNo);
       document.getElementById("final-match").innerHTML =
-        createPlayerDivHTML(finalMatchPlayers[0]) +
-        createPlayerDivHTML(finalMatchPlayers[1]);
+        createPlayerDivHTML(finalMatchPlayers[0], dataFinal?.total) +
+        createPlayerDivHTML(finalMatchPlayers[1], dataFinal?.total);
     } else {
       document.getElementById("final-match").innerHTML = createEmptyMatchHTML();
     }
@@ -1286,8 +1286,8 @@ async function renderFullBracket() {
         (a, b) => a.slotNo - b.slotNo
       );
       document.getElementById("third-place-match").innerHTML =
-        createPlayerDivHTML(thirdPlaceMatchPlayers[0]) +
-        createPlayerDivHTML(thirdPlaceMatchPlayers[1]);
+        createPlayerDivHTML(thirdPlaceMatchPlayers[0], dataThirdPlace?.total) +
+        createPlayerDivHTML(thirdPlaceMatchPlayers[1], dataThirdPlace?.total);
     } else {
       document.getElementById("third-place-match").innerHTML =
         createEmptyMatchHTML();
@@ -1300,7 +1300,7 @@ async function renderFullBracket() {
   }
 }
 
-function populateBracketRound(bracketContent, players, roundNumber) {
+function populateBracketRound(bracketContent, players, roundNumber, roundTotalData) {
   const roundClass = `.round-of-${roundNumber}`;
   const [leftSide, rightSide] = bracketContent.querySelectorAll(
     `.bracket-side ${roundClass}`
@@ -1327,8 +1327,8 @@ function populateBracketRound(bracketContent, players, roundNumber) {
     const match = document.createElement("div");
     match.className = "bracket-match";
     match.innerHTML =
-      createPlayerDivHTML(leftPlayers[i]) +
-      createPlayerDivHTML(leftPlayers[i + 1]);
+      createPlayerDivHTML(leftPlayers[i], roundTotalData) +
+      createPlayerDivHTML(leftPlayers[i + 1], roundTotalData);
     leftMatchesContainer.appendChild(match);
   }
 
@@ -1336,19 +1336,43 @@ function populateBracketRound(bracketContent, players, roundNumber) {
     const match = document.createElement("div");
     match.className = "bracket-match";
     match.innerHTML =
-      createPlayerDivHTML(rightPlayers[i]) +
-      createPlayerDivHTML(rightPlayers[i + 1]);
+      createPlayerDivHTML(rightPlayers[i], roundTotalData) +
+      createPlayerDivHTML(rightPlayers[i + 1], roundTotalData);
     rightMatchesContainer.appendChild(match);
   }
 }
 
-function createPlayerDivHTML(player) {
+function createPlayerDivHTML(player, roundTotalData) {
   if (!player) return `<div class="bracket-player placeholder">TBD</div>`;
   const rank = player.preliminaryRank || player.rank;
   const nickname = player.userNickname;
+  
+  // 스코어 정보 가져오기
+  let scoreDisplay = "-";
+  if (player.score !== null && player.score !== undefined) {
+    scoreDisplay = formatSimpleScore(player.score);
+  } else if (roundTotalData && Array.isArray(roundTotalData)) {
+    // 해당 라운드의 total 데이터에서 스코어 찾기
+    const playerWithScore = roundTotalData.find((p) => p.userId === player.userId);
+    if (playerWithScore && playerWithScore.totalScore !== null && playerWithScore.totalScore !== undefined) {
+      scoreDisplay = formatSimpleScore(playerWithScore.totalScore);
+    }
+  } else {
+    // fallback: 현재 스테이지의 leaderboardData에서 찾기
+    const leaderboardData = getLeaderboardData();
+    if (leaderboardData) {
+      const totalData = leaderboardData.total || [];
+      const playerWithScore = totalData.find((p) => p.userId === player.userId);
+      if (playerWithScore && playerWithScore.totalScore !== null && playerWithScore.totalScore !== undefined) {
+        scoreDisplay = formatSimpleScore(playerWithScore.totalScore);
+      }
+    }
+  }
+  
   return `<div class="bracket-player" title="${nickname} (${rank}위)">
                 <span class="player-rank">${rank}</span>
                 <span class="player-name">${nickname}</span>
+                <span class="player-score">${scoreDisplay}</span>
             </div>`;
 }
 
