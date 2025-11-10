@@ -286,11 +286,17 @@ body.light-mode .cutoff-item .shop-name {
   border: 1px solid rgba(33, 150, 243, 0.2);
 }
 
+.team-player-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
 .team-player-name {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  flex-grow: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -318,8 +324,7 @@ body.light-mode .cutoff-item .shop-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 2px;
-  font-style: italic;
+  margin-top: 2px;
 }
 
 /* ===== LIGHT MODE TEAM MATCH STYLES ===== */

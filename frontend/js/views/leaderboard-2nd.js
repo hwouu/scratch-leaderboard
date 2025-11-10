@@ -604,10 +604,12 @@ function renderTeamMatchView(container, bracketData, leaderboardData) {
             <div class="team-player ${isLeading ? "leading" : ""}" data-userid="${player.userId}">
               <div class="team-player-main">
                 <span class="team-player-rank">${player.preliminaryRank}위</span>
-                <span class="team-player-name">${player.userNickname}</span>
+                <div class="team-player-info">
+                  <span class="team-player-name">${player.userNickname}</span>
+                  ${player.scoreInfo.shopName ? `<span class="team-player-shop">${player.scoreInfo.shopName}</span>` : ""}
+                </div>
                 <span class="team-player-score ${isLeading ? "leading-score" : ""}">${scoreDisplay}</span>
               </div>
-              ${player.scoreInfo.shopName ? `<div class="team-player-shop">${player.scoreInfo.shopName}</div>` : ""}
             </div>
           `;
         })
