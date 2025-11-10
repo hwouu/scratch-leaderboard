@@ -55,7 +55,13 @@ API_URLS = {
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7384/stroke?gender=0&page=1&size=100",
         "courseC": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7385/stroke?gender=0&page=1&size=100",
     },
-    # 64강, 32강 등은 추후 추가 예정
+    "2nd-64": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7386",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7386/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7387/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7388/stroke?gender=0&page=1&size=100",
+    },
+    # 32강, 16강 등은 추후 추가 예정
 }
 
 def fetch_url(url):
@@ -115,7 +121,11 @@ class handler(BaseHTTPRequestHandler):
                 key = future_to_key[future]
                 try:
                     data = future.result()
-                    results[key] = data
+                    # API 응답이 { items: [...] } 형태인 경우 items를 추출
+                    if data and isinstance(data, dict) and "items" in data:
+                        results[key] = data["items"]
+                    else:
+                        results[key] = data
                 except Exception as exc:
                     print(f'{key} generated an exception: {exc}')
                     results[key] = {"error": "Failed to fetch data"}

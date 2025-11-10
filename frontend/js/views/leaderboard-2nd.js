@@ -30,7 +30,6 @@ const courseInfoByDate = {
   "64강": [
     "블루원 용인 CC 동/서",
     "해운대 CC GOLDEN/ROYAL",
-    "구미 CC 청룡/거북",
   ],
   "32강": ["썬밸리 CC (일죽)", "구미 CC 청룡/거북"],
   "16강": ["안동레이크 GC", "한맥 CC & 노블리아"],
@@ -159,6 +158,16 @@ function renderHeader(header, stage) {
       ? `<button class="toggle-btn" data-view="bracket" title="대진표 보기"><i class="fas fa-sitemap"></i></button>`
       : "";
 
+  const teamMatchToggleHTML =
+    stage !== "2nd-qualifying"
+      ? `<button class="toggle-btn" data-view="team-match" title="팀별 대전 보기"><i class="fas fa-users"></i></button>`
+      : "";
+
+  const cutoffToggleHTML =
+    stage === "2nd-qualifying"
+      ? `<button class="toggle-btn" data-view="cutoff" title="컷오프 보기"><i class="fas fa-users"></i></button>`
+      : "";
+
   header.innerHTML = `
         <div class="title-container">
             <div class="title-group">
@@ -181,7 +190,8 @@ function renderHeader(header, stage) {
             <div class="controls-container">
                 <div id="view-toggle" class="view-toggle icon-toggle">
                     <button class="toggle-btn" data-view="leaderboard" title="리더보드 보기"><i class="fas fa-list-ol"></i></button>
-                    <button class="toggle-btn" data-view="cutoff" title="컷오프 보기"><i class="fas fa-users"></i></button>
+                    ${cutoffToggleHTML}
+                    ${teamMatchToggleHTML}
                     ${bracketToggleHTML}
                 </div>
                 <button id="full-bracket-button" title="전체 대진표 보기"><i class="fas fa-project-diagram"></i></button>
@@ -354,6 +364,13 @@ function renderContent(container) {
       case "cutoff":
         renderCutoffView(container, data);
         break;
+      case "team-match":
+        if (currentStage !== "2nd-qualifying") {
+          renderTeamMatchView(container, leaderboardData.brackets, leaderboardData);
+        } else {
+          renderLeaderboardView(container, data);
+        }
+        break;
       case "bracket":
         if (currentStage !== "2nd-qualifying") {
           renderBracketView(container, leaderboardData.brackets);
@@ -506,6 +523,113 @@ function renderCutoffView(container, data) {
     )
     .join("");
   container.innerHTML = `<div class="cutoff-container">${columnsHTML}</div>`;
+}
+
+function renderTeamMatchView(container, bracketData, leaderboardData) {
+  if (!bracketData || !Array.isArray(bracketData) || bracketData.length === 0) {
+    container.innerHTML = `
+      <div class="team-match-container">
+        <div class="placeholder-container"><p>대전 정보가 없습니다.</p></div>
+      </div>`;
+    return;
+  }
+
+  // groupNo별로 그룹화
+  const teams = bracketData.reduce((acc, player) => {
+    if (!acc[player.groupNo]) {
+      acc[player.groupNo] = [];
+    }
+    acc[player.groupNo].push(player);
+    return acc;
+  }, {});
+
+  // 각 팀의 선수들을 slotNo 순으로 정렬
+  Object.keys(teams).forEach((groupNo) => {
+    teams[groupNo].sort((a, b) => a.slotNo - b.slotNo);
+  });
+
+  // total, courseA, courseB 데이터 가져오기
+  const totalData = leaderboardData?.total || [];
+  const courseAData = leaderboardData?.courseA || [];
+  const courseBData = leaderboardData?.courseB || [];
+
+  // 각 선수의 현재 점수 정보 가져오기
+  const getPlayerScoreInfo = (player) => {
+    const totalPlayer = totalData.find((p) => p.userId === player.userId);
+    const courseAPlayer = courseAData.find((p) => p.userId === player.userId);
+    const courseBPlayer = courseBData.find((p) => p.userId === player.userId);
+
+    return {
+      totalScore: totalPlayer?.totalScore ?? null,
+      courseAScore: courseAPlayer?.score ?? null,
+      courseBScore: courseBPlayer?.score ?? null,
+      shopName: totalPlayer?.shopName || courseAPlayer?.shopName || courseBPlayer?.shopName || "",
+    };
+  };
+
+  // 각 팀의 HTML 생성
+  const teamsHTML = Object.keys(teams)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map((groupNo) => {
+      const players = teams[groupNo];
+      const playersWithScores = players.map((player) => ({
+        ...player,
+        scoreInfo: getPlayerScoreInfo(player),
+      }));
+
+      // 현재 점수 기준으로 정렬 (낮은 점수가 좋음)
+      playersWithScores.sort((a, b) => {
+        const scoreA = a.scoreInfo.totalScore ?? 999;
+        const scoreB = b.scoreInfo.totalScore ?? 999;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+        return a.slotNo - b.slotNo;
+      });
+
+      // 현재 1위 선수 찾기
+      const leadingPlayer = playersWithScores[0];
+      const leadingScore = leadingPlayer.scoreInfo.totalScore;
+
+      const playersHTML = playersWithScores
+        .map((player) => {
+          const isLeading =
+            player.scoreInfo.totalScore !== null &&
+            player.scoreInfo.totalScore === leadingScore &&
+            leadingScore !== null;
+          const scoreDisplay =
+            player.scoreInfo.totalScore !== null
+              ? formatSimpleScore(player.scoreInfo.totalScore)
+              : "-";
+
+          return `
+            <div class="team-player ${isLeading ? "leading" : ""}" data-userid="${player.userId}">
+              <div class="team-player-main">
+                <span class="team-player-rank">${player.preliminaryRank}위</span>
+                <span class="team-player-name">${player.userNickname}</span>
+                <span class="team-player-score ${isLeading ? "leading-score" : ""}">${scoreDisplay}</span>
+              </div>
+              ${player.scoreInfo.shopName ? `<div class="team-player-shop">${player.scoreInfo.shopName}</div>` : ""}
+            </div>
+          `;
+        })
+        .join("");
+
+      return `
+        <div class="team-match-card">
+          <div class="team-players-list">
+            ${playersHTML}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  container.innerHTML = `
+    <div class="team-match-container">
+      <div class="team-match-grid">
+        ${teamsHTML}
+      </div>
+    </div>
+  `;
 }
 
 function renderBracketView(container, bracketData) {
@@ -969,7 +1093,7 @@ function setupEventListeners(elements, stage) {
 
   contentElement.addEventListener("click", (e) => {
     const target = e.target.closest(
-      "tr[data-userid], .cutoff-item[data-userid], .player[data-userid]"
+      "tr[data-userid], .cutoff-item[data-userid], .player[data-userid], .team-player[data-userid]"
     );
     if (target) {
       const userId = target.dataset.userid;
@@ -1115,7 +1239,6 @@ async function renderFullBracket() {
     </div>`;
 
   bracketContent.innerHTML = `
-    <h2 class="modal-title">토너먼트 대진표</h2>
     <div class="bracket-symmetrical-container">
         ${sidesHTML()}
         ${centerHTML}

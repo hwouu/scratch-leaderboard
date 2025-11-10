@@ -694,17 +694,80 @@ body.light-mode .search-result-item {
 }
 
 .modal-content.wide-modal {
-  width: 95%;
-  max-width: 1800px;
-  height: 90vh;
+  width: 98%;
+  max-width: 98%;
+  height: 96vh;
+  max-height: 96vh;
   display: flex;
   flex-direction: column;
+  padding: 12px;
 }
 
 #full-bracket-content {
   flex-grow: 1;
   overflow-x: auto;
+  overflow-y: auto;
   padding: 10px;
+}
+
+/* Custom Scrollbar Styles for Full Bracket Modal - Show only on hover/scroll */
+#full-bracket-content::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+#full-bracket-content::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 6px;
+}
+
+#full-bracket-content::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  transition: background 0.3s ease;
+}
+
+/* Show scrollbar on hover */
+#full-bracket-content:hover::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-color: var(--bg-surface-accent);
+}
+
+#full-bracket-content:hover::-webkit-scrollbar-track {
+  background: var(--bg-surface-accent);
+}
+
+#full-bracket-content:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-blue);
+}
+
+/* Light Mode Scrollbar */
+body.light-mode #full-bracket-content:hover::-webkit-scrollbar-track {
+  background: var(--bg-surface-accent-light);
+}
+
+body.light-mode #full-bracket-content:hover::-webkit-scrollbar-thumb {
+  background: var(--border-color-light);
+  border-color: var(--bg-surface-accent-light);
+}
+
+body.light-mode #full-bracket-content:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-blue);
+}
+
+/* Firefox Scrollbar - auto shows when needed */
+#full-bracket-content {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+#full-bracket-content:hover {
+  scrollbar-color: var(--border-color) var(--bg-surface-accent);
+}
+
+body.light-mode #full-bracket-content:hover {
+  scrollbar-color: var(--border-color-light) var(--bg-surface-accent-light);
 }
 
 /* Error UI */
