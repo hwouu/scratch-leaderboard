@@ -81,28 +81,35 @@ def fetch_url(url):
             'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
             'Referer': 'https://fairway.golfzon.com/',
         }
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
         data = response.json()
         # 데이터가 비어있거나 예상과 다른 형식인지 확인
         if data is None:
-            print(f"Warning: Received None data from {url}")
-            return None
+            error_msg = f"Warning: Received None data from {url}"
+            print(error_msg)
+            return {"error": error_msg, "url": url}
         return data
     except requests.exceptions.Timeout:
-        print(f"Timeout error fetching {url}")
-        return None
+        error_msg = f"Timeout error fetching {url}"
+        print(error_msg)
+        return {"error": error_msg, "url": url}
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching {url}: {e}")
-        print(f"Response status: {e.response.status_code if hasattr(e, 'response') and e.response else 'N/A'}")
-        print(f"Response text: {e.response.text[:200] if hasattr(e, 'response') and e.response else 'N/A'}")
-        return None
+        status_code = e.response.status_code if hasattr(e, 'response') and e.response else 'N/A'
+        response_text = e.response.text[:200] if hasattr(e, 'response') and e.response else 'N/A'
+        error_msg = f"Error fetching {url}: {str(e)}"
+        print(error_msg)
+        print(f"Response status: {status_code}")
+        print(f"Response text: {response_text}")
+        return {"error": error_msg, "status_code": status_code, "url": url}
     except json.JSONDecodeError as e:
-        print(f"Error decoding JSON from {url}: {e}")
-        return {"error": "Failed to decode JSON", "url": url}
+        error_msg = f"Error decoding JSON from {url}: {str(e)}"
+        print(error_msg)
+        return {"error": error_msg, "url": url}
     except Exception as e:
-        print(f"Unexpected error fetching {url}: {type(e).__name__}: {e}")
-        return None
+        error_msg = f"Unexpected error fetching {url}: {type(e).__name__}: {str(e)}"
+        print(error_msg)
+        return {"error": error_msg, "url": url}
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -121,20 +128,34 @@ class handler(BaseHTTPRequestHandler):
             return
 
         results = {}
+        errors = []
         with ThreadPoolExecutor(max_workers=len(urls_to_fetch)) as executor:
             future_to_key = {executor.submit(fetch_url, url): key for key, url in urls_to_fetch.items()}
             for future in future_to_key:
                 key = future_to_key[future]
                 try:
-                    data = future.result()
+                    data = future.result(timeout=20)
+                    # 에러 응답인지 확인
+                    if isinstance(data, dict) and "error" in data:
+                        errors.append(f"{key}: {data.get('error', 'Unknown error')}")
+                        results[key] = None
+                        continue
                     # API 응답이 { items: [...] } 형태인 경우 items를 추출
                     if data and isinstance(data, dict) and "items" in data:
                         results[key] = data["items"]
                     else:
                         results[key] = data
                 except Exception as exc:
-                    print(f'{key} generated an exception: {exc}')
-                    results[key] = {"error": "Failed to fetch data"}
+                    error_msg = f'{key} generated an exception: {exc}'
+                    print(error_msg)
+                    errors.append(error_msg)
+                    results[key] = None
+
+        # 에러가 발생한 경우 로깅
+        if errors:
+            print(f"Errors occurred while fetching data for stage '{stage}':")
+            for error in errors:
+                print(f"  - {error}")
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')

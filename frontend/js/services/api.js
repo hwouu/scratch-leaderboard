@@ -21,8 +21,30 @@ export async function fetchLeaderboardData(stage, forceRefresh = false) {
   const API_ENDPOINT = `/api?stage=${stage}`;
   try {
     const response = await fetch(API_ENDPOINT);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`HTTP error! status: ${response.status}, response: ${errorText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
+
+    // 데이터가 null이거나 에러가 있는지 확인
+    const hasErrors = Object.values(data).some(value => 
+      value === null || (typeof value === 'object' && value.error)
+    );
+    
+    if (hasErrors) {
+      console.warn("API returned null or error values:", data);
+      // 에러가 있어도 부분적으로 사용 가능한 데이터는 처리
+      const hasValidData = Object.values(data).some(value => 
+        value !== null && !(typeof value === 'object' && value.error)
+      );
+      if (!hasValidData) {
+        console.error("No valid data received from API");
+        leaderboardData = null;
+        return { success: false, error: "No valid data received" };
+      }
+    }
 
     prevLeaderboardData = leaderboardData;
     leaderboardData = data;
@@ -33,7 +55,7 @@ export async function fetchLeaderboardData(stage, forceRefresh = false) {
   } catch (error) {
     console.error("Failed to fetch leaderboard data:", error);
     leaderboardData = null;
-    return { success: false }; // 수정: 실패 시 실패 객체 반환
+    return { success: false, error: error.message }; // 수정: 실패 시 실패 객체 반환
   }
 }
 
@@ -95,12 +117,24 @@ export async function fetchStageData(stage) {
   try {
     const response = await fetch(API_ENDPOINT);
     if (!response.ok) {
+      const errorText = await response.text();
       console.error(
-        `HTTP error! status: ${response.status} for stage: ${stage}`
+        `HTTP error! status: ${response.status} for stage: ${stage}, response: ${errorText}`
       );
       return null;
     }
-    return await response.json();
+    const data = await response.json();
+    
+    // 데이터가 null이거나 에러가 있는지 확인
+    const hasErrors = Object.values(data).some(value => 
+      value === null || (typeof value === 'object' && value.error)
+    );
+    
+    if (hasErrors) {
+      console.warn(`API returned null or error values for stage ${stage}:`, data);
+    }
+    
+    return data;
   } catch (error) {
     console.error(`Failed to fetch data for stage ${stage}:`, error);
     return null;
