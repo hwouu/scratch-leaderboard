@@ -67,7 +67,24 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7390/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7391/stroke?gender=0&page=1&size=100",
     },
-    # 16강 등은 추후 추가 예정
+    "2nd-16": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7392",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7392/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7393/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7394/stroke?gender=0&page=1&size=100",
+    },
+    "2nd-8": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7395",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7395/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7396/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7397/stroke?gender=0&page=1&size=100",
+    },
+    "2nd-4": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7398",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7398/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7399/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7400/stroke?gender=0&page=1&size=100",
+    },
 }
 
 def fetch_url(url):
