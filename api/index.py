@@ -85,6 +85,18 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7399/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7400/stroke?gender=0&page=1&size=100",
     },
+    "2nd-final": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7401",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7401/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7402/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7403/stroke?gender=0&page=1&size=100",
+    },
+    "2nd-third-place": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/7404",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/7404/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7405/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7406/stroke?gender=0&page=1&size=100",
+    },
 }
 
 def fetch_url(url):
