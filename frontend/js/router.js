@@ -1,5 +1,6 @@
 import { renderLeaderboardPage } from "./views/leaderboard.js";
 import { renderLeaderboard2ndPage } from "./views/leaderboard-2nd.js";
+import { renderLeaderboard4thOpenPage } from "./views/leaderboard-4th-open.js";
 import { trackPageView, AnalyticsEvents } from "./utils/analytics.js";
 
 // 라우트 설정: 1st와 2nd 토너먼트 모두 지원
@@ -20,7 +21,20 @@ const routes = {
   "/leaderboard-2nd/16": (app) => renderLeaderboard2ndPage("2nd-16", app),
   "/leaderboard-2nd/8": (app) => renderLeaderboard2ndPage("2nd-8", app),
   "/leaderboard-2nd/4": (app) => renderLeaderboard2ndPage("2nd-4", app),
-  "/leaderboard-2nd/final": (app) => renderLeaderboard2ndPage("2nd-final", app),
+  "/leaderboard-2nd/final": (app) => {
+    // 대회 기간 동안 4th-open으로 리디렉션
+    const now = new Date();
+    const startDate = new Date("2025-12-15T00:00:00");
+    const endDate = new Date("2026-01-09T23:59:59");
+    if (now >= startDate && now <= endDate) {
+      window.history.replaceState({}, "", "/4th-open");
+      renderLeaderboard4thOpenPage("4th-open", app);
+    } else {
+      renderLeaderboard2ndPage("2nd-final", app);
+    }
+  },
+  // 4th-open 스트로크 대회
+  "/4th-open": (app) => renderLeaderboard4thOpenPage("4th-open", app),
 };
 
 function ensureMetaTag(nameOrProperty, key, value) {
@@ -65,6 +79,13 @@ function getSeoForPath(path) {
       final: "결승전",
     }[stage] || "리더보드");
 
+  if (path === "/4th-open") {
+    return {
+      title: `스크래치 선물 팡팡 | 스크래치 리더보드`,
+      desc: `스크래치 선물 팡팡 스트로크 대회 실시간 순위를 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
   if (path.startsWith("/leaderboard-2nd/")) {
     const stage = path.split("/").pop();
     const label = stageLabel(stage);

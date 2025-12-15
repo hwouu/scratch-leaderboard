@@ -97,6 +97,13 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7405/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7406/stroke?gender=0&page=1&size=100",
     },
+    # 4th-open 스트로크 대회 (v1 API 사용)
+    "4th-open": {
+        "total": "https://fairway.golfzon.com/v1/tournament/rank/stroke/total/1199912?page=1&rows=100&orderType=1&gender=&trCode=1199912",
+        "courseA": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490391?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490391",
+        "courseB": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490392?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490392",
+        "courseC": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490393?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490393",
+    },
 }
 
 def fetch_url(url):
@@ -169,9 +176,16 @@ class handler(BaseHTTPRequestHandler):
                         errors.append(f"{key}: {data.get('error', 'Unknown error')}")
                         results[key] = None
                         continue
-                    # API 응답이 { items: [...] } 형태인 경우 items를 추출
-                    if data and isinstance(data, dict) and "items" in data:
-                        results[key] = data["items"]
+                    # API 응답 형식 처리
+                    # v2 API: { items: [...] }
+                    # v1 API: { status: 200, message: "SUCCESS", data: [...] }
+                    if data and isinstance(data, dict):
+                        if "items" in data:
+                            results[key] = data["items"]
+                        elif "data" in data and isinstance(data["data"], list):
+                            results[key] = data["data"]
+                        else:
+                            results[key] = data
                     else:
                         results[key] = data
                 except Exception as exc:
