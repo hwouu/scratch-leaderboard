@@ -123,15 +123,13 @@ function renderHeader(header) {
       </div>
       <div class="controls-section-v2">
         <div class="view-controls-v2 desktop-show-v2">
-          <div id="view-toggle-main-v2" class="view-toggle-v2">
+          <div id="view-toggle-v2" class="view-toggle-v2">
             <button class="toggle-btn-v2" data-view="total" title="합산">
               <span>합산</span>
             </button>
             <button class="toggle-btn-v2" data-view="course-rankings" title="코스별">
               <span>코스별</span>
             </button>
-          </div>
-          <div id="view-toggle-courses-v2" class="view-toggle-v2">
             <button class="toggle-btn-v2" data-view="courseA" title="A코스">
               <span>A코스</span>
             </button>
@@ -246,14 +244,127 @@ async function initialize(elements) {
   setupEventListeners(elements);
   setActiveTabUI();
   setViewModeUI();
+  // 초기 로딩 시 스켈레톤 표시
+  renderSkeleton(elements.contentElement);
   await fetchAndRender(elements);
   startAutoRefresh(elements);
 }
 
+function renderSkeleton(container) {
+  // 코스별 뷰인 경우
+  if (currentViewMode === "course-rankings") {
+    const courseSections = ["A", "B", "C"].map((courseLabel) => {
+      const headHTML = `
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>닉네임</th>
+            <th>최종 성적</th>
+          </tr>
+        </thead>
+      `;
+      
+      const skeletonRows = Array(5)
+        .fill(0)
+        .map(() => {
+          return `
+            <tr>
+              <td><div class="skeleton-cell-v2 rank"></div></td>
+              <td><div class="skeleton-cell-v2 nickname"></div></td>
+              <td><div class="skeleton-cell-v2 score"></div></td>
+            </tr>
+          `;
+        }).join("");
+
+      return `
+        <div class="course-ranking-section-v2">
+          <h3 class="course-ranking-title-v2">${courseLabel}코스</h3>
+          <div class="skeleton-container-v2">
+            <table class="skeleton-table-v2">
+              ${headHTML}
+              <tbody>${skeletonRows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    container.innerHTML = `
+      <div class="course-rankings-container-v2">
+        ${courseSections}
+      </div>
+    `;
+    return;
+  }
+
+  // 일반 리더보드 뷰
+  const headersConfig = {
+    total: [
+      { key: "순위" },
+      { key: "닉네임" },
+      { key: "참여매장", class: "mobile-hide-v2" },
+      { key: "라운드", class: "mobile-hide-v2" },
+      { key: "A", class: "mobile-hide-v2" },
+      { key: "B", class: "mobile-hide-v2" },
+      { key: "C", class: "mobile-hide-v2" },
+      { key: "보정치" },
+      { key: "최종 성적" },
+    ],
+    course: [
+      { key: "순위" },
+      { key: "닉네임" },
+      { key: "참여매장", class: "tablet-hide-v2 mobile-hide-v2" },
+      { key: "라운드", class: "mobile-hide-v2" },
+      { key: "코스 성적", class: "mobile-hide-v2" },
+      { key: "실력 등급", class: "mobile-hide-v2" },
+      { key: "보정치", class: "mobile-hide-v2" },
+      { key: "최종 성적" },
+    ],
+  };
+  
+  let headers;
+  if (currentViewMode === "total") {
+    headers = headersConfig.total;
+  } else if (currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
+    headers = headersConfig.course;
+  } else {
+    headers = activeTab === "total" ? headersConfig.total : headersConfig.course;
+  }
+
+  const headHTML = `<thead><tr>${headers
+    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
+    .join("")}</tr></thead>`;
+
+  const skeletonRows = Array(10)
+    .fill(0)
+    .map(() => {
+      const cells = headers.map((h, idx) => {
+        let cellClass = "skeleton-cell-v2";
+        if (idx === 0) cellClass += " rank";
+        else if (idx === 1) cellClass += " nickname";
+        else if (idx === headers.length - 1) cellClass += " score";
+        else cellClass += " score";
+        
+        return `<td class="${h.class || ""}"><div class="${cellClass}"></div></td>`;
+      }).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+
+  container.innerHTML = `
+    <div class="skeleton-container-v2">
+      <table class="skeleton-table-v2">
+        ${headHTML}
+        <tbody>${skeletonRows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 async function fetchAndRender(elements) {
-  const spinnerOverlay = document.getElementById("spinner-overlay");
   const refreshButton = document.getElementById("refresh-button-v2");
-  if (spinnerOverlay) spinnerOverlay.classList.remove("hidden");
+  
+  // 스켈레톤 UI 표시
+  renderSkeleton(elements.contentElement);
   if (refreshButton) refreshButton.querySelector("i").classList.add("fa-spin");
 
   const { success } = await fetchLeaderboardData(currentStage);
@@ -277,7 +388,6 @@ async function fetchAndRender(elements) {
       </div>
     `;
   }
-  if (spinnerOverlay) spinnerOverlay.classList.add("hidden");
   if (refreshButton) refreshButton.querySelector("i").classList.remove("fa-spin");
 }
 
@@ -678,22 +788,19 @@ function setupEventListeners(elements) {
     mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
   });
 
-  const viewToggleMain = document.getElementById("view-toggle-main-v2");
-  const viewToggleCourses = document.getElementById("view-toggle-courses-v2");
+  const viewToggle = document.getElementById("view-toggle-v2");
   
-  [viewToggleMain, viewToggleCourses].forEach((container) => {
-    if (container) {
-      container.addEventListener("click", (e) => {
-        const btn = e.target.closest(".toggle-btn-v2");
-        if (btn) {
-          currentViewMode = btn.dataset.view;
-          localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
-          setViewModeUI();
-          renderContent(contentElement);
-        }
-      });
-    }
-  });
+  if (viewToggle) {
+    viewToggle.addEventListener("click", (e) => {
+      const btn = e.target.closest(".toggle-btn-v2");
+      if (btn) {
+        currentViewMode = btn.dataset.view;
+        localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
+        setViewModeUI();
+        renderContent(contentElement);
+      }
+    });
+  }
 
   const dropdownButton = document.getElementById("view-dropdown-button-v2");
   const dropdownMenu = document.getElementById("view-dropdown-menu-v2");
