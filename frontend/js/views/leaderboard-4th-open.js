@@ -99,17 +99,37 @@ function renderHeader(header) {
             </div>
             <div class="subtitle">
                 <span class="subtitle-text">${tournamentInfo.name}</span>
+                <span class="tournament-period mobile-show">${tournamentInfo.period}</span>
                 <span class="last-updated">마지막 업데이트: <span id="last-updated-time"></span></span>
             </div>
         </div>
         <div class="header-controls-row">
             <div class="header-center">
-                <div id="view-toggle" class="view-toggle">
-                    <button class="toggle-btn" data-view="total" title="합산 성적"><span>합산성적</span></button>
-                    <button class="toggle-btn" data-view="course-rankings" title="코스별 성적"><span>코스별성적</span></button>
-                    <button class="toggle-btn" data-view="courseA" title="A코스"><span>A코스</span></button>
-                    <button class="toggle-btn" data-view="courseB" title="B코스"><span>B코스</span></button>
-                    <button class="toggle-btn" data-view="courseC" title="C코스"><span>C코스</span></button>
+                <div class="view-toggle-container desktop-show">
+                    <div id="view-toggle-main" class="view-toggle">
+                        <button class="toggle-btn" data-view="total" title="합산"><span>합산</span></button>
+                        <button class="toggle-btn" data-view="course-rankings" title="코스별"><span>코스별</span></button>
+                    </div>
+                    <div id="view-toggle-courses" class="view-toggle">
+                        <button class="toggle-btn" data-view="courseA" title="A코스"><span>A코스</span></button>
+                        <button class="toggle-btn" data-view="courseB" title="B코스"><span>B코스</span></button>
+                        <button class="toggle-btn" data-view="courseC" title="C코스"><span>C코스</span></button>
+                    </div>
+                </div>
+                <div class="view-dropdown-container mobile-show">
+                    <div class="custom-dropdown" id="view-dropdown-custom">
+                        <button class="custom-dropdown-button" id="view-dropdown-button">
+                            <span class="dropdown-selected">합산</span>
+                            <i class="fas fa-chevron-down dropdown-icon"></i>
+                        </button>
+                        <div class="custom-dropdown-menu" id="view-dropdown-menu">
+                            <div class="dropdown-option" data-value="total">합산</div>
+                            <div class="dropdown-option" data-value="course-rankings">코스별</div>
+                            <div class="dropdown-option" data-value="courseA">A코스</div>
+                            <div class="dropdown-option" data-value="courseB">B코스</div>
+                            <div class="dropdown-option" data-value="courseC">C코스</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="controls-container">
@@ -226,6 +246,21 @@ function setViewModeUI() {
     `.toggle-btn[data-view="${currentViewMode}"]`
   );
   if (currentViewBtn) currentViewBtn.classList.add("active");
+  
+  // 커스텀 드롭다운 업데이트
+  const dropdownSelected = document.querySelector("#view-dropdown-button .dropdown-selected");
+  const dropdownOption = document.querySelector(`#view-dropdown-menu .dropdown-option[data-value="${currentViewMode}"]`);
+  if (dropdownSelected && dropdownOption) {
+    dropdownSelected.textContent = dropdownOption.textContent;
+  }
+  
+  // 드롭다운 옵션 활성화 상태 업데이트
+  document.querySelectorAll("#view-dropdown-menu .dropdown-option").forEach((opt) => {
+    opt.classList.remove("selected");
+    if (opt.dataset.value === currentViewMode) {
+      opt.classList.add("selected");
+    }
+  });
 }
 
 const formatFinalScore = (score) =>
@@ -307,14 +342,21 @@ function renderLeaderboardView(container, data) {
       { key: "닉네임" },
       { key: "참여매장", class: "tablet-hide mobile-hide" },
       { key: "라운드", class: "mobile-hide" },
-      { key: "코스 성적" },
+      { key: "코스 성적", class: "mobile-hide" },
       { key: "실력 등급", class: "mobile-hide" },
-      { key: "보정치" },
+      { key: "보정치", class: "mobile-hide" },
       { key: "최종 성적" },
     ],
   };
-  const headers =
-    activeTab === "total" ? headersConfig.total : headersConfig.course;
+  // 현재 뷰 모드에 따라 헤더 결정
+  let headers;
+  if (currentViewMode === "total") {
+    headers = headersConfig.total;
+  } else if (currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
+    headers = headersConfig.course;
+  } else {
+    headers = activeTab === "total" ? headersConfig.total : headersConfig.course;
+  }
 
   if (!data || data.length === 0) {
     renderEmptyView(container, headers);
@@ -393,9 +435,9 @@ function renderLeaderboardView(container, data) {
             }</span></td>
              <td class="tablet-hide mobile-hide">${player.shopName || ""}</td>
              <td class="mobile-hide">${player.roundCount || "-"}</td>
-             <td>${formatSimpleScore(player.score)}</td>
+             <td class="mobile-hide">${formatSimpleScore(player.score)}</td>
              <td class="mobile-hide">${formatSkillLevel(player.grade)}</td>
-             <td>${revisionDisplay}</td>
+             <td class="mobile-hide">${revisionDisplay}</td>
              <td>${formatFinalScore(finalScore)}</td>`;
       return `<tr class="${rankChangeClass}" data-userid="${player.userId}">${rowCells}</tr>`;
     })
@@ -486,10 +528,18 @@ function renderCourseRankingsView(container, leaderboardData) {
 }
 
 function renderTicker(element, data) {
+  const tickerWrap = document.querySelector(".ticker-wrap");
+  
+  // 티커는 항상 표시
+  if (tickerWrap) tickerWrap.style.display = "block";
+  
+  // 데이터가 없거나 업데이트되지 않았을 때 기본 메시지 표시
   if (!data || data.length === 0) {
-    element.innerHTML = "";
+    const defaultMessage = `<span class="ticker-emoji">🎁</span><span class="ticker-text-bold">스크래치 OPEN 4th</span><span class="ticker-separator">|</span><span class="ticker-text-bold">스크래치 선물 팡팡</span><span class="ticker-separator">|</span><span class="ticker-text-normal">연말연시를 맞이하여 고객분들께 감사의 선물을 드립니다</span><span class="ticker-emoji">🎉</span><span class="ticker-separator">|</span><span class="ticker-text-normal">올해도 저희 스크래치를 찾아주신 여러분께 감사드립니다</span><span class="ticker-emoji">🙏</span>`;
+    element.innerHTML = `<div class="ticker-item">${defaultMessage}</div>`.repeat(2);
     return;
   }
+  
   const leaderboardData = getLeaderboardData();
   const getCourseScore = (userId, course) => {
     const courseData = leaderboardData[course] || [];
@@ -573,15 +623,62 @@ function setupEventListeners(elements) {
     mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
   });
 
-  document.getElementById("view-toggle").addEventListener("click", (e) => {
-    const btn = e.target.closest(".toggle-btn");
-    if (btn) {
-      currentViewMode = btn.dataset.view;
-      localStorage.setItem("currentViewMode-4th", currentViewMode);
-      setViewModeUI();
-      renderContent(contentElement);
+  const viewToggleMain = document.getElementById("view-toggle-main");
+  const viewToggleCourses = document.getElementById("view-toggle-courses");
+  
+  [viewToggleMain, viewToggleCourses].forEach((container) => {
+    if (container) {
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".toggle-btn");
+        if (btn) {
+          currentViewMode = btn.dataset.view;
+          localStorage.setItem("currentViewMode-4th", currentViewMode);
+          setViewModeUI();
+          renderContent(contentElement);
+        }
+      });
     }
   });
+
+  // 커스텀 드롭다운 이벤트 리스너
+  const dropdownButton = document.getElementById("view-dropdown-button");
+  const dropdownMenu = document.getElementById("view-dropdown-menu");
+  const dropdownSelected = dropdownButton?.querySelector(".dropdown-selected");
+  const dropdownOptions = dropdownMenu?.querySelectorAll(".dropdown-option");
+
+  if (dropdownButton && dropdownMenu) {
+    dropdownButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("active");
+      dropdownButton.classList.toggle("active");
+    });
+
+    dropdownOptions?.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const value = option.dataset.value;
+        const text = option.textContent;
+        
+        currentViewMode = value;
+        localStorage.setItem("currentViewMode-4th", currentViewMode);
+        
+        if (dropdownSelected) dropdownSelected.textContent = text;
+        dropdownMenu.classList.remove("active");
+        dropdownButton.classList.remove("active");
+        
+        setViewModeUI();
+        renderContent(contentElement);
+      });
+    });
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener("click", (e) => {
+      if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("active");
+        dropdownButton.classList.remove("active");
+      }
+    });
+  }
 
   const searchInput = document.getElementById("search-input");
   const openModal = (modal) => modal.classList.add("active");
