@@ -742,12 +742,13 @@ function setupEventListeners(elements) {
   // localStorage에서 토스트 표시 여부 확인
   const shouldShowToast = localStorage.getItem("v2-promotion-dismissed") !== "true";
   
-  if (shouldShowToast && v2PromotionToast) {
-    // 페이지 로드 후 3초 뒤에 토스트 표시
-    setTimeout(() => {
-      v2PromotionToast.classList.add("show");
-    }, 3000);
-  }
+  // V2 프로모션 토스트 표시 비활성화
+  // if (shouldShowToast && v2PromotionToast) {
+  //   // 페이지 로드 후 3초 뒤에 토스트 표시
+  //   setTimeout(() => {
+  //     v2PromotionToast.classList.add("show");
+  //   }, 3000);
+  // }
 
   if (v2PromotionButton) {
     v2PromotionButton.addEventListener("click", () => {
