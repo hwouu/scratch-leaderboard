@@ -1371,7 +1371,11 @@ function createPlayerDivHTML(player, roundTotalData) {
     }
   }
   
-  return `<div class="bracket-player" title="${nickname} (${rank}위)">
+  // 이전 라운드에서 이긴 사람인지 확인
+  const isWinner = player.winLose === "WIN";
+  const winnerClass = isWinner ? " winner" : "";
+  
+  return `<div class="bracket-player${winnerClass}" title="${nickname} (${rank}위)">
                 <span class="player-rank">${rank}</span>
                 <span class="player-name">${nickname}</span>
                 <span class="player-score">${scoreDisplay}</span>

@@ -101,7 +101,8 @@ body.light-mode .player {
 }
 .player.winner {
   font-weight: bold;
-  border-left: 4px solid var(--accent-green);
+  border: 2px solid var(--accent-green);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
 }
 .player.loser {
   opacity: 0.6;
@@ -242,6 +243,12 @@ body.light-mode .player {
 body.light-mode .bracket-player {
   background-color: var(--bg-surface-accent-light);
   border-color: var(--border-color-light);
+}
+
+.bracket-player.winner {
+  border: 2px solid var(--accent-green);
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+  font-weight: bold;
 }
 
 /* <<-- 1. 순위(Rank) 영역 고정 너비 설정 -->> */
