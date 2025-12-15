@@ -86,15 +86,21 @@ tbody tr:last-child td {
 body.light-mode table {
   background-color: var(--bg-surface-light);
   border-color: var(--border-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 body.light-mode th,
 body.light-mode td {
-  border-bottom-color: var(--border-color-light);
+  border-bottom-color: #e9ecef;
 }
 
 body.light-mode th {
-  background-color: var(--bg-surface-light);
+  background-color: #f8f9fa;
+  color: var(--text-secondary-light);
+}
+
+body.light-mode td {
+  color: var(--text-primary-light);
 }
 /* ===== TABLE CELL STYLES ===== */
 .rank {
@@ -114,6 +120,9 @@ body.light-mode th {
   font-size: 12px;
   font-weight: 400;
   color: var(--text-secondary);
+}
+body.light-mode .user-id {
+  color: var(--text-secondary-light);
 }
 
 .final-score {
@@ -715,6 +724,9 @@ body.light-mode .final-stage-title {
   height: 100%;
   overflow: hidden;
 }
+body.light-mode .course-ranking-section {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
 .course-ranking-title {
   font-size: 20px;
@@ -750,15 +762,21 @@ body.light-mode .final-stage-title {
   padding: 14px 16px;
   background-color: var(--bg-surface-accent);
   border-bottom: 2px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
 .course-ranking-section td {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .course-ranking-section tbody tr:last-child td {
   border-bottom: none;
+}
+
+.course-ranking-section tbody tr:hover {
+  background-color: var(--bg-surface-accent);
 }
 
 .course-ranking-section .nickname {
@@ -773,6 +791,14 @@ body.light-mode .final-stage-title {
   text-align: center;
 }
 
+.course-ranking-section .nickname {
+  color: var(--text-primary);
+}
+
+body.light-mode .course-ranking-section .nickname {
+  color: var(--text-primary-light);
+}
+
 /* ===== LIGHT MODE COURSE RANKINGS STYLES ===== */
 body.light-mode .course-ranking-section {
   background-color: var(--bg-surface-light);
@@ -780,17 +806,24 @@ body.light-mode .course-ranking-section {
 }
 
 body.light-mode .course-ranking-section table {
-  background-color: var(--bg-surface-accent-light);
+  background-color: #ffffff;
   border-color: var(--border-color-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 body.light-mode .course-ranking-section th {
-  background-color: var(--bg-surface-accent-light);
-  border-bottom-color: var(--border-color-light);
+  background-color: #f8f9fa;
+  border-bottom-color: #e9ecef;
+  color: var(--text-secondary-light);
 }
 
 body.light-mode .course-ranking-section td {
-  border-bottom-color: var(--border-color-light);
+  border-bottom-color: #e9ecef;
+  color: var(--text-primary-light);
+}
+
+body.light-mode .course-ranking-section tbody tr:hover {
+  background-color: #f8f9fa;
 }
 
 body.light-mode .course-ranking-title {
