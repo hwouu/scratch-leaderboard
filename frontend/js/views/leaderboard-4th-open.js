@@ -9,6 +9,7 @@ import {
 // --- 상태 변수 ---
 let currentStage = "4th-open";
 let activeTab = localStorage.getItem("activeTab-4th") || "total";
+let currentViewMode = localStorage.getItem("currentViewMode-4th") || "leaderboard";
 let isSidebarCollapsed = localStorage.getItem("isSidebarCollapsed") === "true";
 let refreshIntervalId = null;
 const REFRESH_INTERVAL_MS = 300000; // 5분
@@ -90,22 +91,6 @@ function renderHeader(header) {
   const themeIconClass =
     currentTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
 
-  const tabsHTML = `
-    <button class="tab-button" data-target="total">합산 성적</button>
-    <button class="tab-button" data-target="courseA">A코스</button>
-    <button class="tab-button" data-target="courseB">B코스</button>
-    <button class="tab-button" data-target="courseC">C코스</button>
-  `;
-
-  const dropdownHTML = `
-    <select id="tabs-dropdown">
-        <option value="total">합산 성적</option>
-        <option value="courseA">A코스</option>
-        <option value="courseB">B코스</option>
-        <option value="courseC">C코스</option>
-    </select>
-  `;
-
   header.innerHTML = `
         <div class="title-container">
             <div class="title-group">
@@ -119,8 +104,13 @@ function renderHeader(header) {
         </div>
         <div class="header-controls-row">
             <div class="header-center">
-                <div class="tabs desktop-show">${tabsHTML}</div>
-                <div class="tabs-dropdown-container mobile-show">${dropdownHTML}</div>
+                <div id="view-toggle" class="view-toggle">
+                    <button class="toggle-btn" data-view="total" title="합산 성적"><span>합산성적</span></button>
+                    <button class="toggle-btn" data-view="course-rankings" title="코스별 성적"><span>코스별성적</span></button>
+                    <button class="toggle-btn" data-view="courseA" title="A코스"><span>A코스</span></button>
+                    <button class="toggle-btn" data-view="courseB" title="B코스"><span>B코스</span></button>
+                    <button class="toggle-btn" data-view="courseC" title="C코스"><span>C코스</span></button>
+                </div>
             </div>
             <div class="controls-container">
                 <div class="search-container">
@@ -183,6 +173,7 @@ function renderMobileFooter(footer) {
 async function initialize(elements) {
   setupEventListeners(elements);
   setActiveTabUI();
+  setViewModeUI();
   await fetchAndRender(elements);
   startAutoRefresh(elements);
 }
@@ -227,6 +218,16 @@ function setActiveTabUI() {
   if (dropdown) dropdown.value = activeTab;
 }
 
+function setViewModeUI() {
+  document
+    .querySelectorAll(".toggle-btn")
+    .forEach((b) => b.classList.remove("active"));
+  const currentViewBtn = document.querySelector(
+    `.toggle-btn[data-view="${currentViewMode}"]`
+  );
+  if (currentViewBtn) currentViewBtn.classList.add("active");
+}
+
 const formatFinalScore = (score) =>
   score === null || score === undefined
     ? "<span>-</span>"
@@ -266,8 +267,18 @@ const formatSkillLevel = (grade) => {
 
 function renderContent(container) {
   const leaderboardData = getLeaderboardData();
-  const data = leaderboardData[activeTab] || [];
-  renderLeaderboardView(container, data);
+  
+  if (currentViewMode === "course-rankings") {
+    renderCourseRankingsView(container, leaderboardData);
+  } else if (currentViewMode === "total" || currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
+    // 뷰 모드에 해당하는 탭 데이터 사용
+    const data = leaderboardData[currentViewMode] || [];
+    renderLeaderboardView(container, data);
+  } else {
+    // 기본: activeTab 사용
+    const data = leaderboardData[activeTab] || [];
+    renderLeaderboardView(container, data);
+  }
 }
 
 function renderEmptyView(container, headers) {
@@ -392,6 +403,88 @@ function renderLeaderboardView(container, data) {
   container.innerHTML = `<div class="table-container"><table>${headHTML}<tbody class="clickable">${bodyHTML}</tbody></table></div>`;
 }
 
+function renderCourseRankingsView(container, leaderboardData) {
+  const courseA = leaderboardData.courseA || [];
+  const courseB = leaderboardData.courseB || [];
+  const courseC = leaderboardData.courseC || [];
+
+  const renderCourseSection = (courseData, courseLabel) => {
+    if (!courseData || courseData.length === 0) {
+      return `
+        <div class="course-ranking-section">
+          <h3 class="course-ranking-title">${courseLabel}코스</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>순위</th>
+                  <th>닉네임</th>
+                  <th>최종 성적</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="placeholder-row">
+                  <td colspan="3">등록된 데이터가 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    const headers = [
+      { key: "순위" },
+      { key: "닉네임" },
+      { key: "최종 성적" },
+    ];
+    const headHTML = `<thead><tr>${headers
+      .map((h) => `<th>${h.key}</th>`)
+      .join("")}</tr></thead>`;
+
+    const bodyHTML = courseData
+      .map((player) => {
+        const rank = player.tieCount > 1 ? `T${player.rank}` : player.rank;
+        const totalRevision =
+          (player.gradeRevision || 0) +
+          (player.systemRevision || 0) +
+          (player.genderRevision || 0);
+        const finalScore = (player.score || 0) + totalRevision;
+
+        return `
+          <tr data-userid="${player.userId}">
+            <td class="rank">${rank}</td>
+            <td class="nickname">${player.userNickname}<span class="user-id">(${player.userId})</span></td>
+            <td>${formatFinalScore(finalScore)}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    return `
+      <div class="course-ranking-section">
+        <h3 class="course-ranking-title">${courseLabel}코스</h3>
+        <div class="table-container">
+          <table>
+            ${headHTML}
+            <tbody class="clickable">${bodyHTML}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  };
+
+  const html = `
+    <div class="course-rankings-container">
+      ${renderCourseSection(courseA, "A")}
+      ${renderCourseSection(courseB, "B")}
+      ${renderCourseSection(courseC, "C")}
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
 function renderTicker(element, data) {
   if (!data || data.length === 0) {
     element.innerHTML = "";
@@ -480,20 +573,14 @@ function setupEventListeners(elements) {
     mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
   });
 
-  document.querySelector(".tabs").addEventListener("click", (e) => {
-    if (e.target.classList.contains("tab-button")) {
-      activeTab = e.target.dataset.target;
-      localStorage.setItem("activeTab-4th", activeTab);
-      setActiveTabUI();
+  document.getElementById("view-toggle").addEventListener("click", (e) => {
+    const btn = e.target.closest(".toggle-btn");
+    if (btn) {
+      currentViewMode = btn.dataset.view;
+      localStorage.setItem("currentViewMode-4th", currentViewMode);
+      setViewModeUI();
       renderContent(contentElement);
     }
-  });
-
-  document.getElementById("tabs-dropdown").addEventListener("change", (e) => {
-    activeTab = e.target.value;
-    localStorage.setItem("activeTab-4th", activeTab);
-    setActiveTabUI();
-    renderContent(contentElement);
   });
 
   const searchInput = document.getElementById("search-input");

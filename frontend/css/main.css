@@ -432,6 +432,48 @@ body.light-mode .icon-toggle {
   background-color: var(--accent-blue);
   color: #fff;
 }
+
+/* 텍스트 버튼 스타일 (뷰 모드용) */
+.view-toggle {
+  display: flex;
+  background-color: var(--bg-surface);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  gap: 4px;
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0.2s, opacity 0.2s;
+}
+body.light-mode .view-toggle {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+}
+.view-toggle .toggle-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.view-toggle .toggle-btn:hover {
+  background-color: var(--bg-surface-accent);
+  color: var(--text-primary);
+}
+.view-toggle .toggle-btn.active {
+  background-color: var(--accent-blue);
+  color: #fff;
+}
+body.light-mode .view-toggle .toggle-btn:hover {
+  background-color: var(--bg-surface-accent-light);
+  color: var(--text-primary-light);
+}
 .tabs-dropdown-container {
   display: none;
 }
