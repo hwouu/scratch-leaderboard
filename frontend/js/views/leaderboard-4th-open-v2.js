@@ -522,7 +522,9 @@ function renderLeaderboardView(container, data) {
   } else if (currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
     headers = headersConfig.course;
   } else {
-    headers = activeTab === "total" ? headersConfig.total : headersConfig.course;
+    // fallback: activeTab 사용 (하위 호환성)
+    const fallbackKey = activeTab || "total";
+    headers = fallbackKey === "total" ? headersConfig.total : headersConfig.course;
   }
 
   if (!data || data.length === 0) {
@@ -534,7 +536,11 @@ function renderLeaderboardView(container, data) {
     .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
     .join("")}</tr></thead>`;
 
-  const prevData = getPrevLeaderboardData()?.[activeTab] || [];
+  // currentViewMode를 사용하여 이전 데이터 가져오기
+  const dataKey = currentViewMode === "total" || currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC" 
+    ? currentViewMode 
+    : (activeTab || "total");
+  const prevData = getPrevLeaderboardData()?.[dataKey] || [];
   const leaderboardData = getLeaderboardData();
   
   const getCourseScore = (userId, course) => {
@@ -560,8 +566,10 @@ function renderLeaderboardView(container, data) {
       const revisionDisplay =
         totalRevision > 0 ? `+${totalRevision}` : totalRevision.toString();
 
+      // currentViewMode에 따라 최종 성적 계산
+      const isTotalView = currentViewMode === "total";
       let finalScore;
-      if (activeTab === "total") {
+      if (isTotalView) {
         const courseAScore = getCourseScore(player.userId, "courseA") || 0;
         const courseBScore = getCourseScore(player.userId, "courseB") || 0;
         const courseCScore = getCourseScore(player.userId, "courseC") || 0;
@@ -575,7 +583,7 @@ function renderLeaderboardView(container, data) {
       const rowClass = isTopThree ? `rank-top-${player.rank}` : "";
 
       const rowCells =
-        activeTab === "total"
+        isTotalView
           ? `<td class="rank-v2">${rank}</td>
              <td class="nickname-v2">${
                player.userNickname

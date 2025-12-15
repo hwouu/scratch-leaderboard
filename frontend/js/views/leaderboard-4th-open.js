@@ -55,6 +55,17 @@ const leaderboardPageHTML = `
            onerror="this.onerror=null;this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image%20Not%20Found';" />
     </div>
   </div>
+  <div id="v2-promotion-toast" class="v2-promotion-toast">
+    <div class="v2-promotion-content">
+      <div class="v2-promotion-icon">✨</div>
+      <div class="v2-promotion-text">
+        <div class="v2-promotion-title">신버전 UI 체험하기</div>
+        <div class="v2-promotion-subtitle">더 나은 경험을 제공하는 새로운 디자인</div>
+      </div>
+      <button id="v2-promotion-button" class="v2-promotion-button">체험하기</button>
+      <button id="v2-promotion-close" class="v2-promotion-close">&times;</button>
+    </div>
+  </div>
 `;
 
 /**
@@ -722,6 +733,34 @@ function setupEventListeners(elements) {
   document
     .getElementById("overview-button")
     .addEventListener("click", () => openModal(overviewModal));
+
+  // V2 프로모션 토스트 이벤트 리스너
+  const v2PromotionToast = document.getElementById("v2-promotion-toast");
+  const v2PromotionButton = document.getElementById("v2-promotion-button");
+  const v2PromotionClose = document.getElementById("v2-promotion-close");
+
+  // localStorage에서 토스트 표시 여부 확인
+  const shouldShowToast = localStorage.getItem("v2-promotion-dismissed") !== "true";
+  
+  if (shouldShowToast && v2PromotionToast) {
+    // 페이지 로드 후 3초 뒤에 토스트 표시
+    setTimeout(() => {
+      v2PromotionToast.classList.add("show");
+    }, 3000);
+  }
+
+  if (v2PromotionButton) {
+    v2PromotionButton.addEventListener("click", () => {
+      window.location.href = "/v2/4th-open";
+    });
+  }
+
+  if (v2PromotionClose) {
+    v2PromotionClose.addEventListener("click", () => {
+      v2PromotionToast.classList.remove("show");
+      localStorage.setItem("v2-promotion-dismissed", "true");
+    });
+  }
 
   [searchModal, overviewModal].forEach((modal) => {
     if (modal) {

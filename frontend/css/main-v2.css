@@ -706,6 +706,16 @@ body.light-mode .custom-dropdown-button-v2.active {
   box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
 }
 
+.dropdown-selected-v2 {
+  flex: 1;
+  text-align: left;
+  color: var(--text-primary-v2);
+}
+
+body.light-mode .dropdown-selected-v2 {
+  color: var(--text-primary-light-v2);
+}
+
 .dropdown-icon-v2 {
   font-size: 12px;
   transition: transform var(--transition-base-v2);
