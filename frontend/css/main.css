@@ -156,7 +156,8 @@ body.light-mode .ticker-item .ticker-text-bold {
   color: var(--accent-yellow);
 }
 @keyframes ticker-emoji-bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) scale(1);
   }
   50% {
@@ -1318,7 +1319,7 @@ body.light-mode .desktop-footer .footer-links a:hover {
     flex-direction: column;
     overflow-x: hidden;
   }
-  
+
   #app {
     display: flex;
     flex-direction: column;
@@ -1352,8 +1353,42 @@ body.light-mode .desktop-footer .footer-links a:hover {
   .container {
     padding: 0 20px;
   }
+  .ticker-wrap {
+    padding: 10px 0;
+  }
+  .ticker-item {
+    font-size: 13px;
+    padding: 0 1rem;
+  }
+  .ticker-item .ticker-emoji {
+    font-size: 15px;
+    margin: 0 6px;
+  }
+  .ticker-item .ticker-text-bold {
+    font-size: 13px;
+    margin: 0 3px;
+  }
+  .ticker-item .ticker-text-normal {
+    font-size: 12px;
+    margin: 0 3px;
+  }
+  .ticker-item .ticker-separator {
+    margin: 0 8px;
+    font-size: 11px;
+  }
+  .ticker-item .rank {
+    font-size: 13px;
+    margin-right: 6px;
+  }
+  .ticker-item .name {
+    font-size: 13px;
+  }
+  .ticker-item .score {
+    font-size: 13px;
+    margin-left: 6px;
+  }
   .ticker-wrap + .container {
-    padding-top: 50px;
+    padding-top: 45px;
   }
   header {
     flex-direction: column;
@@ -1475,7 +1510,7 @@ body.light-mode .desktop-footer .footer-links a:hover {
     border-top: 1px solid var(--border-color);
     margin-top: auto;
   }
-  
+
   .container {
     flex: 1;
     display: flex;
@@ -1483,7 +1518,7 @@ body.light-mode .desktop-footer .footer-links a:hover {
     min-height: 0;
     overflow: visible;
   }
-  
+
   main.grid-container {
     flex: 1;
     min-height: 0;
@@ -1491,7 +1526,7 @@ body.light-mode .desktop-footer .footer-links a:hover {
     flex-direction: column;
     overflow: visible;
   }
-  
+
   #content {
     flex: 1;
     min-height: 0;

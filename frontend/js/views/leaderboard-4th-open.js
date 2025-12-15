@@ -9,7 +9,8 @@ import {
 // --- 상태 변수 ---
 let currentStage = "4th-open";
 let activeTab = localStorage.getItem("activeTab-4th") || "total";
-let currentViewMode = localStorage.getItem("currentViewMode-4th") || "leaderboard";
+let currentViewMode =
+  localStorage.getItem("currentViewMode-4th") || "leaderboard";
 let isSidebarCollapsed = localStorage.getItem("isSidebarCollapsed") === "true";
 let refreshIntervalId = null;
 const REFRESH_INTERVAL_MS = 300000; // 5분
@@ -246,21 +247,27 @@ function setViewModeUI() {
     `.toggle-btn[data-view="${currentViewMode}"]`
   );
   if (currentViewBtn) currentViewBtn.classList.add("active");
-  
+
   // 커스텀 드롭다운 업데이트
-  const dropdownSelected = document.querySelector("#view-dropdown-button .dropdown-selected");
-  const dropdownOption = document.querySelector(`#view-dropdown-menu .dropdown-option[data-value="${currentViewMode}"]`);
+  const dropdownSelected = document.querySelector(
+    "#view-dropdown-button .dropdown-selected"
+  );
+  const dropdownOption = document.querySelector(
+    `#view-dropdown-menu .dropdown-option[data-value="${currentViewMode}"]`
+  );
   if (dropdownSelected && dropdownOption) {
     dropdownSelected.textContent = dropdownOption.textContent;
   }
-  
+
   // 드롭다운 옵션 활성화 상태 업데이트
-  document.querySelectorAll("#view-dropdown-menu .dropdown-option").forEach((opt) => {
-    opt.classList.remove("selected");
-    if (opt.dataset.value === currentViewMode) {
-      opt.classList.add("selected");
-    }
-  });
+  document
+    .querySelectorAll("#view-dropdown-menu .dropdown-option")
+    .forEach((opt) => {
+      opt.classList.remove("selected");
+      if (opt.dataset.value === currentViewMode) {
+        opt.classList.add("selected");
+      }
+    });
 }
 
 const formatFinalScore = (score) =>
@@ -302,10 +309,15 @@ const formatSkillLevel = (grade) => {
 
 function renderContent(container) {
   const leaderboardData = getLeaderboardData();
-  
+
   if (currentViewMode === "course-rankings") {
     renderCourseRankingsView(container, leaderboardData);
-  } else if (currentViewMode === "total" || currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
+  } else if (
+    currentViewMode === "total" ||
+    currentViewMode === "courseA" ||
+    currentViewMode === "courseB" ||
+    currentViewMode === "courseC"
+  ) {
     // 뷰 모드에 해당하는 탭 데이터 사용
     const data = leaderboardData[currentViewMode] || [];
     renderLeaderboardView(container, data);
@@ -352,10 +364,15 @@ function renderLeaderboardView(container, data) {
   let headers;
   if (currentViewMode === "total") {
     headers = headersConfig.total;
-  } else if (currentViewMode === "courseA" || currentViewMode === "courseB" || currentViewMode === "courseC") {
+  } else if (
+    currentViewMode === "courseA" ||
+    currentViewMode === "courseB" ||
+    currentViewMode === "courseC"
+  ) {
     headers = headersConfig.course;
   } else {
-    headers = activeTab === "total" ? headersConfig.total : headersConfig.course;
+    headers =
+      activeTab === "total" ? headersConfig.total : headersConfig.course;
   }
 
   if (!data || data.length === 0) {
@@ -369,7 +386,7 @@ function renderLeaderboardView(container, data) {
 
   const prevData = getPrevLeaderboardData()?.[activeTab] || [];
   const leaderboardData = getLeaderboardData();
-  
+
   // 합산 탭의 경우 각 코스의 스코어를 가져와야 함
   const getCourseScore = (userId, course) => {
     const courseData = leaderboardData[course] || [];
@@ -420,9 +437,15 @@ function renderLeaderboardView(container, data) {
             }</span></td>
              <td class="mobile-hide">${player.shopName || ""}</td>
              <td class="mobile-hide">${player.roundCount || "-"}</td>
-             <td class="mobile-hide">${formatSimpleScore(getCourseScore(player.userId, "courseA"))}</td>
-             <td class="mobile-hide">${formatSimpleScore(getCourseScore(player.userId, "courseB"))}</td>
-             <td class="mobile-hide">${formatSimpleScore(getCourseScore(player.userId, "courseC"))}</td>
+             <td class="mobile-hide">${formatSimpleScore(
+               getCourseScore(player.userId, "courseA")
+             )}</td>
+             <td class="mobile-hide">${formatSimpleScore(
+               getCourseScore(player.userId, "courseB")
+             )}</td>
+             <td class="mobile-hide">${formatSimpleScore(
+               getCourseScore(player.userId, "courseC")
+             )}</td>
              <td>${revisionDisplay}</td>
              <td>${formatFinalScore(finalScore)}</td>`
           : `<td class="rank">${rank}</td>
@@ -475,11 +498,7 @@ function renderCourseRankingsView(container, leaderboardData) {
       `;
     }
 
-    const headers = [
-      { key: "순위" },
-      { key: "닉네임" },
-      { key: "최종 성적" },
-    ];
+    const headers = [{ key: "순위" }, { key: "닉네임" }, { key: "최종 성적" }];
     const headHTML = `<thead><tr>${headers
       .map((h) => `<th>${h.key}</th>`)
       .join("")}</tr></thead>`;
@@ -496,7 +515,9 @@ function renderCourseRankingsView(container, leaderboardData) {
         return `
           <tr data-userid="${player.userId}">
             <td class="rank">${rank}</td>
-            <td class="nickname">${player.userNickname}<span class="user-id">(${player.userId})</span></td>
+            <td class="nickname">${player.userNickname}<span class="user-id">(${
+          player.userId
+        })</span></td>
             <td>${formatFinalScore(finalScore)}</td>
           </tr>
         `;
@@ -529,24 +550,25 @@ function renderCourseRankingsView(container, leaderboardData) {
 
 function renderTicker(element, data) {
   const tickerWrap = document.querySelector(".ticker-wrap");
-  
+
   // 티커는 항상 표시
   if (tickerWrap) tickerWrap.style.display = "block";
-  
+
   // 데이터가 없거나 업데이트되지 않았을 때 기본 메시지 표시
   if (!data || data.length === 0) {
     const defaultMessage = `<span class="ticker-emoji">🎁</span><span class="ticker-text-bold">스크래치 OPEN 4th</span><span class="ticker-separator">|</span><span class="ticker-text-bold">스크래치 선물 팡팡</span><span class="ticker-separator">|</span><span class="ticker-text-normal">연말연시를 맞이하여 고객분들께 감사의 선물을 드립니다</span><span class="ticker-emoji">🎉</span><span class="ticker-separator">|</span><span class="ticker-text-normal">올해도 저희 스크래치를 찾아주신 여러분께 감사드립니다</span><span class="ticker-emoji">🙏</span>`;
-    element.innerHTML = `<div class="ticker-item">${defaultMessage}</div>`.repeat(2);
+    element.innerHTML =
+      `<div class="ticker-item">${defaultMessage}</div>`.repeat(2);
     return;
   }
-  
+
   const leaderboardData = getLeaderboardData();
   const getCourseScore = (userId, course) => {
     const courseData = leaderboardData[course] || [];
     const player = courseData.find((p) => p.userId === userId);
     return player ? player.score : null;
   };
-  
+
   const top20 = data.slice(0, 20);
   const tickerContent = top20
     .map((p) => {
@@ -582,7 +604,7 @@ function renderHighlights(element, data) {
     const player = courseData.find((p) => p.userId === userId);
     return player ? player.score : null;
   };
-  
+
   // 최종 성적 기준으로 정렬 (각 코스 스코어 합산 + 보정치)
   const sortedByFinal = [...data].map((p) => {
     const courseAScore = getCourseScore(p.userId, "courseA") || 0;
@@ -597,7 +619,9 @@ function renderHighlights(element, data) {
     return { ...p, finalScore };
   });
   const best = sortedByFinal.sort((a, b) => a.finalScore - b.finalScore)[0];
-  const most = [...data].sort((a, b) => (b.roundCount || 0) - (a.roundCount || 0))[0];
+  const most = [...data].sort(
+    (a, b) => (b.roundCount || 0) - (a.roundCount || 0)
+  )[0];
   if (element) {
     element.innerHTML = `<div class="highlight-item"><div class="highlight-title">최고 성적</div><div class="highlight-value">${
       best.userNickname
@@ -625,7 +649,7 @@ function setupEventListeners(elements) {
 
   const viewToggleMain = document.getElementById("view-toggle-main");
   const viewToggleCourses = document.getElementById("view-toggle-courses");
-  
+
   [viewToggleMain, viewToggleCourses].forEach((container) => {
     if (container) {
       container.addEventListener("click", (e) => {
@@ -658,14 +682,14 @@ function setupEventListeners(elements) {
         e.stopPropagation();
         const value = option.dataset.value;
         const text = option.textContent;
-        
+
         currentViewMode = value;
         localStorage.setItem("currentViewMode-4th", currentViewMode);
-        
+
         if (dropdownSelected) dropdownSelected.textContent = text;
         dropdownMenu.classList.remove("active");
         dropdownButton.classList.remove("active");
-        
+
         setViewModeUI();
         renderContent(contentElement);
       });
@@ -673,7 +697,10 @@ function setupEventListeners(elements) {
 
     // 외부 클릭 시 드롭다운 닫기
     document.addEventListener("click", (e) => {
-      if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      if (
+        !dropdownButton.contains(e.target) &&
+        !dropdownMenu.contains(e.target)
+      ) {
         dropdownMenu.classList.remove("active");
         dropdownButton.classList.remove("active");
       }
@@ -782,7 +809,7 @@ function showPlayerModal(player, modal, openCallback) {
     (player.gradeRevision || 0) +
     (player.systemRevision || 0) +
     (player.genderRevision || 0);
-  
+
   // 합산 성적 계산 (각 코스 스코어 합산 + 보정치)
   const courseAScore = courseAData?.score || 0;
   const courseBScore = courseBData?.score || 0;
@@ -808,7 +835,10 @@ function showPlayerModal(player, modal, openCallback) {
           courseCData?.score
         )}</span></div>
         <div class="search-result-item"><span class="result-label">실력 등급</span><span class="result-value">${formatSkillLevel(
-          player.grade || courseAData?.grade || courseBData?.grade || courseCData?.grade
+          player.grade ||
+            courseAData?.grade ||
+            courseBData?.grade ||
+            courseCData?.grade
         )}</span></div>
         <div class="search-result-item"><span class="result-label">보정치</span><span class="result-value">${
           totalRevision > 0 ? `+${totalRevision}` : totalRevision
@@ -821,4 +851,3 @@ function showPlayerModal(player, modal, openCallback) {
   modalBody.innerHTML = `<h3 class="modal-body-title">${player.userNickname} (${player.userId})</h3>${detailsHTML}`;
   openCallback(modal);
 }
-

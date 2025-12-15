@@ -1,6 +1,7 @@
 import { renderLeaderboardPage } from "./views/leaderboard.js";
 import { renderLeaderboard2ndPage } from "./views/leaderboard-2nd.js";
 import { renderLeaderboard4thOpenPage } from "./views/leaderboard-4th-open.js";
+import { renderLeaderboard4thOpenPageV2 } from "./views/leaderboard-4th-open-v2.js";
 import { trackPageView, AnalyticsEvents } from "./utils/analytics.js";
 
 // 라우트 설정: 1st와 2nd 토너먼트 모두 지원
@@ -35,6 +36,9 @@ const routes = {
   },
   // 4th-open 스트로크 대회
   "/4th-open": (app) => renderLeaderboard4thOpenPage("4th-open", app),
+  
+  // V2 버전 (신버전 UI)
+  "/v2/4th-open": (app) => renderLeaderboard4thOpenPageV2("4th-open", app),
 };
 
 function ensureMetaTag(nameOrProperty, key, value) {
@@ -83,6 +87,13 @@ function getSeoForPath(path) {
     return {
       title: `스크래치 선물 팡팡 | 스크래치 리더보드`,
       desc: `스크래치 선물 팡팡 스트로크 대회 실시간 순위를 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
+  if (path === "/v2/4th-open") {
+    return {
+      title: `스크래치 선물 팡팡 | 스크래치 리더보드 V2`,
+      desc: `스크래치 선물 팡팡 스트로크 대회 실시간 순위를 확인하세요. (신버전 UI)`,
       keywords: baseKeywords,
     };
   }

@@ -8,18 +8,22 @@ function initializeGlobalListeners() {
   // 테마 변경 버튼은 어떤 페이지에 있든 항상 존재하므로,
   // app.js에서 한 번만 등록해 관리합니다.
   document.addEventListener("click", (e) => {
-    const themeToggle = e.target.closest("#theme-toggle");
+    const themeToggle = e.target.closest("#theme-toggle, #theme-toggle-v2");
     if (themeToggle) {
       const body = document.body;
       const newTheme = body.classList.contains("light-mode") ? "dark" : "light";
       localStorage.setItem("theme", newTheme);
       body.classList.toggle("light-mode", newTheme === "light");
 
-      const icon = themeToggle.querySelector("i");
-      if (icon) {
-        icon.className =
-          newTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
-      }
+      // 모든 테마 토글 버튼의 아이콘 업데이트
+      const allThemeToggles = document.querySelectorAll("#theme-toggle, #theme-toggle-v2");
+      allThemeToggles.forEach((toggle) => {
+        const icon = toggle.querySelector("i");
+        if (icon) {
+          icon.className =
+            newTheme === "light" ? "fas fa-moon" : "fa-regular fa-sun";
+        }
+      });
     }
   });
 }
