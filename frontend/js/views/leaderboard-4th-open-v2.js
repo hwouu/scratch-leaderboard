@@ -110,68 +110,85 @@ function renderHeader(header) {
       <div class="title-section-v2">
         <div class="title-group-v2">
           <h1 class="title-v2">LEADER BOARD</h1>
-          <span class="live-indicator-v2">
-            <span class="live-dot-v2"></span>
+          <span class="live-indicator-v2" role="status" aria-live="polite" aria-label="실시간 업데이트 중">
+            <span class="live-dot-v2" aria-hidden="true"></span>
             LIVE
           </span>
         </div>
         <div class="subtitle-v2">
           <span class="subtitle-text-v2">${tournamentInfo.name}</span>
-          <span class="tournament-period-v2 mobile-show-v2">${tournamentInfo.period}</span>
-          <span class="last-updated-v2">마지막 업데이트: <span id="last-updated-time-v2"></span></span>
+          <span class="tournament-period-v2 mobile-show-v2" aria-label="대회 기간">${tournamentInfo.period}</span>
+          <span class="last-updated-v2" aria-label="마지막 업데이트 시간">
+            마지막 업데이트: <time id="last-updated-time-v2" datetime=""></time>
+          </span>
         </div>
       </div>
       <div class="controls-section-v2">
         <div class="view-controls-v2 desktop-show-v2">
-          <div id="view-toggle-v2" class="view-toggle-v2">
-            <button class="toggle-btn-v2" data-view="total" title="합산">
-              <span>합산</span>
+          <nav id="view-toggle-v2" class="view-toggle-v2" role="tablist" aria-label="뷰 선택">
+            <button class="toggle-btn-v2" data-view="total" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-total">
+              합산
             </button>
-            <button class="toggle-btn-v2" data-view="course-rankings" title="코스별">
-              <span>코스별</span>
+            <button class="toggle-btn-v2" data-view="course-rankings" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-course-rankings">
+              코스별
             </button>
-            <button class="toggle-btn-v2" data-view="courseA" title="A코스">
-              <span>A코스</span>
+            <button class="toggle-btn-v2" data-view="courseA" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseA">
+              A코스
             </button>
-            <button class="toggle-btn-v2" data-view="courseB" title="B코스">
-              <span>B코스</span>
+            <button class="toggle-btn-v2" data-view="courseB" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseB">
+              B코스
             </button>
-            <button class="toggle-btn-v2" data-view="courseC" title="C코스">
-              <span>C코스</span>
+            <button class="toggle-btn-v2" data-view="courseC" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseC">
+              C코스
             </button>
-          </div>
+          </nav>
         </div>
         <div class="view-dropdown-container-v2 mobile-show-v2">
           <div class="custom-dropdown-v2" id="view-dropdown-custom-v2">
-            <button class="custom-dropdown-button-v2" id="view-dropdown-button-v2">
+            <button 
+              class="custom-dropdown-button-v2" 
+              id="view-dropdown-button-v2"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="뷰 선택"
+            >
               <span class="dropdown-selected-v2">합산</span>
-              <i class="fas fa-chevron-down dropdown-icon-v2"></i>
+              <i class="fas fa-chevron-down dropdown-icon-v2" aria-hidden="true"></i>
             </button>
-            <div class="custom-dropdown-menu-v2" id="view-dropdown-menu-v2">
-              <div class="dropdown-option-v2" data-value="total">합산</div>
-              <div class="dropdown-option-v2" data-value="course-rankings">코스별</div>
-              <div class="dropdown-option-v2" data-value="courseA">A코스</div>
-              <div class="dropdown-option-v2" data-value="courseB">B코스</div>
-              <div class="dropdown-option-v2" data-value="courseC">C코스</div>
-            </div>
+            <ul class="custom-dropdown-menu-v2" id="view-dropdown-menu-v2" role="menu" aria-labelledby="view-dropdown-button-v2">
+              <li role="menuitem"><div class="dropdown-option-v2" data-value="total">합산</div></li>
+              <li role="menuitem"><div class="dropdown-option-v2" data-value="course-rankings">코스별</div></li>
+              <li role="menuitem"><div class="dropdown-option-v2" data-value="courseA">A코스</div></li>
+              <li role="menuitem"><div class="dropdown-option-v2" data-value="courseB">B코스</div></li>
+              <li role="menuitem"><div class="dropdown-option-v2" data-value="courseC">C코스</div></li>
+            </ul>
           </div>
         </div>
         <div class="action-buttons-v2">
           <div class="search-container-v2">
-            <input type="text" id="search-input-v2" placeholder="닉네임 또는 아이디" />
-            <button id="search-button-v2"><i class="fas fa-search"></i></button>
+            <label for="search-input-v2" class="sr-only-v2">닉네임 또는 아이디 검색</label>
+            <input 
+              type="search" 
+              id="search-input-v2" 
+              placeholder="닉네임 또는 아이디" 
+              aria-label="닉네임 또는 아이디 검색"
+              autocomplete="off"
+            />
+            <button id="search-button-v2" type="button" aria-label="검색">
+              <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
           </div>
-          <button id="refresh-button-v2" class="icon-button-v2" title="새로고침">
-            <i class="fas fa-sync-alt"></i>
+          <button id="refresh-button-v2" class="icon-button-v2" type="button" aria-label="새로고침">
+            <i class="fas fa-sync-alt" aria-hidden="true"></i>
           </button>
-          <button id="sidebar-toggle-v2" class="icon-button-v2" title="사이드바 열기/닫기">
-            <i class="fas fa-expand"></i>
+          <button id="sidebar-toggle-v2" class="icon-button-v2" type="button" aria-label="사이드바 열기/닫기" aria-expanded="false">
+            <i class="fas fa-expand" aria-hidden="true"></i>
           </button>
-          <button id="overview-button-v2" class="icon-button-v2" title="대회 요강">
-            <i class="fas fa-file-alt"></i>
+          <button id="overview-button-v2" class="icon-button-v2" type="button" aria-label="대회 요강">
+            <i class="fas fa-file-alt" aria-hidden="true"></i>
           </button>
-          <button id="theme-toggle-v2" class="icon-button-v2" title="테마 변경">
-            <i class="${themeIconClass}"></i>
+          <button id="theme-toggle-v2" class="icon-button-v2" type="button" aria-label="테마 변경">
+            <i class="${themeIconClass}" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -362,25 +379,33 @@ function renderSkeleton(container) {
 
 async function fetchAndRender(elements) {
   const refreshButton = document.getElementById("refresh-button-v2");
+  const lastUpdatedTime = document.getElementById("last-updated-time-v2");
   
   // 스켈레톤 UI 표시
   renderSkeleton(elements.contentElement);
-  if (refreshButton) refreshButton.querySelector("i").classList.add("fa-spin");
+  if (refreshButton) {
+    refreshButton.setAttribute("aria-busy", "true");
+    refreshButton.querySelector("i").classList.add("fa-spin");
+  }
 
   const { success } = await fetchLeaderboardData(currentStage);
   if (success) {
     const leaderboardData = getLeaderboardData();
+    const fetchTime = getLastFetchTime();
     if (elements.lastUpdatedElement) {
-      elements.lastUpdatedElement.textContent =
-        getLastFetchTime().toLocaleTimeString("ko-KR");
+      elements.lastUpdatedElement.textContent = fetchTime.toLocaleTimeString("ko-KR");
+    }
+    if (lastUpdatedTime) {
+      lastUpdatedTime.textContent = fetchTime.toLocaleTimeString("ko-KR");
+      lastUpdatedTime.setAttribute("datetime", fetchTime.toISOString());
     }
     renderContent(elements.contentElement);
     renderTicker(elements.tickerElement, leaderboardData.total);
     renderHighlights(elements.highlightContentElement, leaderboardData.total);
   } else {
     elements.contentElement.innerHTML = `
-      <div class="error-container-v2">
-        <div class="error-icon-v2">
+      <div class="error-container-v2" role="alert">
+        <div class="error-icon-v2" aria-hidden="true">
           <i class="fas fa-exclamation-triangle"></i>
         </div>
         <h3 class="error-title-v2">데이터 로딩 실패</h3>
@@ -388,7 +413,10 @@ async function fetchAndRender(elements) {
       </div>
     `;
   }
-  if (refreshButton) refreshButton.querySelector("i").classList.remove("fa-spin");
+  if (refreshButton) {
+    refreshButton.setAttribute("aria-busy", "false");
+    refreshButton.querySelector("i").classList.remove("fa-spin");
+  }
 }
 
 function startAutoRefresh(elements) {
@@ -408,26 +436,32 @@ function setActiveTabUI() {
 }
 
 function setViewModeUI() {
-  document
-    .querySelectorAll(".toggle-btn-v2")
-    .forEach((b) => b.classList.remove("active"));
-  const currentViewBtn = document.querySelector(
-    `.toggle-btn-v2[data-view="${currentViewMode}"]`
-  );
-  if (currentViewBtn) currentViewBtn.classList.add("active");
+  // 데스크톱 토글 버튼 업데이트
+  document.querySelectorAll(".toggle-btn-v2").forEach((btn) => {
+    const isActive = btn.dataset.view === currentViewMode;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", isActive);
+    if (isActive) {
+      btn.setAttribute("tabindex", "0");
+    } else {
+      btn.setAttribute("tabindex", "-1");
+    }
+  });
   
   // 커스텀 드롭다운 업데이트
   const dropdownSelected = document.querySelector("#view-dropdown-button-v2 .dropdown-selected-v2");
   const dropdownOption = document.querySelector(`#view-dropdown-menu-v2 .dropdown-option-v2[data-value="${currentViewMode}"]`);
   if (dropdownSelected && dropdownOption) {
-    dropdownSelected.textContent = dropdownOption.textContent;
+    dropdownSelected.textContent = dropdownOption.textContent.trim();
   }
   
   // 드롭다운 옵션 활성화 상태 업데이트
   document.querySelectorAll("#view-dropdown-menu-v2 .dropdown-option-v2").forEach((opt) => {
-    opt.classList.remove("selected");
-    if (opt.dataset.value === currentViewMode) {
-      opt.classList.add("selected");
+    const isSelected = opt.dataset.value === currentViewMode;
+    opt.classList.toggle("selected", isSelected);
+    const menuItem = opt.closest("li[role='menuitem']");
+    if (menuItem) {
+      menuItem.setAttribute("aria-selected", isSelected);
     }
   });
 }
@@ -791,14 +825,22 @@ function setupEventListeners(elements) {
 
   document.getElementById("sidebar-toggle-v2").addEventListener("click", () => {
     const mainGrid = document.getElementById("main-grid-v2");
+    const sidebarToggle = document.getElementById("sidebar-toggle-v2");
     isSidebarCollapsed = !isSidebarCollapsed;
     localStorage.setItem("isSidebarCollapsed-v2", isSidebarCollapsed);
     mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
+    sidebarToggle.setAttribute("aria-expanded", !isSidebarCollapsed);
+    sidebarToggle.setAttribute("aria-label", isSidebarCollapsed ? "사이드바 열기" : "사이드바 닫기");
+    const icon = sidebarToggle.querySelector("i");
+    if (icon) {
+      icon.className = isSidebarCollapsed ? "fas fa-compress" : "fas fa-expand";
+    }
   });
 
   const viewToggle = document.getElementById("view-toggle-v2");
   
   if (viewToggle) {
+    // 마우스 클릭
     viewToggle.addEventListener("click", (e) => {
       const btn = e.target.closest(".toggle-btn-v2");
       if (btn) {
@@ -806,6 +848,29 @@ function setupEventListeners(elements) {
         localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
         setViewModeUI();
         renderContent(contentElement);
+        btn.focus();
+      }
+    });
+
+    // 키보드 네비게이션 (화살표 키)
+    viewToggle.addEventListener("keydown", (e) => {
+      const buttons = Array.from(viewToggle.querySelectorAll(".toggle-btn-v2"));
+      const currentIndex = buttons.findIndex(btn => btn === document.activeElement);
+      
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const nextIndex = (currentIndex + 1) % buttons.length;
+        buttons[nextIndex].focus();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+        buttons[prevIndex].focus();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        buttons[0].focus();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        buttons[buttons.length - 1].focus();
       }
     });
   }
@@ -816,34 +881,64 @@ function setupEventListeners(elements) {
   const dropdownOptions = dropdownMenu?.querySelectorAll(".dropdown-option-v2");
 
   if (dropdownButton && dropdownMenu) {
+    const toggleDropdown = (isOpen) => {
+      dropdownMenu.classList.toggle("active", isOpen);
+      dropdownButton.classList.toggle("active", isOpen);
+      dropdownButton.setAttribute("aria-expanded", isOpen);
+    };
+
     dropdownButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      dropdownMenu.classList.toggle("active");
-      dropdownButton.classList.toggle("active");
+      const isOpen = !dropdownMenu.classList.contains("active");
+      toggleDropdown(isOpen);
+    });
+
+    // 키보드 네비게이션 지원
+    dropdownButton.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const isOpen = !dropdownMenu.classList.contains("active");
+        toggleDropdown(isOpen);
+      } else if (e.key === "Escape") {
+        toggleDropdown(false);
+        dropdownButton.focus();
+      }
     });
 
     dropdownOptions?.forEach((option) => {
-      option.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const value = option.dataset.value;
-        const text = option.textContent;
-        
-        currentViewMode = value;
-        localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
-        
-        if (dropdownSelected) dropdownSelected.textContent = text;
-        dropdownMenu.classList.remove("active");
-        dropdownButton.classList.remove("active");
-        
-        setViewModeUI();
-        renderContent(contentElement);
-      });
+      const menuItem = option.closest("li[role='menuitem']");
+      if (menuItem) {
+        menuItem.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const value = option.dataset.value;
+          const text = option.textContent.trim();
+          
+          currentViewMode = value;
+          localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
+          
+          if (dropdownSelected) dropdownSelected.textContent = text;
+          toggleDropdown(false);
+          
+          setViewModeUI();
+          renderContent(contentElement);
+          dropdownButton.focus();
+        });
+
+        menuItem.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            menuItem.click();
+          } else if (e.key === "Escape") {
+            toggleDropdown(false);
+            dropdownButton.focus();
+          }
+        });
+      }
     });
 
     document.addEventListener("click", (e) => {
       if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove("active");
-        dropdownButton.classList.remove("active");
+        toggleDropdown(false);
       }
     });
   }
