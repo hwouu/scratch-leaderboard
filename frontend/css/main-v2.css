@@ -257,10 +257,7 @@ body.light-mode::before {
 
 /* Header V2 */
 .header-v2 {
-  padding: var(--spacing-md-v2) 0 var(--spacing-lg-v2) 0;
   margin-bottom: var(--spacing-md-v2);
-  margin-right: calc(-1 * var(--spacing-lg-v2));
-  padding-right: var(--spacing-lg-v2);
 }
 
 .header-content-v2 {
@@ -423,6 +420,7 @@ body.light-mode .title-v2 {
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 4px;
+  padding-left: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   align-self: stretch;
@@ -444,7 +442,7 @@ body.light-mode .title-v2 {
   gap: var(--spacing-sm-v2);
   flex-wrap: nowrap;
   flex-shrink: 0;
-  min-width: 0;
+  min-width: auto;
   align-items: center;
 }
 
@@ -459,7 +457,7 @@ body.light-mode .title-v2 {
   padding: 4px;
   gap: 4px;
   flex-shrink: 0;
-  min-width: 0;
+  min-width: auto;
   overflow: visible;
 }
 
@@ -1354,11 +1352,6 @@ body.light-mode .error-icon-v2 {
     padding: 0 var(--spacing-xl-v2);
   }
 
-  .header-v2 {
-    margin-right: calc(-1 * var(--spacing-xl-v2));
-    padding-right: var(--spacing-xl-v2);
-  }
-
   .header-content-v2 {
     flex-direction: row;
     align-items: center;
@@ -1391,11 +1384,11 @@ body.light-mode .error-icon-v2 {
   .view-controls-v2 {
     gap: var(--spacing-xs-v2);
     flex-shrink: 0;
-    min-width: 0;
+    min-width: auto;
   }
 
   .view-toggle-v2 {
-    min-width: 0;
+    min-width: auto;
     flex-shrink: 0;
   }
 
@@ -1433,12 +1426,12 @@ body.light-mode .error-icon-v2 {
     width: 100%;
     gap: var(--spacing-xs-v2);
     flex-shrink: 0;
-    min-width: 0;
+    min-width: auto;
   }
 
   .view-toggle-v2 {
     width: 100%;
-    min-width: 0;
+    min-width: auto;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -1489,11 +1482,6 @@ body.light-mode .error-icon-v2 {
     padding: 0 var(--spacing-md-v2);
   }
 
-  .header-v2 {
-    margin-right: calc(-1 * var(--spacing-md-v2));
-    padding-right: var(--spacing-md-v2);
-  }
-
   .ticker-wrap-v2 + .container-v2 {
     padding-top: 50px;
   }
@@ -1505,11 +1493,6 @@ body.light-mode .error-icon-v2 {
   .ticker-item-v2 {
     font-size: 13px;
     padding: 0 1.5rem;
-  }
-
-  .header-v2 {
-    padding: var(--spacing-sm-v2) 0;
-    margin-bottom: var(--spacing-xs-v2);
   }
 
   .title-v2 {
