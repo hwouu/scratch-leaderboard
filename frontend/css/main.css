@@ -820,12 +820,18 @@ body.light-mode .highlight-item {
   background: var(--bg-surface-accent-light);
 }
 .highlight-title {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-blue);
 }
 body.light-mode .highlight-title {
-  color: var(--text-secondary-light);
+  color: var(--text-primary-light);
+  border-bottom-color: var(--accent-blue);
 }
 .highlight-value {
   font-size: 16px;
@@ -834,6 +840,81 @@ body.light-mode .highlight-title {
 }
 body.light-mode .highlight-value {
   color: var(--text-primary-light);
+}
+.highlight-players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.highlight-player-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  font-size: 13px;
+  transition: background-color 0.2s ease;
+}
+.highlight-player-item:hover {
+  background: var(--bg-hover);
+}
+body.light-mode .highlight-player-item {
+  background: var(--bg-surface-light);
+}
+body.light-mode .highlight-player-item:hover {
+  background: var(--bg-surface-accent-light);
+}
+.highlight-player-rank {
+  font-weight: 700;
+  color: var(--accent-blue);
+  min-width: 36px;
+  font-size: 12px;
+}
+.highlight-player-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+body.light-mode .highlight-player-name {
+  color: var(--text-primary-light);
+}
+.highlight-course-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.highlight-course-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+body.light-mode .highlight-course-section {
+  border-top-color: var(--border-color-light);
+}
+.highlight-course-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+body.light-mode .highlight-course-title {
+  color: var(--text-primary-light);
+  border-bottom-color: var(--border-color-light);
+}
+.highlight-course-empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 8px;
+  text-align: center;
+  font-style: italic;
+}
+body.light-mode .highlight-course-empty {
+  color: var(--text-secondary-light);
 }
 
 /* Modal */

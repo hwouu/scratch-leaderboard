@@ -103,6 +103,13 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490391?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490391",
         "courseB": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490392?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490392",
         "courseC": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490393?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490393",
+        # 코스별 니어/롱기 데이터
+        "courseA_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/1?tsCode=2490391&type=1",
+        "courseA_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/2?tsCode=2490391&type=2",
+        "courseB_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490392/1?tsCode=2490392&type=1",
+        "courseB_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490392/2?tsCode=2490392&type=2",
+        "courseC_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/1?tsCode=2490393&type=1",
+        "courseC_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/2?tsCode=2490393&type=2",
     },
 }
 
@@ -184,8 +191,15 @@ class handler(BaseHTTPRequestHandler):
                             results[key] = data["items"]
                         elif "data" in data and isinstance(data["data"], list):
                             results[key] = data["data"]
+                        elif "data" in data and data["data"] is not None:
+                            # data가 리스트가 아닐 수도 있음
+                            results[key] = data["data"]
                         else:
+                            # distance API는 다른 형식일 수 있음
                             results[key] = data
+                    elif isinstance(data, list):
+                        # 직접 배열로 반환되는 경우
+                        results[key] = data
                     else:
                         results[key] = data
                 except Exception as exc:

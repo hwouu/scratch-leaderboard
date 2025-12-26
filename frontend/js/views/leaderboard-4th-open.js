@@ -169,14 +169,6 @@ function renderSidebar(sidebar) {
                     <span class="info-label">대회 기간</span><span class="info-value">${tournamentInfo.period}</span>
                 </div>
             </div>
-            <div class="info-group">
-                <span class="info-label">코스 정보</span>
-                <ul class="store-list">
-                    <li><strong>A코스:</strong> ${tournamentInfo.courses.A}</li>
-                    <li><strong>B코스:</strong> ${tournamentInfo.courses.B}</li>
-                    <li><strong>C코스:</strong> ${tournamentInfo.courses.C}</li>
-                </ul>
-            </div>
         </div>
         <div class="highlight-panel">
             <h2>대회 하이라이트</h2>
@@ -605,43 +597,152 @@ function renderTicker(element, data) {
 }
 
 function renderHighlights(element, data) {
-  if (!data || data.length < 1) {
-    if (element) element.innerHTML = "";
+  if (!element) return;
+  
+  const leaderboardData = getLeaderboardData();
+  if (!leaderboardData) {
+    element.innerHTML = "";
     return;
   }
-  const leaderboardData = getLeaderboardData();
-  const getCourseScore = (userId, course) => {
-    const courseData = leaderboardData[course] || [];
-    const player = courseData.find((p) => p.userId === userId);
-    return player ? player.score : null;
+
+
+  // 코스별 니어/롱기 데이터 가져오기
+  const getTopThree = (dataArray, courseLabel, type) => {
+    if (!dataArray) {
+      return { players: [], holeInfo: null };
+    }
+    
+    // API 응답 형식: { courseName: "...", holeNo: X, ranks: [...] }
+    let items = [];
+    let holeInfo = null;
+    
+    if (Array.isArray(dataArray)) {
+      items = dataArray;
+    } else if (dataArray && typeof dataArray === 'object') {
+      // distance API 형식: { courseName, holeNo, ranks: [...] }
+      if (Array.isArray(dataArray.ranks)) {
+        items = dataArray.ranks;
+        holeInfo = {
+          courseName: dataArray.courseName || "",
+          holeNo: dataArray.holeNo || null,
+        };
+      } else if (Array.isArray(dataArray.data)) {
+        items = dataArray.data;
+      } else if (Array.isArray(dataArray.items)) {
+        items = dataArray.items;
+      } else {
+        return { players: [], holeInfo: null };
+      }
+    } else {
+      return { players: [], holeInfo: null };
+    }
+    
+    if (items.length === 0) {
+      return { players: [], holeInfo: holeInfo };
+    }
+    
+    const players = items.slice(0, 3).map((player, index) => {
+      // rank는 API에서 제공하거나 인덱스 기반으로 계산
+      const rank = player.rank || player.rankNo || player.rankNum || (index + 1);
+      const nickname = player.userNickname || player.nickname || player.userName || player.name || "-";
+      // distance 필드명 확인 (dist, distance, yard 등 가능)
+      const distance = player.distance || player.dist || player.yard || player.distanceValue || player.cm || "-";
+      
+      return {
+        rank: rank,
+        nickname: nickname,
+        distance: distance,
+        course: courseLabel,
+        type: type,
+      };
+    });
+    
+    return { players, holeInfo };
   };
 
-  // 최종 성적 기준으로 정렬 (각 코스 스코어 합산 + 보정치)
-  const sortedByFinal = [...data].map((p) => {
-    const courseAScore = getCourseScore(p.userId, "courseA") || 0;
-    const courseBScore = getCourseScore(p.userId, "courseB") || 0;
-    const courseCScore = getCourseScore(p.userId, "courseC") || 0;
-    const totalCourseScore = courseAScore + courseBScore + courseCScore;
-    const totalRevision =
-      (p.gradeRevision || 0) +
-      (p.systemRevision || 0) +
-      (p.genderRevision || 0);
-    const finalScore = totalCourseScore + totalRevision;
-    return { ...p, finalScore };
-  });
-  const best = sortedByFinal.sort((a, b) => a.finalScore - b.finalScore)[0];
-  const most = [...data].sort(
-    (a, b) => (b.roundCount || 0) - (a.roundCount || 0)
-  )[0];
-  if (element) {
-    element.innerHTML = `<div class="highlight-item"><div class="highlight-title">최고 성적</div><div class="highlight-value">${
-      best.userNickname
-    }: ${formatSimpleScore(
-      best.finalScore
-    )}</div></div><div class="highlight-item"><div class="highlight-title">최다 라운드</div><div class="highlight-value">${
-      most.userNickname
-    }: ${most.roundCount || 0}회</div></div>`;
-  }
+  // 각 코스별 니어/롱기 상위 3명 가져오기
+  const courseA_nearest = getTopThree(leaderboardData.courseA_nearest, "A", "니어");
+  const courseA_longest = getTopThree(leaderboardData.courseA_longest, "A", "롱기");
+  const courseB_nearest = getTopThree(leaderboardData.courseB_nearest, "B", "니어");
+  const courseB_longest = getTopThree(leaderboardData.courseB_longest, "B", "롱기");
+  const courseC_nearest = getTopThree(leaderboardData.courseC_nearest, "C", "니어");
+  const courseC_longest = getTopThree(leaderboardData.courseC_longest, "C", "롱기");
+
+
+  const renderCourseSection = (data, courseLabel, type) => {
+    const players = data.players || [];
+    const holeInfo = data.holeInfo || {};
+    const courseName = holeInfo.courseName || "";
+    const holeNo = holeInfo.holeNo || null;
+    
+    // 홀 정보 포맷팅 (예: "VALLEY 1H" 또는 "어등 5H")
+    const holeInfoText = courseName && holeNo 
+      ? ` (${courseName} ${holeNo}H)` 
+      : "";
+    
+    if (!players || players.length === 0) {
+      return `<div class="highlight-course-section">
+        <div class="highlight-course-title">${courseLabel}코스 ${type}${holeInfoText}</div>
+        <div class="highlight-course-empty">데이터 없음</div>
+      </div>`;
+    }
+    
+    const playersHTML = players.map((player) => {
+      return `<div class="highlight-player-item">
+        <span class="highlight-player-rank">${player.rank}위</span>
+        <span class="highlight-player-name">${player.nickname}</span>
+      </div>`;
+    }).join("");
+
+    return `<div class="highlight-course-section">
+      <div class="highlight-course-title">${courseLabel}코스 ${type}${holeInfoText}</div>
+      <div class="highlight-players-list">${playersHTML}</div>
+    </div>`;
+  };
+
+  // 니어리스트와 롱기스트 그룹화
+  const renderNearestSection = () => {
+    const hasData = (courseA_nearest.players && courseA_nearest.players.length > 0) || 
+                    (courseB_nearest.players && courseB_nearest.players.length > 0) || 
+                    (courseC_nearest.players && courseC_nearest.players.length > 0);
+    if (!hasData) {
+      return `<div class="highlight-item">
+        <div class="highlight-title">니어리스트</div>
+        <div class="highlight-value">데이터 없음</div>
+      </div>`;
+    }
+    
+    return `<div class="highlight-item">
+      <div class="highlight-title">니어리스트</div>
+      ${renderCourseSection(courseA_nearest, "A", "니어")}
+      ${renderCourseSection(courseB_nearest, "B", "니어")}
+      ${renderCourseSection(courseC_nearest, "C", "니어")}
+    </div>`;
+  };
+
+  const renderLongestSection = () => {
+    const hasData = (courseA_longest.players && courseA_longest.players.length > 0) || 
+                    (courseB_longest.players && courseB_longest.players.length > 0) || 
+                    (courseC_longest.players && courseC_longest.players.length > 0);
+    if (!hasData) {
+      return `<div class="highlight-item">
+        <div class="highlight-title">롱기스트</div>
+        <div class="highlight-value">데이터 없음</div>
+      </div>`;
+    }
+    
+    return `<div class="highlight-item">
+      <div class="highlight-title">롱기스트</div>
+      ${renderCourseSection(courseA_longest, "A", "롱기")}
+      ${renderCourseSection(courseB_longest, "B", "롱기")}
+      ${renderCourseSection(courseC_longest, "C", "롱기")}
+    </div>`;
+  };
+
+  element.innerHTML = `
+    ${renderNearestSection()}
+    ${renderLongestSection()}
+  `;
 }
 
 function setupEventListeners(elements) {
