@@ -956,6 +956,8 @@ body.light-mode .total-column-title {
   text-align: center;
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .total-column table tbody tr:last-child td {
@@ -977,6 +979,9 @@ body.light-mode .total-column-title {
   text-align: left;
   font-weight: 600;
   padding-left: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
 .total-column table .user-id {
@@ -1021,17 +1026,48 @@ body.light-mode .total-column table .user-id {
 @media (max-width: 1200px) {
   .total-three-columns {
     grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
   
   .total-three-columns .total-column:last-child {
     grid-column: 1 / -1;
+  }
+  
+  .total-column-title {
+    font-size: 16px;
+  }
+  
+  .total-column table th,
+  .total-column table td {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+
+/* 태블릿 중간 크기 (900px - 1200px) */
+@media (min-width: 900px) and (max-width: 1200px) {
+  .total-three-columns {
+    gap: 16px;
+  }
+  
+  .total-column-title {
+    font-size: 17px;
   }
 }
 
 @media (max-width: 768px) {
   .total-three-columns {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
+  }
+  
+  .total-column-title {
+    font-size: 16px;
+    padding-bottom: 6px;
+  }
+  
+  .total-column table {
+    border-radius: 8px;
   }
   
   .total-column table th,
@@ -1044,8 +1080,47 @@ body.light-mode .total-column table .user-id {
     font-size: 14px;
   }
   
+  .total-column table .nickname {
+    font-size: 13px;
+    padding-left: 12px;
+  }
+  
+  .total-column table .user-id {
+    font-size: 10px;
+  }
+  
   .total-column table .final-score {
     font-size: 14px;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .total-three-columns {
+    gap: 16px;
+  }
+  
+  .total-column-title {
+    font-size: 15px;
+  }
+  
+  .total-column table th,
+  .total-column table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .total-column table .nickname {
+    max-width: 140px;
+    font-size: 12px;
+  }
+  
+  .total-column table .rank {
+    font-size: 13px;
+  }
+  
+  .total-column table .final-score {
+    font-size: 13px;
   }
 }
 
@@ -1172,6 +1247,8 @@ body.light-mode .distance-section-title {
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .distance-table-section table tbody tr:last-child td {
@@ -1189,6 +1266,9 @@ body.light-mode .distance-section-title {
   font-weight: 600;
   padding-left: 14px;
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .distance-table-section table .user-id {
@@ -1227,38 +1307,120 @@ body.light-mode .distance-table-section table .user-id {
 @media (max-width: 1200px) {
   .distance-courses-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
   
   .distance-courses-grid .distance-course-section:last-child {
     grid-column: 1 / -1;
+  }
+  
+  .distance-course-title {
+    font-size: 18px;
+  }
+  
+  .distance-section-title {
+    font-size: 15px;
+  }
+  
+  .distance-table-section table th,
+  .distance-table-section table td {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}
+
+/* 태블릿 중간 크기 (900px - 1200px) */
+@media (min-width: 900px) and (max-width: 1200px) {
+  .distance-courses-grid {
+    gap: 14px;
+  }
+  
+  .distance-course-title {
+    font-size: 17px;
   }
 }
 
 @media (max-width: 768px) {
   .distance-courses-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
   }
 
   .distance-course-title {
     font-size: 16px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
   }
 
   .distance-section-title {
+    font-size: 14px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  .distance-table-section {
+    gap: 10px;
+  }
+
+  .distance-table-section table {
+    border-radius: 8px;
+  }
+
+  .distance-table-section table th,
+  .distance-table-section table td {
+    padding: 10px 12px;
     font-size: 13px;
   }
 
+  .distance-table-section table .rank {
+    font-size: 14px;
+  }
+  
+  .distance-table-section table .nickname {
+    font-size: 13px;
+    padding-left: 12px;
+    max-width: 120px;
+  }
+  
+  .distance-table-section table .user-id {
+    font-size: 10px;
+  }
+  
+  .distance-table-section .table-container {
+    max-height: 280px;
+  }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+  .distance-courses-grid {
+    gap: 16px;
+  }
+  
+  .distance-course-title {
+    font-size: 15px;
+  }
+  
+  .distance-section-title {
+    font-size: 13px;
+  }
+  
   .distance-table-section table th,
   .distance-table-section table td {
     padding: 8px 10px;
     font-size: 12px;
   }
-
+  
   .distance-table-section table .rank {
     font-size: 13px;
   }
   
+  .distance-table-section table .nickname {
+    font-size: 12px;
+    max-width: 100px;
+  }
+  
   .distance-table-section .table-container {
-    max-height: 280px;
+    max-height: 260px;
   }
 }
