@@ -715,6 +715,9 @@ main.grid-container.sidebar-collapsed .sidebar {
   display: flex;
   flex-direction: column;
   min-width: 0; /* Prevents content from overflowing */
+  flex-grow: 1;
+  min-height: 0;
+  height: 100%;
 }
 
 /* Side Panels */

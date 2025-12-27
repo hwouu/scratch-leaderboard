@@ -89,7 +89,6 @@ export function renderLeaderboard4thOpenPage(stage, app) {
     contentElement: document.getElementById("content"),
     lastUpdatedElement: document.getElementById("last-updated-time"),
     tickerElement: document.querySelector(".ticker"),
-    highlightContentElement: document.getElementById("highlight-content"),
     searchModal: document.getElementById("search-modal"),
     overviewModal: document.getElementById("overview-modal"),
   };
@@ -120,6 +119,7 @@ function renderHeader(header) {
                 <div class="view-toggle-container desktop-show">
                     <div id="view-toggle-main" class="view-toggle">
                         <button class="toggle-btn" data-view="total" title="합산"><span>합산</span></button>
+                        <button class="toggle-btn" data-view="distance" title="롱기/니어"><span>롱기/니어</span></button>
                         <button class="toggle-btn" data-view="course-rankings" title="코스별"><span>코스별</span></button>
                     </div>
                     <div id="view-toggle-courses" class="view-toggle">
@@ -136,6 +136,7 @@ function renderHeader(header) {
                         </button>
                         <div class="custom-dropdown-menu" id="view-dropdown-menu">
                             <div class="dropdown-option" data-value="total">합산</div>
+                            <div class="dropdown-option" data-value="distance">롱기/니어</div>
                             <div class="dropdown-option" data-value="course-rankings">코스별</div>
                             <div class="dropdown-option" data-value="courseA">A코스</div>
                             <div class="dropdown-option" data-value="courseB">B코스</div>
@@ -169,10 +170,6 @@ function renderSidebar(sidebar) {
                     <span class="info-label">대회 기간</span><span class="info-value">${tournamentInfo.period}</span>
                 </div>
             </div>
-        </div>
-        <div class="highlight-panel">
-            <h2>대회 하이라이트</h2>
-            <div id="highlight-content"></div>
         </div>
         <footer class="desktop-footer">
             <div class="footer-links">
@@ -215,7 +212,6 @@ async function fetchAndRender(elements) {
       getLastFetchTime().toLocaleTimeString("ko-KR");
     renderContent(elements.contentElement);
     renderTicker(elements.tickerElement, leaderboardData.total);
-    renderHighlights(elements.highlightContentElement, leaderboardData.total);
   } else {
     elements.contentElement.innerHTML = `<div class="error-container"><div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title">데이터 로딩 실패</h3><p class="error-message">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p></div>`;
   }
@@ -315,8 +311,13 @@ function renderContent(container) {
 
   if (currentViewMode === "course-rankings") {
     renderCourseRankingsView(container, leaderboardData);
+  } else if (currentViewMode === "distance") {
+    renderDistanceView(container, leaderboardData);
+  } else if (currentViewMode === "total") {
+    // 합산 뷰: 3열 레이아웃으로 표시
+    const data = leaderboardData.total || [];
+    renderTotalViewThreeColumns(container, data);
   } else if (
-    currentViewMode === "total" ||
     currentViewMode === "courseA" ||
     currentViewMode === "courseB" ||
     currentViewMode === "courseC"
@@ -327,7 +328,11 @@ function renderContent(container) {
   } else {
     // 기본: activeTab 사용
     const data = leaderboardData[activeTab] || [];
-    renderLeaderboardView(container, data);
+    if (activeTab === "total") {
+      renderTotalViewThreeColumns(container, data);
+    } else {
+      renderLeaderboardView(container, data);
+    }
   }
 }
 
@@ -337,6 +342,97 @@ function renderEmptyView(container, headers) {
     .join("")}</tr></thead>`;
   const bodyHTML = `<tbody><tr class="placeholder-row"><td colspan="${headers.length}">등록된 데이터가 없습니다.</td></tr></tbody>`;
   container.innerHTML = `<div class="table-container"><table>${headHTML}${bodyHTML}</table></div>`;
+}
+
+function renderTotalViewThreeColumns(container, data) {
+  if (!data || data.length === 0) {
+    container.innerHTML = `<div class="total-three-columns">
+      <div class="total-column">
+        <table>
+          <thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead>
+          <tbody><tr class="placeholder-row"><td colspan="3">등록된 데이터가 없습니다.</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const leaderboardData = getLeaderboardData();
+  const prevData = getPrevLeaderboardData()?.total || [];
+
+  // 합산 탭의 경우 각 코스의 스코어를 가져와야 함
+  const getCourseScore = (userId, course) => {
+    const courseData = leaderboardData[course] || [];
+    const player = courseData.find((p) => p.userId === userId);
+    return player ? player.score : null;
+  };
+
+  // 상위 30명만 가져오기
+  const top30 = data.slice(0, 30);
+
+  // 3개 그룹으로 나누기 (각 10명씩)
+  const group1 = top30.slice(0, 10);   // 1~10위
+  const group2 = top30.slice(10, 20);   // 11~20위
+  const group3 = top30.slice(20, 30);   // 21~30위
+
+  const renderColumn = (group, startRank, endRank) => {
+    const headerText = `${startRank}~${endRank}위`;
+    
+    if (group.length === 0) {
+      return `<div class="total-column">
+        <h2 class="total-column-title">${headerText}</h2>
+        <table>
+          <thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead>
+          <tbody><tr class="placeholder-row"><td colspan="3">-</td></tr></tbody>
+        </table>
+      </div>`;
+    }
+
+    const rowsHTML = group.map((player) => {
+      const rank = player.tieCount > 1 ? `T${player.rank}` : player.rank;
+      const prevPlayer = prevData.find((p) => p.userId === player.userId);
+      let rankChangeClass = "";
+      if (prevPlayer) {
+        if (player.rank < prevPlayer.rank) rankChangeClass = "flash-up";
+        else if (player.rank > prevPlayer.rank) rankChangeClass = "flash-down";
+      }
+
+      // 보정치 계산
+      const totalRevision =
+        (player.gradeRevision || 0) +
+        (player.systemRevision || 0) +
+        (player.genderRevision || 0);
+
+      // 최종 성적 계산 (각 코스 스코어 합산 + 보정치)
+      const courseAScore = getCourseScore(player.userId, "courseA") || 0;
+      const courseBScore = getCourseScore(player.userId, "courseB") || 0;
+      const courseCScore = getCourseScore(player.userId, "courseC") || 0;
+      const totalCourseScore = courseAScore + courseBScore + courseCScore;
+      const finalScore = totalCourseScore + totalRevision;
+
+      return `<tr class="${rankChangeClass}" data-userid="${player.userId}">
+        <td class="rank">${rank}</td>
+        <td class="nickname">${player.userNickname}<span class="user-id">(${player.userId})</span></td>
+        <td>${formatFinalScore(finalScore)}</td>
+      </tr>`;
+    }).join("");
+
+    return `<div class="total-column">
+      <h2 class="total-column-title">${headerText}</h2>
+      <table>
+        <thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead>
+        <tbody class="clickable">${rowsHTML}</tbody>
+      </table>
+    </div>`;
+  };
+
+  container.innerHTML = `
+    <div class="total-three-columns">
+      ${renderColumn(group1, 1, 10)}
+      ${renderColumn(group2, 11, 20)}
+      ${renderColumn(group3, 21, 30)}
+    </div>
+  `;
 }
 
 function renderLeaderboardView(container, data) {
@@ -549,6 +645,157 @@ function renderCourseRankingsView(container, leaderboardData) {
   `;
 
   container.innerHTML = html;
+}
+
+function renderDistanceView(container, leaderboardData) {
+  if (!leaderboardData) {
+    container.innerHTML = `<div class="table-container"><table><tbody><tr class="placeholder-row"><td colspan="3">데이터를 불러오는 중...</td></tr></tbody></table></div>`;
+    return;
+  }
+
+  // distance 데이터 파싱 함수
+  const getTopFive = (dataArray) => {
+    if (!dataArray) {
+      return { players: [], holeInfo: null };
+    }
+    
+    let items = [];
+    let holeInfo = null;
+    
+    if (Array.isArray(dataArray)) {
+      items = dataArray;
+    } else if (dataArray && typeof dataArray === 'object') {
+      if (Array.isArray(dataArray.ranks)) {
+        items = dataArray.ranks;
+        holeInfo = {
+          courseName: dataArray.courseName || "",
+          holeNo: dataArray.holeNo || null,
+        };
+      } else if (Array.isArray(dataArray.data)) {
+        items = dataArray.data;
+      } else if (Array.isArray(dataArray.items)) {
+        items = dataArray.items;
+      } else {
+        return { players: [], holeInfo: null };
+      }
+    } else {
+      return { players: [], holeInfo: null };
+    }
+    
+    if (items.length === 0) {
+      return { players: [], holeInfo: holeInfo };
+    }
+    
+    const players = items.slice(0, 5).map((player) => {
+      const rank = player.rank || player.rankNo || player.rankNum || "-";
+      const nickname = player.userNickname || player.nickname || player.userName || player.name || "-";
+      const distance = player.distance || player.dist || player.yard || player.distanceValue || player.cm || 0;
+      
+      return {
+        rank: rank,
+        nickname: nickname,
+        userId: player.userId || "",
+        distance: distance,
+      };
+    });
+    
+    return { players, holeInfo };
+  };
+
+  // 각 코스별 롱기/니어 데이터 가져오기
+  const courseA_longest = getTopFive(leaderboardData.courseA_longest);
+  const courseA_nearest = getTopFive(leaderboardData.courseA_nearest);
+  const courseB_longest = getTopFive(leaderboardData.courseB_longest);
+  const courseB_nearest = getTopFive(leaderboardData.courseB_nearest);
+  const courseC_longest = getTopFive(leaderboardData.courseC_longest);
+  const courseC_nearest = getTopFive(leaderboardData.courseC_nearest);
+
+  // 거리 포맷팅 함수 (롱기: m, 니어: m, 소수점 2자리)
+  const formatDistance = (distance, isLongest) => {
+    if (distance === "-" || distance === null || distance === undefined || distance === 0) {
+      return "-";
+    }
+    if (typeof distance === 'number') {
+      const rounded = Math.round(distance * 100) / 100; // 소수점 2자리 반올림
+      return `${rounded}m`;
+    }
+    return String(distance);
+  };
+
+  // 코스 섹션 렌더링
+  const renderCourseSection = (courseLabel, longestData, nearestData) => {
+    const holeInfoText_longest = longestData.holeInfo && longestData.holeInfo.courseName && longestData.holeInfo.holeNo
+      ? ` (${longestData.holeInfo.courseName} ${longestData.holeInfo.holeNo}H)`
+      : "";
+    const holeInfoText_nearest = nearestData.holeInfo && nearestData.holeInfo.courseName && nearestData.holeInfo.holeNo
+      ? ` (${nearestData.holeInfo.courseName} ${nearestData.holeInfo.holeNo}H)`
+      : "";
+
+    const renderTable = (players, title, holeInfo, isLongest) => {
+      if (!players || players.length === 0) {
+        return `<div class="distance-table-section">
+          <h3 class="distance-section-title">${title}${holeInfo}</h3>
+          <div class="table-container">
+            <table>
+              <thead><tr><th>순위</th><th>닉네임</th><th>기록</th></tr></thead>
+              <tbody><tr class="placeholder-row"><td colspan="3">데이터 없음</td></tr></tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      const rowsHTML = players.map((player) => {
+        const distanceText = formatDistance(player.distance, isLongest);
+        return `<tr data-userid="${player.userId}">
+          <td class="rank">${player.rank}</td>
+          <td class="nickname">${player.nickname}<span class="user-id">(${player.userId})</span></td>
+          <td>${distanceText}</td>
+        </tr>`;
+      }).join("");
+
+      return `<div class="distance-table-section">
+        <h3 class="distance-section-title">${title}${holeInfo}</h3>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>순위</th><th>닉네임</th><th>기록</th></tr></thead>
+            <tbody class="clickable">${rowsHTML}</tbody>
+          </table>
+        </div>
+      </div>`;
+    };
+
+    return {
+      longest: renderTable(longestData.players, "롱기스트", holeInfoText_longest, true),
+      nearest: renderTable(nearestData.players, "니어리스트", holeInfoText_nearest, false),
+      courseLabel: courseLabel
+    };
+  };
+
+  const courseA_sections = renderCourseSection("A", courseA_longest, courseA_nearest);
+  const courseB_sections = renderCourseSection("B", courseB_longest, courseB_nearest);
+  const courseC_sections = renderCourseSection("C", courseC_longest, courseC_nearest);
+
+  container.innerHTML = `
+    <div class="distance-container">
+      <div class="distance-courses-grid">
+        <div class="distance-course-section">
+          <h2 class="distance-course-title">${courseA_sections.courseLabel}코스</h2>
+          ${courseA_sections.longest}
+          ${courseA_sections.nearest}
+        </div>
+        <div class="distance-course-section">
+          <h2 class="distance-course-title">${courseB_sections.courseLabel}코스</h2>
+          ${courseB_sections.longest}
+          ${courseB_sections.nearest}
+        </div>
+        <div class="distance-course-section">
+          <h2 class="distance-course-title">${courseC_sections.courseLabel}코스</h2>
+          ${courseC_sections.longest}
+          ${courseC_sections.nearest}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderTicker(element, data) {

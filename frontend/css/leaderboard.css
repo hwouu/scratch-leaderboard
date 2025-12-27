@@ -863,3 +863,402 @@ body.light-mode .course-ranking-title {
     font-size: 14px;
   }
 }
+
+/* ===== TOTAL THREE COLUMNS LAYOUT ===== */
+.total-three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+}
+
+.total-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 12px;
+}
+
+.total-column-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+body.light-mode .total-column-title {
+  color: var(--text-primary-light);
+  border-bottom-color: var(--accent-blue);
+}
+
+.total-column table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+.total-column table thead,
+.total-column table tbody {
+  display: block;
+}
+
+.total-column table tbody {
+  overflow-y: auto;
+  flex-grow: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.total-column table thead tr,
+.total-column table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.total-column table th {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.total-column table td {
+  padding: 12px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.total-column table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.total-column table tbody {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.total-column table .rank {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.total-column table .nickname {
+  text-align: left;
+  font-weight: 600;
+  padding-left: 16px;
+}
+
+.total-column table .user-id {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.total-column table .final-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-red);
+}
+
+body.light-mode .total-column table {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .total-column table th,
+body.light-mode .total-column table td {
+  border-bottom-color: #e9ecef;
+}
+
+body.light-mode .total-column table th {
+  background-color: #f8f9fa;
+  color: var(--text-secondary-light);
+}
+
+body.light-mode .total-column table td {
+  color: var(--text-primary-light);
+}
+
+body.light-mode .total-column table .user-id {
+  color: var(--text-secondary-light);
+}
+
+/* ===== RESPONSIVE TOTAL THREE COLUMNS ===== */
+@media (max-width: 1200px) {
+  .total-three-columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .total-three-columns .total-column:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .total-three-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .total-column table th,
+  .total-column table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .total-column table .rank {
+    font-size: 14px;
+  }
+  
+  .total-column table .final-score {
+    font-size: 14px;
+  }
+}
+
+/* ===== DISTANCE VIEW (롱기/니어) ===== */
+.distance-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.distance-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  align-items: start;
+}
+
+.distance-course-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+
+.distance-course-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+body.light-mode .distance-course-title {
+  color: var(--text-primary-light);
+  border-bottom-color: var(--accent-blue);
+}
+
+.distance-table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.distance-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.light-mode .distance-section-title {
+  color: var(--text-primary-light);
+  border-bottom-color: var(--border-color-light);
+}
+
+.distance-table-section {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.distance-table-section .table-container {
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: 320px;
+}
+
+.distance-table-section table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--bg-surface);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.distance-table-section table thead,
+.distance-table-section table tbody {
+  display: block;
+}
+
+.distance-table-section table tbody {
+  overflow-y: auto;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.distance-table-section table thead tr,
+.distance-table-section table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.distance-table-section table th {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background-color: var(--bg-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.distance-table-section table td {
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.distance-table-section table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.distance-table-section table .rank {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.distance-table-section table .nickname {
+  text-align: left;
+  font-weight: 600;
+  padding-left: 14px;
+  font-size: 14px;
+}
+
+.distance-table-section table .user-id {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+body.light-mode .distance-table-section table {
+  background-color: var(--bg-surface-light);
+  border-color: var(--border-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .distance-table-section table th,
+body.light-mode .distance-table-section table td {
+  border-bottom-color: #e9ecef;
+}
+
+body.light-mode .distance-table-section table th {
+  background-color: #f8f9fa;
+  color: var(--text-secondary-light);
+}
+
+body.light-mode .distance-table-section table td {
+  color: var(--text-primary-light);
+}
+
+body.light-mode .distance-table-section table .user-id {
+  color: var(--text-secondary-light);
+}
+
+/* ===== RESPONSIVE DISTANCE VIEW ===== */
+@media (max-width: 1200px) {
+  .distance-courses-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .distance-courses-grid .distance-course-section:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .distance-courses-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .distance-course-title {
+    font-size: 16px;
+  }
+
+  .distance-section-title {
+    font-size: 13px;
+  }
+
+  .distance-table-section table th,
+  .distance-table-section table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .distance-table-section table .rank {
+    font-size: 13px;
+  }
+  
+  .distance-table-section .table-container {
+    max-height: 280px;
+  }
+}
