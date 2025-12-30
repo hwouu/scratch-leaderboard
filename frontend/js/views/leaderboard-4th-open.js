@@ -401,7 +401,8 @@ function renderTotalViewThreeColumns(container, data) {
       const totalRevision =
         (player.gradeRevision || 0) +
         (player.systemRevision || 0) +
-        (player.genderRevision || 0);
+        (player.genderRevision || 0) +
+        (player.roundCountRevision || 0);
 
       // 최종 성적 계산 (각 코스 스코어 합산 + 보정치)
       const courseAScore = getCourseScore(player.userId, "courseA") || 0;
@@ -503,11 +504,12 @@ function renderLeaderboardView(container, data) {
         else if (player.rank > prevPlayer.rank) rankChangeClass = "flash-down";
       }
 
-      // 보정치 계산 (gradeRevision + systemRevision + genderRevision)
+      // 보정치 계산 (gradeRevision + systemRevision + genderRevision + roundCountRevision)
       const totalRevision =
         (player.gradeRevision || 0) +
         (player.systemRevision || 0) +
-        (player.genderRevision || 0);
+        (player.genderRevision || 0) +
+        (player.roundCountRevision || 0);
       const revisionDisplay =
         totalRevision > 0 ? `+${totalRevision}` : totalRevision.toString();
 
@@ -608,7 +610,8 @@ function renderCourseRankingsView(container, leaderboardData) {
         const totalRevision =
           (player.gradeRevision || 0) +
           (player.systemRevision || 0) +
-          (player.genderRevision || 0);
+          (player.genderRevision || 0) +
+          (player.roundCountRevision || 0);
         const finalScore = (player.score || 0) + totalRevision;
 
         return `
@@ -831,7 +834,8 @@ function renderTicker(element, data) {
       const totalRevision =
         (p.gradeRevision || 0) +
         (p.systemRevision || 0) +
-        (p.genderRevision || 0);
+        (p.genderRevision || 0) +
+        (p.roundCountRevision || 0);
       const finalScore = totalCourseScore + totalRevision;
       return `<div class="ticker-item"><span class="rank">${rank}</span><span class="name">${
         p.userNickname
@@ -1196,7 +1200,8 @@ function showPlayerModal(player, modal, openCallback) {
   const totalRevision =
     (player.gradeRevision || 0) +
     (player.systemRevision || 0) +
-    (player.genderRevision || 0);
+    (player.genderRevision || 0) +
+    (player.roundCountRevision || 0);
 
   // 합산 성적 계산 (각 코스 스코어 합산 + 보정치)
   const courseAScore = courseAData?.score || 0;

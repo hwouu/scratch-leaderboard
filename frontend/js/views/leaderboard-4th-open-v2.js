@@ -633,7 +633,8 @@ function renderLeaderboardView(container, data) {
       const totalRevision =
         (player.gradeRevision || 0) +
         (player.systemRevision || 0) +
-        (player.genderRevision || 0);
+        (player.genderRevision || 0) +
+        (player.roundCountRevision || 0);
       const revisionDisplay =
         totalRevision > 0 ? `+${totalRevision}` : totalRevision.toString();
 
@@ -738,7 +739,8 @@ function renderCourseRankingsView(container, leaderboardData) {
         const totalRevision =
           (player.gradeRevision || 0) +
           (player.systemRevision || 0) +
-          (player.genderRevision || 0);
+          (player.genderRevision || 0) +
+          (player.roundCountRevision || 0);
         const finalScore = (player.score || 0) + totalRevision;
 
         return `
@@ -807,7 +809,8 @@ function renderTicker(element, data) {
       const totalRevision =
         (p.gradeRevision || 0) +
         (p.systemRevision || 0) +
-        (p.genderRevision || 0);
+        (p.genderRevision || 0) +
+        (p.roundCountRevision || 0);
       const finalScore = totalCourseScore + totalRevision;
       return `<div class="ticker-item-v2"><span class="rank-v2-ticker">${rank}</span><span class="name-v2-ticker">${
         p.userNickname
@@ -839,7 +842,8 @@ function renderHighlights(element, data) {
     const totalRevision =
       (p.gradeRevision || 0) +
       (p.systemRevision || 0) +
-      (p.genderRevision || 0);
+      (p.genderRevision || 0) +
+      (p.roundCountRevision || 0);
     const finalScore = totalCourseScore + totalRevision;
     return { ...p, finalScore };
   });
@@ -1103,7 +1107,8 @@ function showPlayerModal(player, modal, openCallback) {
   const totalRevision =
     (player.gradeRevision || 0) +
     (player.systemRevision || 0) +
-    (player.genderRevision || 0);
+    (player.genderRevision || 0) +
+    (player.roundCountRevision || 0);
 
   const courseAScore = courseAData?.score || 0;
   const courseBScore = courseBData?.score || 0;
