@@ -1125,15 +1125,7 @@ body.light-mode .total-column table .user-id {
 }
 
 /* ===== DISTANCE VIEW (롱기/니어) ===== */
-.distance-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.distance-courses-grid {
+.distance-container-three-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
@@ -1142,7 +1134,7 @@ body.light-mode .total-column table .user-id {
   align-items: start;
 }
 
-.distance-course-section {
+.distance-award-column {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1150,9 +1142,47 @@ body.light-mode .total-column table .user-id {
   min-height: 0;
 }
 
-.distance-course-title {
+.distance-award-title {
   font-size: 20px;
   font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-blue);
+  text-align: center;
+}
+
+body.light-mode .distance-award-title {
+  color: var(--text-primary-light);
+  border-bottom-color: var(--accent-blue);
+}
+
+.distance-courses-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  min-height: 0;
+}
+
+.distance-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  align-items: start;
+}
+
+.distance-course-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.distance-course-title {
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 12px 0;
   padding-bottom: 8px;
@@ -1305,21 +1335,30 @@ body.light-mode .distance-table-section table .user-id {
 
 /* ===== RESPONSIVE DISTANCE VIEW ===== */
 @media (max-width: 1200px) {
-  .distance-courses-grid {
+  .distance-container-three-columns {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-  
-  .distance-courses-grid .distance-course-section:last-child {
+
+  .distance-container-three-columns .distance-award-column:last-child {
     grid-column: 1 / -1;
+  }
+
+  .distance-award-title {
+    font-size: 18px;
+    padding-bottom: 8px;
+  }
+
+  .distance-courses-vertical {
+    gap: 16px;
   }
   
   .distance-course-title {
-    font-size: 18px;
+    font-size: 16px;
   }
   
   .distance-section-title {
-    font-size: 15px;
+    font-size: 14px;
   }
   
   .distance-table-section table th,
@@ -1331,19 +1370,28 @@ body.light-mode .distance-table-section table .user-id {
 
 /* 태블릿 중간 크기 (900px - 1200px) */
 @media (min-width: 900px) and (max-width: 1200px) {
-  .distance-courses-grid {
+  .distance-container-three-columns {
     gap: 14px;
   }
   
   .distance-course-title {
-    font-size: 17px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 768px) {
-  .distance-courses-grid {
+  .distance-container-three-columns {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .distance-award-title {
+    font-size: 18px;
+    padding-bottom: 8px;
+  }
+
+  .distance-courses-vertical {
+    gap: 16px;
   }
 
   .distance-course-title {
@@ -1393,12 +1441,21 @@ body.light-mode .distance-table-section table .user-id {
 
 /* 작은 모바일 (480px 이하) */
 @media (max-width: 480px) {
-  .distance-courses-grid {
+  .distance-container-three-columns {
     gap: 16px;
+  }
+
+  .distance-award-title {
+    font-size: 16px;
+    padding-bottom: 6px;
+  }
+
+  .distance-courses-vertical {
+    gap: 14px;
   }
   
   .distance-course-title {
-    font-size: 15px;
+    font-size: 14px;
   }
   
   .distance-section-title {

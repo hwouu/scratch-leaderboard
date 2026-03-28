@@ -657,7 +657,7 @@ function renderDistanceView(container, leaderboardData) {
   }
 
   // distance 데이터 파싱 함수
-  const getTopFive = (dataArray) => {
+  const getTopPlayers = (dataArray, limit) => {
     if (!dataArray) {
       return { players: [], holeInfo: null };
     }
@@ -689,32 +689,121 @@ function renderDistanceView(container, leaderboardData) {
       return { players: [], holeInfo: holeInfo };
     }
     
-    const players = items.slice(0, 5).map((player) => {
+    const players = items.slice(0, limit).map((player) => {
       const rank = player.rank || player.rankNo || player.rankNum || "-";
       const nickname = player.userNickname || player.nickname || player.userName || player.name || "-";
       const distance = player.distance || player.dist || player.yard || player.distanceValue || player.cm || 0;
+      const gender = player.gender || player.genderCode || player.sex || null;
       
       return {
         rank: rank,
         nickname: nickname,
         userId: player.userId || "",
         distance: distance,
+        gender: gender,
       };
     });
     
     return { players, holeInfo };
   };
 
-  // 각 코스별 롱기/니어 데이터 가져오기
-  const courseA_longest = getTopFive(leaderboardData.courseA_longest);
-  const courseA_nearest = getTopFive(leaderboardData.courseA_nearest);
-  const courseB_longest = getTopFive(leaderboardData.courseB_longest);
-  const courseB_nearest = getTopFive(leaderboardData.courseB_nearest);
-  const courseC_longest = getTopFive(leaderboardData.courseC_longest);
-  const courseC_nearest = getTopFive(leaderboardData.courseC_nearest);
+  // 각 코스별 니어 데이터 가져오기 (5명)
+  const courseA_nearest = getTopPlayers(leaderboardData.courseA_nearest, 5);
+  const courseB_nearest = getTopPlayers(leaderboardData.courseB_nearest, 5);
+  const courseC_nearest = getTopPlayers(leaderboardData.courseC_nearest, 5);
+
+  // 각 코스별 롱기(남) 데이터 가져오기 (3명)
+  let courseA_longest_male = getTopPlayers(leaderboardData.courseA_longest_male, 3);
+  let courseB_longest_male = getTopPlayers(leaderboardData.courseB_longest_male, 3);
+  let courseC_longest_male = getTopPlayers(leaderboardData.courseC_longest_male, 3);
+  
+  // gender 파라미터로 필터링된 데이터가 없으면 전체 데이터에서 필터링 시도
+  if ((!courseA_longest_male.players || courseA_longest_male.players.length === 0) && leaderboardData.courseA_longest) {
+    const allA = getTopPlayers(leaderboardData.courseA_longest, 100);
+    if (allA.players && allA.players.length > 0) {
+      const filtered = allA.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 1 || gender === '1' || gender === 'M' || gender === 'male';
+        })
+        .slice(0, 3);
+      courseA_longest_male = { players: filtered, holeInfo: allA.holeInfo };
+    }
+  }
+  
+  if ((!courseB_longest_male.players || courseB_longest_male.players.length === 0) && leaderboardData.courseB_longest) {
+    const allB = getTopPlayers(leaderboardData.courseB_longest, 100);
+    if (allB.players && allB.players.length > 0) {
+      const filtered = allB.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 1 || gender === '1' || gender === 'M' || gender === 'male';
+        })
+        .slice(0, 3);
+      courseB_longest_male = { players: filtered, holeInfo: allB.holeInfo };
+    }
+  }
+  
+  if ((!courseC_longest_male.players || courseC_longest_male.players.length === 0) && leaderboardData.courseC_longest) {
+    const allC = getTopPlayers(leaderboardData.courseC_longest, 100);
+    if (allC.players && allC.players.length > 0) {
+      const filtered = allC.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 1 || gender === '1' || gender === 'M' || gender === 'male';
+        })
+        .slice(0, 3);
+      courseC_longest_male = { players: filtered, holeInfo: allC.holeInfo };
+    }
+  }
+
+  // 각 코스별 롱기(여) 데이터 가져오기 (3명)
+  let courseA_longest_female = getTopPlayers(leaderboardData.courseA_longest_female, 3);
+  let courseB_longest_female = getTopPlayers(leaderboardData.courseB_longest_female, 3);
+  let courseC_longest_female = getTopPlayers(leaderboardData.courseC_longest_female, 3);
+  
+  // gender 파라미터로 필터링된 데이터가 없으면 전체 데이터에서 필터링 시도
+  if ((!courseA_longest_female.players || courseA_longest_female.players.length === 0) && leaderboardData.courseA_longest) {
+    const allA = getTopPlayers(leaderboardData.courseA_longest, 100);
+    if (allA.players && allA.players.length > 0) {
+      const filtered = allA.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 2 || gender === '2' || gender === 'F' || gender === 'female';
+        })
+        .slice(0, 3);
+      courseA_longest_female = { players: filtered, holeInfo: allA.holeInfo };
+    }
+  }
+  
+  if ((!courseB_longest_female.players || courseB_longest_female.players.length === 0) && leaderboardData.courseB_longest) {
+    const allB = getTopPlayers(leaderboardData.courseB_longest, 100);
+    if (allB.players && allB.players.length > 0) {
+      const filtered = allB.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 2 || gender === '2' || gender === 'F' || gender === 'female';
+        })
+        .slice(0, 3);
+      courseB_longest_female = { players: filtered, holeInfo: allB.holeInfo };
+    }
+  }
+  
+  if ((!courseC_longest_female.players || courseC_longest_female.players.length === 0) && leaderboardData.courseC_longest) {
+    const allC = getTopPlayers(leaderboardData.courseC_longest, 100);
+    if (allC.players && allC.players.length > 0) {
+      const filtered = allC.players
+        .filter((p) => {
+          const gender = p.gender;
+          return gender === 2 || gender === '2' || gender === 'F' || gender === 'female';
+        })
+        .slice(0, 3);
+      courseC_longest_female = { players: filtered, holeInfo: allC.holeInfo };
+    }
+  }
 
   // 거리 포맷팅 함수 (롱기: m, 니어: m, 소수점 2자리)
-  const formatDistance = (distance, isLongest) => {
+  const formatDistance = (distance) => {
     if (distance === "-" || distance === null || distance === undefined || distance === 0) {
       return "-";
     }
@@ -725,76 +814,117 @@ function renderDistanceView(container, leaderboardData) {
     return String(distance);
   };
 
-  // 코스 섹션 렌더링
-  const renderCourseSection = (courseLabel, longestData, nearestData) => {
-    const holeInfoText_longest = longestData.holeInfo && longestData.holeInfo.courseName && longestData.holeInfo.holeNo
-      ? ` (${longestData.holeInfo.courseName} ${longestData.holeInfo.holeNo}H)`
-      : "";
-    const holeInfoText_nearest = nearestData.holeInfo && nearestData.holeInfo.courseName && nearestData.holeInfo.holeNo
-      ? ` (${nearestData.holeInfo.courseName} ${nearestData.holeInfo.holeNo}H)`
-      : "";
-
-    const renderTable = (players, title, holeInfo, isLongest) => {
-      if (!players || players.length === 0) {
-        return `<div class="distance-table-section">
-          <h3 class="distance-section-title">${title}${holeInfo}</h3>
-          <div class="table-container">
-            <table>
-              <thead><tr><th>순위</th><th>닉네임</th><th>기록</th></tr></thead>
-              <tbody><tr class="placeholder-row"><td colspan="3">데이터 없음</td></tr></tbody>
-            </table>
-          </div>
-        </div>`;
-      }
-
-      const rowsHTML = players.map((player) => {
-        const distanceText = formatDistance(player.distance, isLongest);
-        return `<tr data-userid="${player.userId}">
-          <td class="rank">${player.rank}</td>
-          <td class="nickname">${player.nickname}<span class="user-id">(${player.userId})</span></td>
-          <td>${distanceText}</td>
-        </tr>`;
-      }).join("");
-
+  // 테이블 렌더링 함수
+  const renderTable = (players, title, holeInfo) => {
+    if (!players || players.length === 0) {
       return `<div class="distance-table-section">
         <h3 class="distance-section-title">${title}${holeInfo}</h3>
         <div class="table-container">
           <table>
             <thead><tr><th>순위</th><th>닉네임</th><th>기록</th></tr></thead>
-            <tbody class="clickable">${rowsHTML}</tbody>
+            <tbody><tr class="placeholder-row"><td colspan="3">데이터 없음</td></tr></tbody>
           </table>
         </div>
       </div>`;
-    };
+    }
+
+    const rowsHTML = players.map((player) => {
+      const distanceText = formatDistance(player.distance);
+      return `<tr data-userid="${player.userId}">
+        <td class="rank">${player.rank}</td>
+        <td class="nickname">${player.nickname}<span class="user-id">(${player.userId})</span></td>
+        <td>${distanceText}</td>
+      </tr>`;
+    }).join("");
+
+    return `<div class="distance-table-section">
+      <h3 class="distance-section-title">${title}${holeInfo}</h3>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>순위</th><th>닉네임</th><th>기록</th></tr></thead>
+          <tbody class="clickable">${rowsHTML}</tbody>
+        </table>
+      </div>
+    </div>`;
+  };
+
+  // 코스별 섹션 렌더링
+  const renderCourseSection = (courseLabel, nearestData, longestMaleData, longestFemaleData) => {
+    const holeInfoText_nearest = nearestData.holeInfo && nearestData.holeInfo.courseName && nearestData.holeInfo.holeNo
+      ? ` (${nearestData.holeInfo.courseName} ${nearestData.holeInfo.holeNo}H)`
+      : "";
+    const holeInfoText_longest_male = longestMaleData.holeInfo && longestMaleData.holeInfo.courseName && longestMaleData.holeInfo.holeNo
+      ? ` (${longestMaleData.holeInfo.courseName} ${longestMaleData.holeInfo.holeNo}H)`
+      : "";
+    const holeInfoText_longest_female = longestFemaleData.holeInfo && longestFemaleData.holeInfo.courseName && longestFemaleData.holeInfo.holeNo
+      ? ` (${longestFemaleData.holeInfo.courseName} ${longestFemaleData.holeInfo.holeNo}H)`
+      : "";
 
     return {
-      longest: renderTable(longestData.players, "롱기스트", holeInfoText_longest, true),
-      nearest: renderTable(nearestData.players, "니어리스트", holeInfoText_nearest, false),
-      courseLabel: courseLabel
+      courseLabel: courseLabel,
+      nearest: renderTable(nearestData.players, "니어리스트", holeInfoText_nearest),
+      longestMale: renderTable(longestMaleData.players, "롱기스트(남)", holeInfoText_longest_male),
+      longestFemale: renderTable(longestFemaleData.players, "롱기스트(여)", holeInfoText_longest_female),
     };
   };
 
-  const courseA_sections = renderCourseSection("A", courseA_longest, courseA_nearest);
-  const courseB_sections = renderCourseSection("B", courseB_longest, courseB_nearest);
-  const courseC_sections = renderCourseSection("C", courseC_longest, courseC_nearest);
-
+  // 1:1:1 레이아웃으로 구성: 니어 | 롱기(남) | 롱기(여)
   container.innerHTML = `
-    <div class="distance-container">
-      <div class="distance-courses-grid">
-        <div class="distance-course-section">
-          <h2 class="distance-course-title">${courseA_sections.courseLabel}코스</h2>
-          ${courseA_sections.longest}
-          ${courseA_sections.nearest}
+    <div class="distance-container-three-columns">
+      <!-- 니어 섹션 -->
+      <div class="distance-award-column">
+        <h2 class="distance-award-title">코스별 니어</h2>
+        <div class="distance-courses-vertical">
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">A코스</h3>
+            ${renderTable(courseA_nearest.players, "니어리스트", courseA_nearest.holeInfo && courseA_nearest.holeInfo.courseName && courseA_nearest.holeInfo.holeNo ? ` (${courseA_nearest.holeInfo.courseName} ${courseA_nearest.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">B코스</h3>
+            ${renderTable(courseB_nearest.players, "니어리스트", courseB_nearest.holeInfo && courseB_nearest.holeInfo.courseName && courseB_nearest.holeInfo.holeNo ? ` (${courseB_nearest.holeInfo.courseName} ${courseB_nearest.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">C코스</h3>
+            ${renderTable(courseC_nearest.players, "니어리스트", courseC_nearest.holeInfo && courseC_nearest.holeInfo.courseName && courseC_nearest.holeInfo.holeNo ? ` (${courseC_nearest.holeInfo.courseName} ${courseC_nearest.holeInfo.holeNo}H)` : "")}
+          </div>
         </div>
-        <div class="distance-course-section">
-          <h2 class="distance-course-title">${courseB_sections.courseLabel}코스</h2>
-          ${courseB_sections.longest}
-          ${courseB_sections.nearest}
+      </div>
+
+      <!-- 롱기(남) 섹션 -->
+      <div class="distance-award-column">
+        <h2 class="distance-award-title">코스별 롱기(남)</h2>
+        <div class="distance-courses-vertical">
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">A코스</h3>
+            ${renderTable(courseA_longest_male.players, "롱기스트(남)", courseA_longest_male.holeInfo && courseA_longest_male.holeInfo.courseName && courseA_longest_male.holeInfo.holeNo ? ` (${courseA_longest_male.holeInfo.courseName} ${courseA_longest_male.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">B코스</h3>
+            ${renderTable(courseB_longest_male.players, "롱기스트(남)", courseB_longest_male.holeInfo && courseB_longest_male.holeInfo.courseName && courseB_longest_male.holeInfo.holeNo ? ` (${courseB_longest_male.holeInfo.courseName} ${courseB_longest_male.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">C코스</h3>
+            ${renderTable(courseC_longest_male.players, "롱기스트(남)", courseC_longest_male.holeInfo && courseC_longest_male.holeInfo.courseName && courseC_longest_male.holeInfo.holeNo ? ` (${courseC_longest_male.holeInfo.courseName} ${courseC_longest_male.holeInfo.holeNo}H)` : "")}
+          </div>
         </div>
-        <div class="distance-course-section">
-          <h2 class="distance-course-title">${courseC_sections.courseLabel}코스</h2>
-          ${courseC_sections.longest}
-          ${courseC_sections.nearest}
+      </div>
+
+      <!-- 롱기(여) 섹션 -->
+      <div class="distance-award-column">
+        <h2 class="distance-award-title">코스별 롱기(여)</h2>
+        <div class="distance-courses-vertical">
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">A코스</h3>
+            ${renderTable(courseA_longest_female.players, "롱기스트(여)", courseA_longest_female.holeInfo && courseA_longest_female.holeInfo.courseName && courseA_longest_female.holeInfo.holeNo ? ` (${courseA_longest_female.holeInfo.courseName} ${courseA_longest_female.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">B코스</h3>
+            ${renderTable(courseB_longest_female.players, "롱기스트(여)", courseB_longest_female.holeInfo && courseB_longest_female.holeInfo.courseName && courseB_longest_female.holeInfo.holeNo ? ` (${courseB_longest_female.holeInfo.courseName} ${courseB_longest_female.holeInfo.holeNo}H)` : "")}
+          </div>
+          <div class="distance-course-section">
+            <h3 class="distance-course-title">C코스</h3>
+            ${renderTable(courseC_longest_female.players, "롱기스트(여)", courseC_longest_female.holeInfo && courseC_longest_female.holeInfo.courseName && courseC_longest_female.holeInfo.holeNo ? ` (${courseC_longest_female.holeInfo.courseName} ${courseC_longest_female.holeInfo.holeNo}H)` : "")}
+          </div>
         </div>
       </div>
     </div>

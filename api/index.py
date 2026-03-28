@@ -103,7 +103,6 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490391?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490391",
         "courseB": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490392?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490392",
         "courseC": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490393?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490393",
-        # 코스별 니어/롱기 데이터
         "courseA_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/1?tsCode=2490391&type=1",
         "courseA_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/2?tsCode=2490391&type=2",
         "courseB_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490392/1?tsCode=2490392&type=1",
@@ -111,6 +110,44 @@ API_URLS = {
         "courseC_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/1?tsCode=2490393&type=1",
         "courseC_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/2?tsCode=2490393&type=2",
     },
+    
+    # === 2026 Scratch 1st OPEN 대회 ===
+    "2026-1st-qualifying": {
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14843/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14844/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14845/stroke?gender=0&page=1&size=100",
+        "courseC": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14846/stroke?gender=0&page=1&size=100",
+    },
+    "2026-1st-16": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14847",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14847/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14848/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14849/stroke?gender=0&page=1&size=100",
+    },
+    "2026-1st-8": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14850",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14850/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14851/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14852/stroke?gender=0&page=1&size=100",
+    },
+    "2026-1st-4": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14853",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14853/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14854/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14855/stroke?gender=0&page=1&size=100",
+    },
+    "2026-1st-third-place": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14859",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14859/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14860/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14861/stroke?gender=0&page=1&size=100",
+    },
+    "2026-1st-final": {
+        "brackets": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14856",
+        "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14856/stroke?gender=0&page=1&size=100",
+        "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14857/stroke?gender=0&page=1&size=100",
+        "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14858/stroke?gender=0&page=1&size=100",
+    }
 }
 
 def fetch_url(url):
@@ -127,7 +164,7 @@ def fetch_url(url):
         response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
         data = response.json()
-        # 데이터가 비어있거나 예상과 다른 형식인지 확인
+        
         if data is None:
             error_msg = f"Warning: Received None data from {url}"
             print(error_msg)
@@ -166,6 +203,7 @@ class handler(BaseHTTPRequestHandler):
         if not urls_to_fetch:
             self.send_response(404)
             self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({"error": f"Stage '{stage}' not found"}).encode('utf-8'))
             return
@@ -178,27 +216,21 @@ class handler(BaseHTTPRequestHandler):
                 key = future_to_key[future]
                 try:
                     data = future.result(timeout=20)
-                    # 에러 응답인지 확인
                     if isinstance(data, dict) and "error" in data:
                         errors.append(f"{key}: {data.get('error', 'Unknown error')}")
                         results[key] = None
                         continue
-                    # API 응답 형식 처리
-                    # v2 API: { items: [...] }
-                    # v1 API: { status: 200, message: "SUCCESS", data: [...] }
+                        
                     if data and isinstance(data, dict):
                         if "items" in data:
                             results[key] = data["items"]
                         elif "data" in data and isinstance(data["data"], list):
                             results[key] = data["data"]
                         elif "data" in data and data["data"] is not None:
-                            # data가 리스트가 아닐 수도 있음
                             results[key] = data["data"]
                         else:
-                            # distance API는 다른 형식일 수 있음
                             results[key] = data
                     elif isinstance(data, list):
-                        # 직접 배열로 반환되는 경우
                         results[key] = data
                     else:
                         results[key] = data
@@ -208,7 +240,6 @@ class handler(BaseHTTPRequestHandler):
                     errors.append(error_msg)
                     results[key] = None
 
-        # 에러가 발생한 경우 로깅
         if errors:
             print(f"Errors occurred while fetching data for stage '{stage}':")
             for error in errors:

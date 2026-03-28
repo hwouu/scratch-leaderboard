@@ -3,8 +3,10 @@ import { renderLeaderboard2ndPage } from "./views/leaderboard-2nd.js";
 import { renderLeaderboard4thOpenPage } from "./views/leaderboard-4th-open.js";
 import { renderLeaderboard4thOpenPageV2 } from "./views/leaderboard-4th-open-v2.js";
 import { trackPageView, AnalyticsEvents } from "./utils/analytics.js";
+// 신규 뷰 임포트
+import { renderPrizePage } from "./views/prize.js";
+import { renderLeaderboard2026_1st } from "./views/leaderboard-2026-1st.js";
 
-// 라우트 설정: 1st와 2nd 토너먼트 모두 지원
 const routes = {
   // 1st 토너먼트 (기존)
   "/leaderboard/qualifying": (app) => renderLeaderboardPage("qualifying", app),
@@ -14,7 +16,7 @@ const routes = {
   "/leaderboard/4": (app) => renderLeaderboardPage("4", app),
   "/leaderboard/final": (app) => renderLeaderboardPage("final", app),
 
-  // 2nd 토너먼트 (새로 추가)
+  // 2nd 토너먼트 (기존)
   "/leaderboard-2nd/qualifying": (app) =>
     renderLeaderboard2ndPage("2nd-qualifying", app),
   "/leaderboard-2nd/64": (app) => renderLeaderboard2ndPage("2nd-64", app),
@@ -23,7 +25,6 @@ const routes = {
   "/leaderboard-2nd/8": (app) => renderLeaderboard2ndPage("2nd-8", app),
   "/leaderboard-2nd/4": (app) => renderLeaderboard2ndPage("2nd-4", app),
   "/leaderboard-2nd/final": (app) => {
-    // 대회 기간 동안 4th-open으로 리디렉션
     const now = new Date();
     const startDate = new Date("2025-12-15T00:00:00");
     const endDate = new Date("2026-01-09T23:59:59");
@@ -34,11 +35,23 @@ const routes = {
       renderLeaderboard2ndPage("2nd-final", app);
     }
   },
+
   // 4th-open 스트로크 대회
   "/4th-open": (app) => renderLeaderboard4thOpenPage("4th-open", app),
-  
-  // V2 버전 (신버전 UI)
   "/v2/4th-open": (app) => renderLeaderboard4thOpenPageV2("4th-open", app),
+
+  // --- 2026 Scratch 1st OPEN 토너먼트 (신규) ---
+  "/2026-1st/qualifying": (app) =>
+    renderLeaderboard2026_1st("2026-1st-qualifying", app),
+  "/2026-1st/16": (app) => renderLeaderboardPage("2026-1st-16", app),
+  "/2026-1st/8": (app) => renderLeaderboardPage("2026-1st-8", app),
+  "/2026-1st/4": (app) => renderLeaderboardPage("2026-1st-4", app),
+  "/2026-1st/third-place": (app) =>
+    renderLeaderboardPage("2026-1st-third-place", app),
+  "/2026-1st/final": (app) => renderLeaderboardPage("2026-1st-final", app),
+
+  // TV 실시간 상금 화면
+  "/prize": (app) => renderPrizePage("2026-1st-qualifying", app),
 };
 
 function ensureMetaTag(nameOrProperty, key, value) {
@@ -70,7 +83,7 @@ function getSeoForPath(path) {
   const baseDesc =
     "스크래치/골프존 리더보드 실시간 순위. 골목대장 토너먼트 예선·본선·결승 정보를 제공합니다.";
   const baseKeywords =
-    "스크래치 리더보드, 스크래치 골목대장, 골프존 리더보드, 화전스크래치, 스크린골프 리더보드, 골프 토너먼트, 실시간 순위, 골목대장 토너먼트";
+    "스크래치 리더보드, 스크래치 골목대장, 골프존 리더보드, 화전스크래치, 스크린골프 리더보드, 골프 토너먼트, 실시간 순위";
 
   const stageLabel = (stage) =>
     ({
@@ -80,38 +93,48 @@ function getSeoForPath(path) {
       16: "16강",
       8: "8강",
       4: "4강",
+      "third-place": "3위 결정전",
       final: "결승전",
-    }[stage] || "리더보드");
+    })[stage] || "리더보드";
 
-  if (path === "/4th-open") {
+  if (path === "/prize") {
+    return {
+      title: `누적 상금 현황 | 2026 Scratch 1st OPEN`,
+      desc: `2026 Scratch 1st OPEN 대회 홀인원 누적 상금을 실시간으로 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
+  if (path.startsWith("/2026-1st/")) {
+    const stage = path.split("/").pop();
+    return {
+      title: `2026 Scratch 1st OPEN ${stageLabel(stage)} | 스크래치 리더보드`,
+      desc: `2026 Scratch 1st OPEN ${stageLabel(stage)} 실시간 순위와 대진표를 확인하세요.`,
+      keywords: baseKeywords,
+    };
+  }
+  if (path === "/4th-open")
     return {
       title: `스크래치 선물 팡팡 | 스크래치 리더보드`,
       desc: `스크래치 선물 팡팡 스트로크 대회 실시간 순위를 확인하세요.`,
       keywords: baseKeywords,
     };
-  }
-  if (path === "/v2/4th-open") {
+  if (path === "/v2/4th-open")
     return {
       title: `스크래치 선물 팡팡 | 스크래치 리더보드 V2`,
       desc: `스크래치 선물 팡팡 스트로크 대회 실시간 순위를 확인하세요. (신버전 UI)`,
       keywords: baseKeywords,
     };
-  }
   if (path.startsWith("/leaderboard-2nd/")) {
-    const stage = path.split("/").pop();
-    const label = stageLabel(stage);
     return {
-      title: `골목대장 토너먼트 2nd ${label} | 스크래치 리더보드`,
-      desc: `골목대장 토너먼트 2nd ${label} 실시간 순위와 대진표를 확인하세요.`,
+      title: `골목대장 토너먼트 2nd ${stageLabel(path.split("/").pop())} | 스크래치 리더보드`,
+      desc: `골목대장 토너먼트 2nd 실시간 순위와 대진표를 확인하세요.`,
       keywords: baseKeywords,
     };
   }
   if (path.startsWith("/leaderboard/")) {
-    const stage = path.split("/").pop();
-    const label = stageLabel(stage);
     return {
-      title: `골목대장 토너먼트 1st ${label} | 스크래치 리더보드`,
-      desc: `골목대장 토너먼트 1st ${label} 실시간 순위와 선수 기록을 확인하세요.`,
+      title: `골목대장 토너먼트 1st ${stageLabel(path.split("/").pop())} | 스크래치 리더보드`,
+      desc: `골목대장 토너먼트 1st 실시간 순위와 선수 기록을 확인하세요.`,
       keywords: baseKeywords,
     };
   }
@@ -131,42 +154,36 @@ function updateSeoForPath(path) {
   ensureLinkTag("canonical", `${location.origin}${path}`);
 }
 
-/**
- * 현재 날짜에 맞는 페이지 경로를 결정합니다.
- * @returns {string} 현재 대회 단계에 맞는 경로
- */
 function getPathForCurrentDate() {
   const now = new Date();
 
-  // 1st 토너먼트 스케줄
-  const schedule1st = {
+  const schedule2026_1st = {
     qualifying: {
-      start: new Date("2025-09-01T00:00:00"),
-      end: new Date("2025-09-14T23:59:59"),
-    },
-    32: {
-      start: new Date("2025-09-15T00:00:00"),
-      end: new Date("2025-09-18T23:59:59"),
+      start: new Date("2026-03-31T00:00:00"),
+      end: new Date("2026-04-27T23:59:59"),
     },
     16: {
-      start: new Date("2025-09-19T00:00:00"),
-      end: new Date("2025-09-22T23:59:59"),
+      start: new Date("2026-04-28T00:00:00"),
+      end: new Date("2026-05-01T23:59:59"),
     },
     8: {
-      start: new Date("2025-09-23T00:00:00"),
-      end: new Date("2025-09-26T23:59:59"),
+      start: new Date("2026-05-02T00:00:00"),
+      end: new Date("2026-05-05T23:59:59"),
     },
     4: {
-      start: new Date("2025-09-27T00:00:00"),
-      end: new Date("2025-09-30T23:59:59"),
+      start: new Date("2026-05-06T00:00:00"),
+      end: new Date("2026-05-09T23:59:59"),
+    },
+    "third-place": {
+      start: new Date("2026-05-10T00:00:00"),
+      end: new Date("2026-05-13T23:59:59"),
     },
     final: {
-      start: new Date("2025-10-01T00:00:00"),
-      end: new Date("2025-10-04T23:59:59"),
+      start: new Date("2026-05-10T00:00:00"),
+      end: new Date("2026-05-13T23:59:59"),
     },
   };
 
-  // 2nd 토너먼트 스케줄
   const schedule2nd = {
     qualifying: {
       start: new Date("2025-10-24T00:00:00"),
@@ -198,68 +215,48 @@ function getPathForCurrentDate() {
     },
   };
 
-  // 2nd 토너먼트 기간 체크 (최신 대회 우선)
+  // 1. 2026 1st 기간 체크 (우선)
+  const schedule2026Order = [
+    "qualifying",
+    "16",
+    "8",
+    "4",
+    "third-place",
+    "final",
+  ];
+  for (const stage of schedule2026Order) {
+    if (
+      now >= schedule2026_1st[stage].start &&
+      now <= schedule2026_1st[stage].end
+    )
+      return `/2026-1st/${stage}`;
+  }
+
+  // 2. 2nd 기간 체크 (예외 처리)
   const schedule2ndOrder = ["qualifying", "64", "32", "16", "8", "4", "final"];
   for (const stage of schedule2ndOrder) {
-    const event = schedule2nd[stage];
-    if (now >= event.start && now <= event.end) {
+    if (now >= schedule2nd[stage].start && now <= schedule2nd[stage].end)
       return `/leaderboard-2nd/${stage}`;
-    }
   }
 
-  // 1st 토너먼트 기간 체크
-  const schedule1stOrder = ["qualifying", "32", "16", "8", "4", "final"];
-  for (const stage of schedule1stOrder) {
-    const event = schedule1st[stage];
-    if (now >= event.start && now <= event.end) {
-      return `/leaderboard/${stage}`;
-    }
+  // 3. 현재 진행 중인 대회가 없으면 다가올 대회 표시
+  for (const stage of schedule2026Order) {
+    if (now < schedule2026_1st[stage].start) return `/2026-1st/${stage}`;
   }
 
-  // 진행 중인 대회가 없을 경우
-  const firstEventStart = schedule1st.qualifying.start;
-  const lastEventEnd = schedule2nd.final.end;
+  // 모든 일정이 끝난 경우
+  if (now > schedule2026_1st.final.end) return "/2026-1st/final";
 
-  if (now < firstEventStart) {
-    return "/leaderboard/qualifying"; // 1st 대회가 시작하기 전이면 1st 예선 페이지
-  } else if (now > lastEventEnd) {
-    return "/leaderboard-2nd/final"; // 모든 대회가 끝났으면 2nd 결승 페이지
-  }
-
-  // 스테이지 사이의 공백 기간일 경우, 다가올 스테이지 페이지를 보여줌
-  // 2nd 토너먼트 우선 체크
-  for (const stage of schedule2ndOrder) {
-    if (now < schedule2nd[stage].start) {
-      return `/leaderboard-2nd/${stage}`;
-    }
-  }
-
-  // 1st 토너먼트 체크
-  for (const stage of schedule1stOrder) {
-    if (now < schedule1st[stage].start) {
-      return `/leaderboard/${stage}`;
-    }
-  }
-
-  // 모든 조건에 해당하지 않을 경우의 기본값: 2nd 토너먼트 예선 (현재 진행 중)
-  return "/leaderboard-2nd/qualifying";
+  // 폴백 기본값
+  return "/2026-1st/qualifying";
 }
 
-/**
- * URL 경로에 따라 적절한 페이지를 렌더링합니다.
- */
 export function route() {
   let path = window.location.pathname;
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
 
-  // URL 끝에 붙는 슬래시 제거
-  if (path.length > 1 && path.endsWith("/")) {
-    path = path.slice(0, -1);
-  }
-
-  // 루트 경로("/") 접속 시, 날짜에 맞는 페이지로 리디렉션
   if (path === "" || path === "/") {
     path = getPathForCurrentDate();
-    // history.pushState() 대신 replaceState()를 사용하여 불필요한 히스토리 생성을 방지
     window.history.replaceState({}, "", path);
   }
 
@@ -267,28 +264,15 @@ export function route() {
   const app = document.getElementById("app");
 
   if (renderFunc && app) {
-    app.innerHTML = ""; // 페이지 전환 시 이전 내용 삭제
+    app.innerHTML = "";
     renderFunc(app);
-
-    // SEO 메타 업데이트
     updateSeoForPath(path);
-
-    // 페이지 뷰 추적
     trackPageView(path, document.title);
-
-    // 리더보드 페이지 뷰 이벤트 추적
-    if (path.includes("/leaderboard")) {
-      const tournament = path.includes("2nd") ? "2nd" : "1st";
-      const stage = path.split("/").pop();
-      trackPageView(path, `${tournament} 토너먼트 ${stage} 단계`);
-    }
   } else if (app) {
-    // 404 페이지 처리
     app.innerHTML = "<h1>404 Not Found</h1><p>페이지를 찾을 수 없습니다.</p>";
     updateSeoForPath(path);
     trackPageView(path, "404 Not Found");
   }
 }
 
-// 브라우저 뒤로가기/앞으로가기 이벤트 처리
 window.addEventListener("popstate", route);
