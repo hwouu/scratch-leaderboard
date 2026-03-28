@@ -78,12 +78,15 @@ function ensureLinkTag(rel, href) {
   el.setAttribute("href", href);
 }
 
+// ==========================================
+// 동적 라우팅 SEO 메타데이터 업데이트 (2026 Scratch 1st OPEN 중심)
+// ==========================================
 function getSeoForPath(path) {
-  const baseTitle = "스크래치 리더보드 | 골프존 리더보드 LIVE";
+  const baseTitle = "2026 Scratch 1st OPEN | 스크래치 리더보드 LIVE";
   const baseDesc =
-    "스크래치/골프존 리더보드 실시간 순위. 골목대장 토너먼트 예선·본선·결승 정보를 제공합니다.";
+    "2026 Scratch 1st OPEN 골목대장 토너먼트 실시간 리더보드 및 홀인원 상금 현황을 확인하세요.";
   const baseKeywords =
-    "스크래치 리더보드, 스크래치 골목대장, 골프존 리더보드, 화전스크래치, 스크린골프 리더보드, 골프 토너먼트, 실시간 순위";
+    "스크래치 리더보드, 2026 Scratch 1st OPEN, 화전스크래치, 골프존 실시간 리더보드, 홀인원 대회, 실시간 순위";
 
   const stageLabel = (stage) =>
     ({
@@ -99,8 +102,8 @@ function getSeoForPath(path) {
 
   if (path === "/prize") {
     return {
-      title: `누적 상금 현황 | 2026 Scratch 1st OPEN`,
-      desc: `2026 Scratch 1st OPEN 대회 홀인원 누적 상금을 실시간으로 확인하세요.`,
+      title: `누적 상금 라이브 | 2026 Scratch 1st OPEN`,
+      desc: `2026 Scratch 1st OPEN 대회 홀인원 누적 상금을 실시간으로 확인하세요. (예선 라운드 비례 누적)`,
       keywords: baseKeywords,
     };
   }
