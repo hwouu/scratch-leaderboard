@@ -22,7 +22,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         margin-top: 1vh;
       }
       
-      /* 기존 테이블 컴포넌트를 TV 스케일에 맞게 미세 조정 */
+      /* 테이블 미세 조정 */
       .tv-grid .table-container { margin: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
       .tv-grid table { height: 100%; display: table; } 
       .tv-grid table thead { display: table-header-group; }
@@ -36,7 +36,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid .user-id { font-size: 1.3vh; margin-top: 0.4vh; }
       .tv-grid .final-score { font-size: 2.6vh; }
       
-      /* 본선 진출자(Top 16) 강조 */
+      /* 본선 진출자 강조 */
       .advanced-row td {
         background-color: rgba(40, 167, 69, 0.08) !important;
         border-bottom: 1px solid rgba(40, 167, 69, 0.2) !important;
@@ -49,28 +49,78 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         text-shadow: 0 0 10px rgba(40,167,69,0.3);
       }
 
-      /* 새 탭 상금 뷰 이동 버튼 스타일 (기존 테마 활용) */
-      .prize-link-btn {
+      /* 버튼 컨테이너 및 스타일 */
+      .header-actions {
+        display: flex;
+        gap: 12px;
+      }
+      .action-btn {
         display: flex;
         align-items: center;
         gap: 8px;
         background-color: transparent;
-        border: 1px solid var(--accent-yellow);
-        color: var(--accent-yellow);
         padding: 0.8vh 1.5vw;
         border-radius: 8px;
         text-decoration: none;
         font-size: 1.6vh;
         font-weight: 700;
         transition: all 0.2s ease;
+        cursor: pointer;
       }
-      .prize-link-btn:hover {
+      .btn-prize {
+        border: 1px solid var(--accent-yellow);
+        color: var(--accent-yellow);
+      }
+      .btn-prize:hover {
         background-color: var(--accent-yellow);
         color: #000;
         box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
       }
-      body.light-mode .prize-link-btn:hover {
+      .btn-overview {
+        border: 1px solid var(--accent-blue);
+        color: var(--accent-blue);
+      }
+      .btn-overview:hover {
+        background-color: var(--accent-blue);
         color: #fff;
+        box-shadow: 0 0 15px rgba(0, 145, 255, 0.4);
+      }
+
+      /* 대회 개요 모달 스타일 */
+      .overview-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 3000;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; visibility: hidden; transition: all 0.3s ease;
+      }
+      .overview-modal-overlay.active {
+        opacity: 1; visibility: visible;
+      }
+      .overview-modal-content {
+        position: relative;
+        padding: 20px;
+        text-align: center;
+        max-width: 90vw;
+      }
+      .overview-modal-img {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      }
+      .overview-modal-close {
+        position: absolute; top: -10px; right: -10px;
+        background: var(--bg-surface-accent); color: var(--text-primary);
+        border: 2px solid var(--border-color);
+        width: 40px; height: 40px; border-radius: 50%; font-size: 24px;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        z-index: 10; transition: all 0.2s;
+      }
+      .overview-modal-close:hover {
+        transform: scale(1.1);
+        background: var(--accent-red);
+        color: #fff;
+        border-color: var(--accent-red);
       }
     </style>
 
@@ -82,9 +132,15 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
               <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
               <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
             </div>
-            <a href="/prize" target="_blank" class="prize-link-btn">
-              <i class="fas fa-trophy"></i> 홀인원 상금 뷰 열기
-            </a>
+            
+            <div class="header-actions">
+              <button id="btn-open-overview" class="action-btn btn-overview">
+                <i class="fas fa-file-alt"></i> 대회 개요
+              </button>
+              <a href="/prize" target="_blank" class="action-btn btn-prize">
+                <i class="fas fa-trophy"></i> 상금 뷰 열기
+              </a>
+            </div>
           </div>
           
           <div class="subtitle" style="display: flex; justify-content: space-between; width: 100%; margin: 0;">
@@ -102,7 +158,31 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         </div>
       </main>
     </div>
+
+    <div id="tv-overview-modal" class="overview-modal-overlay">
+      <div class="overview-modal-content">
+        <button id="btn-close-overview" class="overview-modal-close">&times;</button>
+        <img src="/assets/2026-1st-overview.jpg" alt="대회 개요 포스터" class="overview-modal-img" onerror="this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image+Not+Found'" />
+      </div>
+    </div>
   `;
+
+  // 모달 제어 로직
+  const modal = document.getElementById("tv-overview-modal");
+  document.getElementById("btn-open-overview").addEventListener("click", () => {
+    modal.classList.add("active");
+  });
+  document
+    .getElementById("btn-close-overview")
+    .addEventListener("click", () => {
+      modal.classList.remove("active");
+    });
+  // 모달 바깥(배경) 클릭 시 닫기
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("active");
+    }
+  });
 
   const renderData = () => {
     const data = getLeaderboardData();
