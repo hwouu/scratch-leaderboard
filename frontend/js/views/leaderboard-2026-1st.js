@@ -26,17 +26,18 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       }
       
       .tv-grid .table-container { margin: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-      .tv-grid table { width: 100%; display: table; } 
+      .tv-grid table { width: 100%; display: table; table-layout: fixed; } 
       .tv-grid table thead { display: table-header-group; }
       .tv-grid table tbody { display: table-row-group; overflow: visible; }
       .tv-grid table tr { display: table-row; }
       
-      .tv-grid table th { font-size: 0.9rem; padding: 0.8rem 1rem; }
-      .tv-grid table td { padding: 0.7rem 1rem; } 
+      .tv-grid table th { font-size: 0.85rem; padding: 0.8rem 0.2rem; text-align: center; }
+      .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; } 
       
       .tv-grid .rank { font-size: 1.5rem; font-weight: 800; }
-      .tv-grid .nickname { font-size: 1.2rem; padding-left: 1.5rem !important; max-width: 250px; }
-      .tv-grid .user-id { font-size: 0.85rem; margin-top: 0.2rem; display: block; opacity: 0.8; }
+      .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; text-align: left; }
+      /* 코스 점수는 기본 색상(흰색)으로 통일하여 가독성 확보 */
+      .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
       
       .advanced-row td {
@@ -82,11 +83,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       }
       .overview-modal-close:hover {
         transform: scale(1.1); background: var(--accent-red); color: #fff; border-color: var(--accent-red);
-      }
-      
-      .completion-badge {
-        font-size: 0.75rem; background: var(--border-color); color: var(--text-secondary);
-        padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.5rem; white-space: nowrap; font-weight: normal;
       }
 
       ::-webkit-scrollbar { width: 8px; }
@@ -154,7 +150,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     const timeEl = document.getElementById("tv-last-updated");
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString("ko-KR");
 
-    // 프론트엔드 가상 랭킹 생성 로직 (보정치 적용 버전)
     if (data && (!data.total || data.total.length === 0)) {
       const playerMap = new Map();
       let hasAnyCourseData = false;
@@ -164,22 +159,18 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           data[courseKey].forEach((p) => {
             hasAnyCourseData = true;
             if (!playerMap.has(p.userId)) {
-              // score(날것)와 totalScore(보정치적용) 모두 초기화
               playerMap.set(p.userId, {
                 ...p,
                 score: 0,
                 totalScore: 0,
                 roundCount: 0,
-                completedCourses: 0,
               });
             }
             const existing = playerMap.get(p.userId);
             existing.score += p.score;
-            // [핵심 변경] 등급/성별 보정치가 적용된 totalScore를 합산합니다.
             existing.totalScore +=
               p.totalScore !== undefined ? p.totalScore : p.score;
             existing.roundCount += p.roundCount;
-            existing.completedCourses += 1;
           });
         }
       });
@@ -187,7 +178,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       if (hasAnyCourseData) {
         let syntheticTotal = Array.from(playerMap.values());
 
-        // [추가 구현] 다라운드 보정치(Multi-round Revision) 직접 계산 적용
         syntheticTotal.forEach((p) => {
           let roundRevision = 0;
           if (p.roundCount >= 35) roundRevision = -6;
@@ -199,7 +189,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           p.totalScore += roundRevision;
         });
 
-        // 정렬 기준을 보정 스코어(totalScore)로 변경
         syntheticTotal.sort((a, b) => {
           if (a.totalScore !== b.totalScore) return a.totalScore - b.totalScore;
           return b.roundCount - a.roundCount;
@@ -214,7 +203,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             p.isTieRank = 0;
           } else {
             const prev = syntheticTotal[i - 1];
-            // 동점 기준도 totalScore 로 변경
             if (
               p.totalScore === prev.totalScore &&
               p.roundCount === prev.roundCount
@@ -253,15 +241,22 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       col2.push({ isEmpty: true });
     }
 
+    const formatCourseScore = (s) =>
+      s === undefined || s === null ? "-" : s === 0 ? "E" : s > 0 ? `+${s}` : s;
+
     const renderTable = (players) => {
       if (players.length === 0) return "<div></div>";
+
       const headHTML = `
         <thead>
           <tr>
-            <th style="width: 15%;">순위</th>
-            <th style="width: 50%; text-align: left; padding-left: 2vw;">선수 정보</th>
-            <th style="width: 15%;">라운드</th>
-            <th style="width: 20%;">성적</th>
+            <th style="width: 10%;">순위</th>
+            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 (ID)</th>
+            <th style="width: 12%;">라운드</th>
+            <th style="width: 11%;">A코스</th>
+            <th style="width: 11%;">B코스</th>
+            <th style="width: 11%;">C코스</th>
+            <th style="width: 20%;">합산성적</th>
           </tr>
         </thead>`;
 
@@ -270,10 +265,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           if (player.isEmpty) {
             return `
             <tr style="visibility: hidden;">
-              <td class="rank">-</td>
-              <td class="nickname">-</td>
-              <td>-</td>
-              <td class="final-score">-</td>
+              <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
             </tr>`;
           }
 
@@ -281,7 +273,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           const rankChangeClass = isAdvanced ? "advanced-row" : "";
           const rank = player.isTieRank ? `T${player.rank}` : player.rank;
 
-          // [핵심 변경] 화면 표기 기준을 player.totalScore 로 적용
           const finalScore =
             player.totalScore !== undefined ? player.totalScore : player.score;
           let scoreColor = "var(--text-primary)";
@@ -294,19 +285,24 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
                 ? `+${finalScore}`
                 : finalScore;
 
-          const completionBadge =
-            player.completedCourses && player.completedCourses < 3
-              ? `<span class="completion-badge">${player.completedCourses}/3 완주</span>`
-              : "";
+          const aScore = data.courseA?.find(
+            (p) => p.userId === player.userId,
+          )?.score;
+          const bScore = data.courseB?.find(
+            (p) => p.userId === player.userId,
+          )?.score;
+          const cScore = data.courseC?.find(
+            (p) => p.userId === player.userId,
+          )?.score;
 
           return `
           <tr class="${rankChangeClass}">
             <td class="rank">${rank}</td>
-            <td class="nickname">
-              ${player.userNickname} ${completionBadge}
-              <span class="user-id">(${player.userId}) <span style="margin-left: 5px; opacity: 0.7;">${player.shopName || ""}</span></span>
-            </td>
+            <td class="nickname">${player.userId}</td>
             <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}R</td>
+            <td class="course-score">${formatCourseScore(aScore)}</td>
+            <td class="course-score">${formatCourseScore(bScore)}</td>
+            <td class="course-score">${formatCourseScore(cScore)}</td>
             <td class="final-score" style="color: ${scoreColor};">${scoreText}</td>
           </tr>`;
         })

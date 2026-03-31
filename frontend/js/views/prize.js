@@ -134,7 +134,7 @@ export async function renderPrizePage(stage, appElement) {
 
       <main class="prize-content-area">
         <div class="prize-card">
-          <div class="prize-label">🏆 홀인원 누적 상금 🏆</div>
+          <div class="prize-label">🏆 본선 홀인원 누적 상금 🏆</div>
           <div class="prize-amount-box">
             <div class="prize-amount" id="prize-amount">0</div>
             <div class="prize-currency">원</div>
