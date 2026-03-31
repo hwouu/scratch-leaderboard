@@ -11,7 +11,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        /* vh, vw 단위를 rem, % 로 변경하여 브라우저 확대/축소에 완벽 반응 */
         padding: 2rem 3% 3rem 3%; 
         box-sizing: border-box;
         overflow-y: auto; 
@@ -32,7 +31,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid table tbody { display: table-row-group; overflow: visible; }
       .tv-grid table tr { display: table-row; }
       
-      /* 테이블 내부 높이 최적화 및 rem 단위 적용 */
       .tv-grid table th { font-size: 0.9rem; padding: 0.8rem 1rem; }
       .tv-grid table td { padding: 0.7rem 1rem; } 
       
@@ -156,7 +154,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     const timeEl = document.getElementById("tv-last-updated");
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString("ko-KR");
 
-    // 프론트엔드 가상 랭킹 생성 로직
+    // 프론트엔드 가상 랭킹 생성 로직 (보정치 적용 버전)
     if (data && (!data.total || data.total.length === 0)) {
       const playerMap = new Map();
       let hasAnyCourseData = false;
@@ -166,15 +164,20 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           data[courseKey].forEach((p) => {
             hasAnyCourseData = true;
             if (!playerMap.has(p.userId)) {
+              // score(날것)와 totalScore(보정치적용) 모두 초기화
               playerMap.set(p.userId, {
                 ...p,
                 score: 0,
+                totalScore: 0,
                 roundCount: 0,
                 completedCourses: 0,
               });
             }
             const existing = playerMap.get(p.userId);
             existing.score += p.score;
+            // [핵심 변경] 등급/성별 보정치가 적용된 totalScore를 합산합니다.
+            existing.totalScore +=
+              p.totalScore !== undefined ? p.totalScore : p.score;
             existing.roundCount += p.roundCount;
             existing.completedCourses += 1;
           });
@@ -184,13 +187,24 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       if (hasAnyCourseData) {
         let syntheticTotal = Array.from(playerMap.values());
 
-        // 정렬
+        // [추가 구현] 다라운드 보정치(Multi-round Revision) 직접 계산 적용
+        syntheticTotal.forEach((p) => {
+          let roundRevision = 0;
+          if (p.roundCount >= 35) roundRevision = -6;
+          else if (p.roundCount >= 25) roundRevision = -4;
+          else if (p.roundCount >= 20) roundRevision = -3;
+          else if (p.roundCount >= 15) roundRevision = -2;
+          else if (p.roundCount >= 10) roundRevision = -1;
+
+          p.totalScore += roundRevision;
+        });
+
+        // 정렬 기준을 보정 스코어(totalScore)로 변경
         syntheticTotal.sort((a, b) => {
-          if (a.score !== b.score) return a.score - b.score;
+          if (a.totalScore !== b.totalScore) return a.totalScore - b.totalScore;
           return b.roundCount - a.roundCount;
         });
 
-        // 동점자 랭킹 매기기
         let currentRank = 1;
         let tieCount = 0;
 
@@ -200,7 +214,11 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             p.isTieRank = 0;
           } else {
             const prev = syntheticTotal[i - 1];
-            if (p.score === prev.score && p.roundCount === prev.roundCount) {
+            // 동점 기준도 totalScore 로 변경
+            if (
+              p.totalScore === prev.totalScore &&
+              p.roundCount === prev.roundCount
+            ) {
               p.rank = currentRank;
               p.isTieRank = 1;
               prev.isTieRank = 1;
@@ -227,13 +245,10 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     }
 
     const top30 = data.total.slice(0, 30);
-
-    // 전체 인원수를 정확히 반으로 쪼갭니다
     const halfIndex = Math.ceil(top30.length / 2);
     const col1 = top30.slice(0, halfIndex);
     const col2 = top30.slice(halfIndex, top30.length);
 
-    // 오른쪽 배열이 1개 모자랄 경우 가짜(empty) 요소를 추가해 완벽한 대칭을 맞춤
     if (col2.length < col1.length) {
       col2.push({ isEmpty: true });
     }
@@ -252,7 +267,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
 
       const bodyHTML = players
         .map((player) => {
-          // 빈 데이터(대칭을 맞추기 위한 투명 행) 처리
           if (player.isEmpty) {
             return `
             <tr style="visibility: hidden;">
@@ -267,15 +281,18 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           const rankChangeClass = isAdvanced ? "advanced-row" : "";
           const rank = player.isTieRank ? `T${player.rank}` : player.rank;
 
+          // [핵심 변경] 화면 표기 기준을 player.totalScore 로 적용
+          const finalScore =
+            player.totalScore !== undefined ? player.totalScore : player.score;
           let scoreColor = "var(--text-primary)";
-          if (player.score > 0) scoreColor = "var(--accent-red)";
-          if (player.score < 0) scoreColor = "var(--accent-blue)";
+          if (finalScore > 0) scoreColor = "var(--accent-red)";
+          if (finalScore < 0) scoreColor = "var(--accent-blue)";
           const scoreText =
-            player.score === 0
+            finalScore === 0
               ? "E"
-              : player.score > 0
-                ? `+${player.score}`
-                : player.score;
+              : finalScore > 0
+                ? `+${finalScore}`
+                : finalScore;
 
           const completionBadge =
             player.completedCourses && player.completedCourses < 3
