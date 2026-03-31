@@ -37,7 +37,6 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
         overflow: hidden;
       }
 
-      /* 헤더 색상 통일 및 크기 축소 */
       .course-title {
         text-align: center;
         font-size: 1.3rem;
@@ -61,7 +60,7 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
       td { padding: 0.9rem 0.5rem; text-align: center; } 
       
       .rank { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
-      .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; text-align: left; color: var(--text-primary); }
+      .nickname { font-size: 1.2rem; font-weight: 700; text-align: left; color: var(--text-primary); }
       .final-score { font-size: 1.5rem; font-weight: 800; }
       
       /* 1등 강조 효과 (은은하게) */
@@ -121,16 +120,13 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
   const processCourseData = (courseArray) => {
     if (!courseArray || courseArray.length === 0) return [];
 
-    // 1. 보정치가 적용된 최종 점수(finalScore) 도출
     let processed = courseArray.map((p) => ({
       ...p,
       finalScore: p.totalScore !== undefined ? p.totalScore : p.score,
     }));
 
-    // 2. 점수 오름차순 정렬
     processed.sort((a, b) => a.finalScore - b.finalScore);
 
-    // 3. 공동 순위(Tie) 계산
     let currentRank = 1;
     let tieCount = 0;
 
@@ -186,12 +182,14 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
           </div>`;
       }
 
+      // [수정됨] 라운드 수 열 추가, 선수 정보로 타이틀 변경, 폭(width) 재조정
       const headHTML = `
         <thead>
           <tr>
-            <th style="width: 18%;">순위</th>
-            <th style="width: 54%; text-align: left; padding-left: 1.5rem;">선수 닉네임</th>
-            <th style="width: 28%;">성적</th>
+            <th style="width: 15%;">순위</th>
+            <th style="width: 43%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
+            <th style="width: 17%;">라운드 수</th>
+            <th style="width: 25%;">성적</th>
           </tr>
         </thead>`;
 
@@ -212,10 +210,12 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
                 ? `+${player.finalScore}`
                 : player.finalScore;
 
+          // [수정됨] td 닉네임에도 th와 동일하게 padding-left: 1.5rem을 주어 완벽하게 라인을 맞춤
           return `
           <tr class="${isTop1}">
             <td class="rank">${rank}</td>
-            <td class="nickname">${player.userNickname}</td>
+            <td class="nickname" style="padding-left: 1.5rem !important;">${player.userNickname}</td>
+            <td style="font-size: 1.1rem; font-weight: 600; color: var(--text-secondary);">${player.roundCount}</td>
             <td class="final-score" style="color: ${scoreColor};">${scoreText}</td>
           </tr>`;
         })
