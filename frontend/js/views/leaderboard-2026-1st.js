@@ -35,7 +35,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; } 
       
       .tv-grid .rank { font-size: 1.5rem; font-weight: 800; }
-      /* 닉네임 왼쪽 정렬 */
       .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; text-align: left; }
       .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
@@ -63,6 +62,10 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .btn-prize:hover { background-color: var(--accent-yellow); color: #000; box-shadow: 0 0 15px rgba(255, 193, 7, 0.4); }
       .btn-overview { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
       .btn-overview:hover { background-color: var(--accent-blue); color: #fff; box-shadow: 0 0 15px rgba(0, 145, 255, 0.4); }
+      
+      /* [추가됨] 코스 랭킹 버튼 스타일 */
+      .btn-course { border: 1px solid var(--accent-green); color: var(--accent-green); }
+      .btn-course:hover { background-color: var(--accent-green); color: #fff; box-shadow: 0 0 15px rgba(40, 167, 69, 0.4); }
 
       .overview-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -103,6 +106,9 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
               <button id="btn-open-overview" class="action-btn btn-overview">
                 <i class="fas fa-file-alt"></i> 대회 개요
               </button>
+              <a href="/2026-1st/courses" target="_blank" class="action-btn btn-course">
+                <i class="fas fa-flag"></i> 코스 순위 열기
+              </a>
               <a href="/prize" target="_blank" class="action-btn btn-prize">
                 <i class="fas fa-trophy"></i> 상금 뷰 열기
               </a>

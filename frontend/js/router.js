@@ -6,6 +6,8 @@ import { trackPageView, AnalyticsEvents } from "./utils/analytics.js";
 // 신규 뷰 임포트
 import { renderPrizePage } from "./views/prize.js";
 import { renderLeaderboard2026_1st } from "./views/leaderboard-2026-1st.js";
+// [추가됨] 코스별 순위 뷰 임포트
+import { renderLeaderboard2026_1st_courses } from "./views/leaderboard-2026-1st-courses.js";
 
 const routes = {
   // 1st 토너먼트 (기존)
@@ -43,6 +45,9 @@ const routes = {
   // --- 2026 Scratch 1st OPEN 토너먼트 (신규) ---
   "/2026-1st/qualifying": (app) =>
     renderLeaderboard2026_1st("2026-1st-qualifying", app),
+  // [추가됨] 코스별 순위 뷰 라우팅
+  "/2026-1st/courses": (app) =>
+    renderLeaderboard2026_1st_courses("2026-1st-qualifying", app),
   "/2026-1st/16": (app) => renderLeaderboardPage("2026-1st-16", app),
   "/2026-1st/8": (app) => renderLeaderboardPage("2026-1st-8", app),
   "/2026-1st/4": (app) => renderLeaderboardPage("2026-1st-4", app),
@@ -86,7 +91,7 @@ function getSeoForPath(path) {
   const baseDesc =
     "2026 Scratch 1st OPEN 골목대장 토너먼트 실시간 리더보드 및 홀인원 상금 현황을 확인하세요.";
   const baseKeywords =
-    "스크래치 리더보드, 2026 Scratch 1st OPEN, 화전스크래치, 골프존 실시간 리더보드, 홀인원 대회, 실시간 순위";
+    "스크래치 리더보드, 2026 Scratch 1st OPEN, 화전스크래치, 골프존 실 창 리더보드, 홀인원 대회, 실시간 순위";
 
   const stageLabel = (stage) =>
     ({
@@ -104,6 +109,14 @@ function getSeoForPath(path) {
     return {
       title: `누적 상금 라이브 | 2026 Scratch 1st OPEN`,
       desc: `2026 Scratch 1st OPEN 대회 홀인원 누적 상금을 실시간으로 확인하세요. (예선 라운드 비례 누적)`,
+      keywords: baseKeywords,
+    };
+  }
+  // [추가됨] 코스별 순위 메타데이터
+  if (path === "/2026-1st/courses") {
+    return {
+      title: `코스별 랭킹 | 2026 Scratch 1st OPEN`,
+      desc: `2026 Scratch 1st OPEN 각 코스별 실시간 순위를 확인하세요.`,
       keywords: baseKeywords,
     };
   }
