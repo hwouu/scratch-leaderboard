@@ -84,10 +84,10 @@ export async function renderPrizePage(stage, appElement) {
       margin: 0 15px;
     }
 
-    /* === 카지노 잭팟 코인 이모지 효과 === */
-    @keyframes jackpotPop {
-      0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
-      10% { opacity: 1; }
+    /* === 간결하고 임팩트 있는 단발성 폭발 애니메이션 === */
+    @keyframes jackpotBurst {
+      0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+      80% { opacity: 1; }
       100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; }
     }
 
@@ -95,10 +95,11 @@ export async function renderPrizePage(stage, appElement) {
       position: absolute;
       top: 50%;
       left: 50%;
-      font-size: 4rem;
+      font-size: 3.5rem;
       pointer-events: none;
       z-index: 9999;
-      animation: jackpotPop 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      /* 처음엔 확 퍼지고 끝에 부드럽게 감속하는 타이밍 함수 적용 */
+      animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
 
     /* === 숫자 롤링 시 반짝임(Glow) 효과 === */
@@ -146,38 +147,36 @@ export async function renderPrizePage(stage, appElement) {
     </div>
   `;
 
-  // === 이모지 잭팟 분수 효과 ===
+  // === 심플 잭팟 이펙트 (단 한 번에 터짐) ===
   const triggerJackpot = () => {
     const wrapper = document.getElementById("prize-tv-wrapper");
     if (!wrapper) return;
 
-    const emojis = ["💰", "🪙", "💸", "✨", "🎰", "💎"];
-    const totalCoins = 40; // 뿜어져 나올 이모지 개수
+    // 딱 두 종류의 이모지만 사용
+    const emojis = ["💰", "✨"];
+    const totalCoins = 24; // 24개가 사방으로 한 번에 터짐
 
     for (let i = 0; i < totalCoins; i++) {
-      setTimeout(() => {
-        const coin = document.createElement("div");
-        coin.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        coin.className = "casino-coin";
+      const coin = document.createElement("div");
+      // 50% 확률로 돈주머니 또는 반짝이 선택
+      coin.textContent = Math.random() > 0.5 ? emojis[0] : emojis[1];
+      coin.className = "casino-coin";
 
-        // 360도 무작위 방향으로 퍼지게 설정 (거리 200px ~ 600px)
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 200 + Math.random() * 400;
-        const tx = Math.cos(angle) * distance + "px";
-        const ty = Math.sin(angle) * distance + "px";
+      const angle = Math.random() * Math.PI * 2;
+      // 150px ~ 400px 사이로 컴팩트하게 퍼짐
+      const distance = 150 + Math.random() * 250;
+      const tx = Math.cos(angle) * distance + "px";
+      const ty = Math.sin(angle) * distance + "px";
+      const scale = 0.7 + Math.random() * 0.8;
 
-        // 크기도 제각각 다르게
-        const scale = 0.7 + Math.random() * 1.3;
+      coin.style.setProperty("--tx", tx);
+      coin.style.setProperty("--ty", ty);
+      coin.style.setProperty("--scale", scale);
 
-        coin.style.setProperty("--tx", tx);
-        coin.style.setProperty("--ty", ty);
-        coin.style.setProperty("--scale", scale);
+      wrapper.appendChild(coin);
 
-        wrapper.appendChild(coin);
-
-        // 1.5초 애니메이션 후 요소 삭제
-        setTimeout(() => coin.remove(), 1500);
-      }, i * 50); // 50ms 간격으로 총 2초 동안 연속 발사
+      // 애니메이션(1.2s) 종료 후 DOM에서 제거
+      setTimeout(() => coin.remove(), 1200);
     }
   };
 
@@ -185,8 +184,8 @@ export async function renderPrizePage(stage, appElement) {
   const animateValue = (element, start, end, duration) => {
     let startTimestamp = null;
 
-    // 금액이 오를 때만 잭팟 이펙트 및 숫자 반짝임 시작
     if (start < end) {
+      // 상금이 오를 때 단 한 번 즉시 폭발
       triggerJackpot();
       element.classList.add("rolling");
     }
@@ -195,7 +194,6 @@ export async function renderPrizePage(stage, appElement) {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 
-      // 카지노 슬롯처럼 초반엔 빠르고 끝에 천천히 멈추는 감속 효과
       const easeOutProgress =
         progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const current = Math.floor(easeOutProgress * (end - start) + start);
@@ -206,7 +204,6 @@ export async function renderPrizePage(stage, appElement) {
         window.requestAnimationFrame(step);
       } else {
         element.textContent = end.toLocaleString();
-        // 숫자 변경 완료 시 반짝임 효과 제거
         element.classList.remove("rolling");
       }
     };
