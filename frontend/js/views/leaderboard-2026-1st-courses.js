@@ -85,13 +85,20 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
 
     <div class="tv-wrapper">
       <header style="flex-shrink: 0; margin-bottom: 1rem; padding: 0;">
-        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1rem;">
-          <div class="title-group" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <h1 style="font-size: 2.2rem; margin: 0;">2026 Scratch 1st OPEN</h1>
-              <span class="live-indicator" style="font-size: 0.9rem; padding: 0.3rem 0.6rem;">LIVE</span>
-            </div>
-            
+        <div class="title-container" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <h1 style="font-size: 2.2rem; margin: 0;">2026 Scratch 1st OPEN</h1>
+            <span class="live-indicator" style="font-size: 0.9rem; padding: 0.3rem 0.6rem;">LIVE</span>
+            <span class="subtitle-text" style="font-size: 1.1rem; color: var(--accent-green); font-weight: 700;">
+              코스별 랭킹 (Top 10)
+            </span>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 2rem;">
+            <span class="last-updated" style="font-size: 0.9rem; color: var(--text-secondary);">
+              마지막 업데이트: <span id="tv-last-updated">-</span>
+            </span>
             <div class="header-actions">
               <button onclick="window.close()" class="action-btn btn-back">
                 <i class="fas fa-times"></i> 창 닫기
@@ -99,12 +106,6 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
             </div>
           </div>
           
-          <div class="subtitle" style="display: flex; justify-content: space-between; width: 100%; margin: 0;">
-            <span class="subtitle-text" style="font-size: 1.1rem; color: var(--accent-green);">
-              코스별 랭킹 (Top 10)
-            </span>
-            <span class="last-updated" style="font-size: 0.9rem;">마지막 업데이트: <span id="tv-last-updated">-</span></span>
-          </div>
         </div>
       </header>
 
