@@ -97,22 +97,18 @@ API_URLS = {
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7405/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/7406/stroke?gender=0&page=1&size=100",
     },
-    # 4th-open 스트로크 대회 (v1 API 사용)
+    # 4th-open 스트로크 대회
     "4th-open": {
         "total": "https://fairway.golfzon.com/v1/tournament/rank/stroke/total/1199912?page=1&rows=100&orderType=1&gender=&trCode=1199912",
         "courseA": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490391?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490391",
         "courseB": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490392?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490392",
         "courseC": "https://fairway.golfzon.com/v1/tournament/rank/stroke/course/2490393?page=1&rows=100&orderType=1&grade=&gender=&tsCode=2490393",
-        "courseA_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/1?tsCode=2490391&type=1",
-        "courseA_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490391/2?tsCode=2490391&type=2",
-        "courseB_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490392/1?tsCode=2490392&type=1",
-        "courseB_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490392/2?tsCode=2490392&type=2",
-        "courseC_longest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/1?tsCode=2490393&type=1",
-        "courseC_nearest": "https://fairway.golfzon.com/v1/tournament/rank/distance/2490393/2?tsCode=2490393&type=2",
     },
     
     # === 2026 Scratch 1st OPEN 대회 ===
     "2026-1st-qualifying": {
+        # [수정됨] 대회 관리정보 API를 "info"로 추가
+        "info": "https://fairway.golfzon.com/v2/tournament/managements/2370",
         "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14843/stroke?gender=0&page=1&size=100",
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14844/stroke?gender=0&page=1&size=100",
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14845/stroke?gender=0&page=1&size=100",
