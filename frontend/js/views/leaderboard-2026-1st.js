@@ -35,8 +35,8 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; } 
       
       .tv-grid .rank { font-size: 1.5rem; font-weight: 800; }
+      /* 닉네임 왼쪽 정렬 */
       .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; text-align: left; }
-      /* 코스 점수는 기본 색상(흰색)으로 통일하여 가독성 확보 */
       .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
       
@@ -251,8 +251,8 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         <thead>
           <tr>
             <th style="width: 10%;">순위</th>
-            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 (ID)</th>
-            <th style="width: 12%;">라운드</th>
+            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
+            <th style="width: 12%;">라운드 수</th>
             <th style="width: 11%;">A코스</th>
             <th style="width: 11%;">B코스</th>
             <th style="width: 11%;">C코스</th>
@@ -298,8 +298,8 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           return `
           <tr class="${rankChangeClass}">
             <td class="rank">${rank}</td>
-            <td class="nickname">${player.userId}</td>
-            <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}R</td>
+            <td class="nickname">${player.userNickname}</td>
+            <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
             <td class="course-score">${formatCourseScore(aScore)}</td>
             <td class="course-score">${formatCourseScore(bScore)}</td>
             <td class="course-score">${formatCourseScore(cScore)}</td>
