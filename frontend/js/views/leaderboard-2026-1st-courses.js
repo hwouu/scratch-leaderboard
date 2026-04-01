@@ -50,21 +50,50 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
       }
       
       .table-container { margin: 0; }
-      table { width: 100%; display: table; table-layout: fixed; border-collapse: collapse; } 
-      thead { display: table-header-group; }
-      tbody { display: table-row-group; }
-      tr { display: table-row; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+      
+      /* 
+        leaderboard.css가 전역으로 table을 flex/block으로 바꾸기 때문에
+        이 뷰에서는 course-panel 스코프로 table 레이아웃을 강제 복구한다.
+      */
+      .course-panel table {
+        width: 100%;
+        display: table !important;
+        table-layout: fixed;
+        border-collapse: collapse;
+        border-spacing: 0;
+        flex: none !important;
+        min-height: auto !important;
+        height: auto !important;
+      }
+      .course-panel table thead { display: table-header-group !important; }
+      .course-panel table tbody {
+        display: table-row-group !important;
+        overflow: visible !important;
+        flex: none !important;
+      }
+      .course-panel table tr { display: table-row !important; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
       tr:last-child { border-bottom: none; }
       
       /* [수정됨] 헤더와 데이터의 좌우 패딩을 0으로 초기화하고 클래스로만 완벽 제어 */
-      th { font-size: 0.95rem; padding: 1rem 0; text-align: center; color: var(--text-secondary); font-weight: 700; }
-      td { padding: 0.9rem 0; text-align: center; } 
+      .course-panel th { 
+        font-size: 0.95rem; 
+        padding: 1rem 0; 
+        text-align: center; 
+        color: var(--text-secondary); 
+        font-weight: 700; 
+        position: static !important;
+      }
+      .course-panel td { padding: 0.9rem 0; text-align: center; } 
       
       .rank { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
       
       /* [수정됨] th와 td에 동일한 정렬/여백 클래스를 부여하여 삐뚤어짐 방지 */
       .th-nickname { text-align: left; padding-left: 1.5rem !important; }
-      .nickname { font-size: 1.2rem; font-weight: 700; text-align: left; padding-left: 1.5rem !important; color: var(--text-primary); }
+      .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; color: var(--text-primary); }
+      
+      /* 선수 정보 컬럼만 왼쪽 정렬 (나머지는 가운데 정렬 유지) */
+      .course-panel th.th-nickname { text-align: left !important; }
+      .course-panel td.nickname { text-align: left !important; }
       
       .final-score { font-size: 1.5rem; font-weight: 800; }
       
@@ -233,9 +262,9 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
     };
 
     container.innerHTML =
-      renderCourseTable("A 코스", top10A) +
-      renderCourseTable("B 코스", top10B) +
-      renderCourseTable("C 코스", top10C);
+      renderCourseTable("A 코스 (동강시스타 CC)", top10A) +
+      renderCourseTable("B 코스 (크리스탈밸리 CC)", top10B) +
+      renderCourseTable("C 코스 (탄란 골프클럽)", top10C);
   };
 
   const loadAndRender = async () => {
