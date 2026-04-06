@@ -1,6 +1,7 @@
 import { fetchLeaderboardData, getLeaderboardData } from "../services/api.js";
 
 let updateInterval;
+let effectInterval; // 20초 반복 효과를 위한 인터벌 추가
 
 export async function renderPrizePage(stage, appElement) {
   const styles = `
@@ -127,11 +128,11 @@ export async function renderPrizePage(stage, appElement) {
     .tournament-day-badge {
       margin: 0; 
       color: var(--accent-yellow);
-      border: 1.5px solid var(--accent-yellow);
+      border: 1px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
       padding: 0.6vh 1.2vw; 
       border-radius: 8px;
-      font-size: 2.5vh; /* 3.5vh에서 2.5vh로 줄여 균형 조정 */
+      font-size: 2.5vh; 
       font-weight: 800;
       line-height: 1;
       display: flex;
@@ -219,20 +220,24 @@ export async function renderPrizePage(stage, appElement) {
     </div>
   `;
 
+  // === 내부 상태 저장용 변수 ===
+  let lastTargetPrize = 0;
+  let lastEstimatedPrize = 0;
+
   const triggerJackpot = () => {
     const wrapper = document.getElementById("prize-tv-wrapper");
     if (!wrapper) return;
 
-    const emojis = ["💰", "✨"];
-    const totalCoins = 24; 
+    const emojis = ["💰", "✨", "💵", "💎"];
+    const totalCoins = 28; 
 
     for (let i = 0; i < totalCoins; i++) {
       const coin = document.createElement("div");
-      coin.textContent = Math.random() > 0.5 ? emojis[0] : emojis[1];
+      coin.textContent = emojis[Math.floor(Math.random() * emojis.length)];
       coin.className = "casino-coin";
 
       const angle = Math.random() * Math.PI * 2;
-      const distance = 150 + Math.random() * 300;
+      const distance = 150 + Math.random() * 350;
       const tx = Math.cos(angle) * distance + "px";
       const ty = Math.sin(angle) * distance + "px";
       const scale = 0.7 + Math.random() * 1;
@@ -249,10 +254,9 @@ export async function renderPrizePage(stage, appElement) {
   const animateValue = (element, start, end, duration, triggerEffect = false) => {
     let startTimestamp = null;
 
-    if (start < end) {
-      if (triggerEffect) triggerJackpot();
-      element.classList.add("rolling");
-    }
+    // 무조건 롤링 효과를 보여주기 위해 element에 클래스 추가
+    element.classList.add("rolling");
+    if (triggerEffect) triggerJackpot();
 
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
@@ -271,6 +275,21 @@ export async function renderPrizePage(stage, appElement) {
       }
     };
     window.requestAnimationFrame(step);
+  };
+
+  // === 시각적 리프레시 효과 함수 (20초마다 실행) ===
+  const triggerRefreshEffect = () => {
+    const amountEl = document.getElementById("prize-amount");
+    const estAmountEl = document.getElementById("est-amount");
+    
+    if (!amountEl || !estAmountEl || lastTargetPrize === 0) return;
+
+    // 현재 금액의 99% 지점부터 다시 올라가는 효과
+    const startPrize = Math.floor(lastTargetPrize * 0.99);
+    const startEstPrize = Math.floor(lastEstimatedPrize * 0.99);
+
+    animateValue(amountEl, startPrize, lastTargetPrize, 1500, true); 
+    animateValue(estAmountEl, startEstPrize, lastEstimatedPrize, 1500, false);
   };
 
   const updateData = async () => {
@@ -311,16 +330,19 @@ export async function renderPrizePage(stage, appElement) {
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
 
       const amountEl = document.getElementById("prize-amount");
-      const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
-
       const estAmountEl = document.getElementById("est-amount");
-      const currentEstPrize = parseInt(estAmountEl.textContent.replace(/,/g, "")) || 0;
 
-      if (currentPrize !== targetPrize) {
-        animateValue(amountEl, currentPrize, targetPrize, 2000, true); 
+      // 데이터가 실제로 바뀌었을 때만 초기 실행 (그 외엔 20초 인터벌이 담당)
+      if (lastTargetPrize !== targetPrize) {
+        const currentDisplayed = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
+        animateValue(amountEl, currentDisplayed, targetPrize, 2000, true);
+        lastTargetPrize = targetPrize;
       }
-      if (currentEstPrize !== estimatedTotalPrize) {
-        animateValue(estAmountEl, currentEstPrize, estimatedTotalPrize, 2000, false); 
+
+      if (lastEstimatedPrize !== estimatedTotalPrize) {
+        const currentEstDisplayed = parseInt(estAmountEl.textContent.replace(/,/g, "")) || 0;
+        animateValue(estAmountEl, currentEstDisplayed, estimatedTotalPrize, 2000, false);
+        lastEstimatedPrize = estimatedTotalPrize;
       }
       
     } catch (error) {
@@ -330,6 +352,10 @@ export async function renderPrizePage(stage, appElement) {
 
   await updateData();
 
+  // 기존 인터벌 정리 및 재설정
   if (updateInterval) clearInterval(updateInterval);
   updateInterval = setInterval(updateData, 5 * 60 * 1000);
+
+  if (effectInterval) clearInterval(effectInterval);
+  effectInterval = setInterval(triggerRefreshEffect, 20 * 1000); // 20초마다 시각적 효과 반복
 }
