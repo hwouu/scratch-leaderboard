@@ -28,13 +28,13 @@ export async function renderPrizePage(stage, appElement) {
       border: 1px solid var(--border-color);
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      padding: 8vh 5vw;
+      padding: 6vh 5vw; /* 패딩 살짝 조절 */
       text-align: center;
       width: 80%;
       max-width: 1400px;
       display: flex;
       flex-direction: column;
-      gap: 5vh;
+      gap: 4vh;
       position: relative;
       z-index: 10;
     }
@@ -69,9 +69,48 @@ export async function renderPrizePage(stage, appElement) {
       color: var(--text-primary);
     }
 
+    /* === 예상 최종 누적 상금 (추정치) 스타일 === */
+    .estimated-prize-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: -1vh;
+      margin-bottom: 1vh;
+    }
+    
+    .estimated-prize-box {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(0, 145, 255, 0.1));
+      border: 1px solid rgba(40, 167, 69, 0.4);
+      padding: 1.5vh 3vw;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1vw;
+      box-shadow: 0 0 20px rgba(40, 167, 69, 0.15);
+    }
+
+    .est-label {
+      font-size: 2.5vh;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .est-amount {
+      font-size: 5.5vh;
+      font-weight: 900;
+      color: var(--accent-green, #28a745);
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .est-currency {
+      font-size: 2.5vh;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
     .prize-footer {
-      margin-top: 2vh;
-      padding-top: 4vh;
+      margin-top: 1vh;
+      padding-top: 3vh;
       border-top: 1px solid var(--border-color);
       font-size: 3vh;
       color: var(--text-secondary);
@@ -93,12 +132,11 @@ export async function renderPrizePage(stage, appElement) {
 
     .casino-coin {
       position: absolute;
-      top: 50%;
+      top: 30%;
       left: 50%;
       font-size: 3.5rem;
       pointer-events: none;
       z-index: 9999;
-      /* 처음엔 확 퍼지고 끝에 부드럽게 감속하는 타이밍 함수 적용 */
       animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
 
@@ -109,9 +147,14 @@ export async function renderPrizePage(stage, appElement) {
       100% { text-shadow: 0 0 30px rgba(255, 193, 7, 0.4); transform: scale(1); }
     }
 
-    .prize-amount.rolling {
-      animation: textGlow 0.4s ease-in-out infinite alternate;
+    @keyframes textGlowGreen {
+      0% { text-shadow: 0 0 15px rgba(40, 167, 69, 0.3); transform: scale(1); }
+      50% { text-shadow: 0 0 40px rgba(40, 167, 69, 1), 0 0 60px rgba(255, 255, 255, 0.6); transform: scale(1.05); color: #e8f5e9; }
+      100% { text-shadow: 0 0 15px rgba(40, 167, 69, 0.3); transform: scale(1); }
     }
+
+    .prize-amount.rolling { animation: textGlow 0.4s ease-in-out infinite alternate; }
+    .est-amount.rolling { animation: textGlowGreen 0.4s ease-in-out infinite alternate; }
   `;
 
   appElement.innerHTML = `
@@ -139,6 +182,15 @@ export async function renderPrizePage(stage, appElement) {
             <div class="prize-amount" id="prize-amount">0</div>
             <div class="prize-currency">원</div>
           </div>
+          
+          <div class="estimated-prize-wrapper">
+            <div class="estimated-prize-box">
+              <span class="est-label">최종 예상 상금 :</span>
+              <span class="est-amount" id="est-amount">0</span>
+              <span class="est-currency">원</span>
+            </div>
+          </div>
+
           <div class="prize-footer">
             현재 총 <span class="highlight-rounds" id="total-rounds">0</span> 라운드 진행 중! <span style="font-size:2vh; opacity:0.6; margin-left: 10px;">(1R당 2,000원 적립)</span>
           </div>
@@ -147,23 +199,19 @@ export async function renderPrizePage(stage, appElement) {
     </div>
   `;
 
-  // === 심플 잭팟 이펙트 (단 한 번에 터짐) ===
   const triggerJackpot = () => {
     const wrapper = document.getElementById("prize-tv-wrapper");
     if (!wrapper) return;
 
-    // 딱 두 종류의 이모지만 사용
     const emojis = ["💰", "✨"];
-    const totalCoins = 24; // 24개가 사방으로 한 번에 터짐
+    const totalCoins = 24; 
 
     for (let i = 0; i < totalCoins; i++) {
       const coin = document.createElement("div");
-      // 50% 확률로 돈주머니 또는 반짝이 선택
       coin.textContent = Math.random() > 0.5 ? emojis[0] : emojis[1];
       coin.className = "casino-coin";
 
       const angle = Math.random() * Math.PI * 2;
-      // 150px ~ 400px 사이로 컴팩트하게 퍼짐
       const distance = 150 + Math.random() * 250;
       const tx = Math.cos(angle) * distance + "px";
       const ty = Math.sin(angle) * distance + "px";
@@ -174,19 +222,16 @@ export async function renderPrizePage(stage, appElement) {
       coin.style.setProperty("--scale", scale);
 
       wrapper.appendChild(coin);
-
-      // 애니메이션(1.2s) 종료 후 DOM에서 제거
       setTimeout(() => coin.remove(), 1200);
     }
   };
 
-  // === 카운팅 애니메이션 로직 ===
-  const animateValue = (element, start, end, duration) => {
+  // triggerEffect 변수를 통해 메인 상금일 때만 잭팟이 터지도록 제어
+  const animateValue = (element, start, end, duration, triggerEffect = false) => {
     let startTimestamp = null;
 
     if (start < end) {
-      // 상금이 오를 때 단 한 번 즉시 폭발
-      triggerJackpot();
+      if (triggerEffect) triggerJackpot();
       element.classList.add("rolling");
     }
 
@@ -194,8 +239,7 @@ export async function renderPrizePage(stage, appElement) {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 
-      const easeOutProgress =
-        progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const easeOutProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const current = Math.floor(easeOutProgress * (end - start) + start);
 
       element.textContent = current.toLocaleString();
@@ -210,7 +254,6 @@ export async function renderPrizePage(stage, appElement) {
     window.requestAnimationFrame(step);
   };
 
-  // === API 데이터 연동 로직 ===
   const updateData = async () => {
     try {
       await fetchLeaderboardData(stage);
@@ -224,23 +267,47 @@ export async function renderPrizePage(stage, appElement) {
       if (data && data.info && data.info.roundCount !== undefined) {
         totalRounds = data.info.roundCount;
       } else if (data && data.total) {
-        totalRounds = data.total.reduce(
-          (sum, player) => sum + (player.roundCount || 0),
-          0,
-        );
+        totalRounds = data.total.reduce((sum, player) => sum + (player.roundCount || 0), 0);
       }
 
+      // 1. 현재 누적 상금 계산
       const targetPrize = totalRounds * 2000;
-      document.getElementById("total-rounds").textContent =
-        totalRounds.toLocaleString();
+      document.getElementById("total-rounds").textContent = totalRounds.toLocaleString();
 
+      // 2. 최종 예상 상금 계산 (추정치)
+      const startDate = new Date("2026-03-31T00:00:00");
+      const now = new Date();
+      const diffTime = Math.max(0, now - startDate);
+      const totalDays = 28; // 대회 총 일수
+      
+      // 현재 진행 일차 계산
+      let currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      // 대표님 요청 공식: 아침시간 오차를 줄이기 위해 (현재일차 - 1) 적용
+      let effectiveDay = currentDay - 1;
+      
+      // 1일차일 경우 0으로 나누는 것을 방지하기 위해 최소 1일로 보정
+      if (effectiveDay < 1) effectiveDay = 1;
+      // 대회가 끝나면 최대 28일로 고정
+      if (effectiveDay > totalDays) effectiveDay = totalDays;
+
+      // 일일 평균 금액 * 총 28일
+      const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
+
+      // DOM 업데이트 및 애니메이션 실행
       const amountEl = document.getElementById("prize-amount");
-      const currentPrize =
-        parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
+      const estAmountEl = document.getElementById("est-amount");
+
+      const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
+      const currentEstPrize = parseInt(estAmountEl.textContent.replace(/,/g, "")) || 0;
 
       if (currentPrize !== targetPrize) {
-        animateValue(amountEl, currentPrize, targetPrize, 2000);
+        animateValue(amountEl, currentPrize, targetPrize, 2000, true); // 메인 상금은 잭팟 효과 ON
       }
+      if (currentEstPrize !== estimatedTotalPrize) {
+        animateValue(estAmountEl, currentEstPrize, estimatedTotalPrize, 2000, false); // 추정치는 텍스트 효과만
+      }
+      
     } catch (error) {
       console.error("상금 데이터 업데이트 실패:", error);
     }
