@@ -163,9 +163,10 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
   document.getElementById('btn-close-overview').addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-  // === PXG 및 23위 타이틀리스트 로고 포함 정확한 상품 맵핑 (SVG 반영) ===
+  // === PXG 및 23위 타이틀리스트 로고 포함 정확한 상품 맵핑 (SVG 반영 및 색상 반전) ===
   const getPrizeForRank = (rank) => {
-    const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle;';
+    // filter: invert(1)을 추가하여 흑백 반전 적용
+    const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle; filter: invert(1);';
     switch(rank) {
       case 1: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
       case 2: return '50,000 Point';
@@ -182,7 +183,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       case 13: return '20,000 Point';
       case 14: return '20,000 Point';
       case 15: return '20,000 Point';
-      // 16위 PXG 로고 적용 (SVG)
       case 16: return `<img src="/assets/logo-pxg.svg" alt="PXG" style="${logoStyle}">`; 
       case 17: return '10,000 Point';
       case 18: return '10,000 Point';
@@ -190,7 +190,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       case 20: return '10,000 Point';
       case 21: return '10,000 Point';
       case 22: return '10,000 Point';
-      // 23위 타이틀리스트 로고 적용 (SVG)
       case 23: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
       default: return '';
     }
