@@ -357,5 +357,5 @@ export async function renderPrizePage(stage, appElement) {
   updateInterval = setInterval(updateData, 5 * 60 * 1000);
 
   if (effectInterval) clearInterval(effectInterval);
-  effectInterval = setInterval(triggerRefreshEffect, 20 * 1000); // 20초마다 시각적 효과 반복
+  effectInterval = setInterval(triggerRefreshEffect, 10 * 1000); // 10초마다 시각적 효과 반복
 }
