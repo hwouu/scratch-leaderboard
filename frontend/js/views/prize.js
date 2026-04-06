@@ -135,13 +135,16 @@ export async function renderPrizePage(stage, appElement) {
     .tournament-day-badge {
       margin: 0; 
       color: var(--accent-yellow);
-      border: 1px solid var(--accent-yellow);
+      border: 1.5px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 1.6vh;
-      font-weight: 700;
-      vertical-align: middle;
+      padding: 0.5vh 1.5vw; /* 타이틀과 조화를 위해 패딩 조정 */
+      border-radius: 10px;
+      font-size: 3.5vh; /* 좌측 타이틀 크기와 동일하게 수정 */
+      font-weight: 800;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     @keyframes jackpotBurst {
@@ -179,15 +182,15 @@ export async function renderPrizePage(stage, appElement) {
   appElement.innerHTML = `
     <style>${styles}</style>
     <div class="prize-tv-wrapper" id="prize-tv-wrapper">
-      <header style="flex-shrink: 0; margin-bottom: 1vh; padding: 0;">
-        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1.5vh;">
+      <header style="flex-shrink: 0; margin-bottom: 2vh; padding: 0;">
+        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 2vh;">
           
-          <div class="title-group" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <div class="title-group" style="display: flex; justify-content: space-between; align-items: stretch; width: 100%;">
             <div style="display: flex; align-items: center; gap: 1.5vh;">
-              <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
+              <h1 style="font-size: 3.5vh; margin: 0; line-height: 1;">2026 Scratch 1st OPEN</h1>
               <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
             </div>
-            <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
+            <div id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</div>
           </div>
           
           <div class="subtitle" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 0;">
