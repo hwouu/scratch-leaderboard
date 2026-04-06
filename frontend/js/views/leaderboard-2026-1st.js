@@ -39,27 +39,16 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid .player-info { text-align: left; padding-left: 1.5rem !important; }
       .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; display: block; }
       
-      .prize-tag {
-        display: inline-block;
-        margin-top: 0.4rem;
-        font-size: 0.85rem;
-        color: var(--accent-yellow);
-        background: rgba(255, 193, 7, 0.1);
-        padding: 0.2rem 0.6rem;
-        border-radius: 6px;
-        border: 1px solid rgba(255, 193, 7, 0.3);
-        font-weight: 600;
-        line-height: 1.2;
-      }
-      .prize-tag.logo-only {
-        padding: 0.2rem 0;
-        background: transparent;
-        border: none;
-      }
-      
       .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
       
+      .expected-prize {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: center;
+      }
+
       .advanced-row td {
         background-color: rgba(40, 167, 69, 0.08) !important;
         border-bottom: 1px solid rgba(40, 167, 69, 0.2) !important;
@@ -163,9 +152,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
   document.getElementById('btn-close-overview').addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-  // === PXG 및 23위 타이틀리스트 로고 포함 정확한 상품 맵핑 (SVG 반영 및 색상 반전) ===
   const getPrizeForRank = (rank) => {
-    // filter: invert(1)을 추가하여 흑백 반전 적용
     const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle; filter: invert(1);';
     switch(rank) {
       case 1: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
@@ -292,12 +279,13 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         <thead>
           <tr>
             <th style="width: 10%;">순위</th>
-            <th style="width: 28%;">선수 정보</th>
+            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
             <th style="width: 11%;">라운드 수</th>
             <th style="width: 10%;">A코스</th>
             <th style="width: 10%;">B코스</th>
             <th style="width: 10%;">C코스</th>
-            <th style="width: 21%;">합산성적</th>
+            <th style="width: 12%;">합산성적</th>
+            <th style="width: 12%;">시상품</th>
           </tr>
         </thead>`;
       
@@ -305,7 +293,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         if (player.isEmpty) {
           return `
             <tr style="visibility: hidden;">
-              <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+              <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
             </tr>`;
         }
 
@@ -324,24 +312,19 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         const cScore = data.courseC?.find(p => p.userId === player.userId)?.score;
 
         const prizeContent = getPrizeForRank(player.rank);
-        let prizeHTML = '';
-        if (prizeContent) {
-          const isLogo = prizeContent.includes('<img');
-          prizeHTML = `<div class="prize-tag ${isLogo ? 'logo-only' : ''}">${isLogo ? prizeContent : '🎁 ' + prizeContent}</div>`;
-        }
 
         return `
           <tr class="${rankChangeClass}">
             <td class="rank">${rank}</td>
             <td class="player-info">
               <span class="nickname">${player.userNickname}</span>
-              ${prizeHTML}
             </td>
             <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
             <td class="course-score">${formatCourseScore(aScore)}</td>
             <td class="course-score">${formatCourseScore(bScore)}</td>
             <td class="course-score">${formatCourseScore(cScore)}</td>
             <td class="final-score" style="color: ${scoreColor};">${scoreText}</td>
+            <td class="expected-prize">${prizeContent}</td>
           </tr>`;
       }).join('');
       

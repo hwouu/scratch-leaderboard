@@ -109,14 +109,6 @@ export async function renderPrizePage(stage, appElement) {
       font-weight: 700;
     }
 
-    .est-formula-desc {
-      margin-top: 1.5vh;
-      font-size: 1.8vh;
-      color: var(--text-secondary);
-      opacity: 0.8;
-      font-weight: 500;
-    }
-
     .prize-footer {
       margin-top: 0;
       padding-top: 3vh;
@@ -137,9 +129,9 @@ export async function renderPrizePage(stage, appElement) {
       color: var(--accent-yellow);
       border: 1.5px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
-      padding: 0.5vh 1.5vw; /* 타이틀과 조화를 위해 패딩 조정 */
+      padding: 0.5vh 1.5vw; 
       border-radius: 10px;
-      font-size: 3.5vh; /* 좌측 타이틀 크기와 동일하게 수정 */
+      font-size: 3.5vh; 
       font-weight: 800;
       line-height: 1;
       display: flex;
@@ -216,9 +208,6 @@ export async function renderPrizePage(stage, appElement) {
               <span class="est-label">최종 예상 상금 :</span>
               <span class="est-amount" id="est-amount">0</span>
               <span class="est-currency">원</span>
-            </div>
-            <div class="est-formula-desc" id="est-formula-desc">
-              * 추정 상금 산출 방식: 현재 누적 상금 ÷ 진행 일차 × 28일
             </div>
           </div>
 
@@ -320,11 +309,6 @@ export async function renderPrizePage(stage, appElement) {
       if (effectiveDay > totalDays) effectiveDay = totalDays;
 
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
-
-      const formulaDescEl = document.getElementById("est-formula-desc");
-      if (formulaDescEl) {
-        formulaDescEl.textContent = `* 추정 상금 산출 방식: 현재 누적 상금 ÷ 진행 일차 × 28일`;
-      }
 
       const amountEl = document.getElementById("prize-amount");
       const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
