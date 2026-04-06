@@ -8,7 +8,7 @@ export async function renderPrizePage(stage, appElement) {
       height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 2vh 2vw;
+      padding: 1.5vh 2vw; 
       box-sizing: border-box;
       overflow: hidden;
       position: relative;
@@ -133,14 +133,15 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .tournament-day-badge {
+      margin: 0; 
       color: var(--accent-yellow);
       border: 1px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
-      padding: 0.6vh 1.2vw; /* 패딩 증가 */
-      border-radius: 8px;
-      font-size: 2.2vh; /* 크기 키움 */
-      font-weight: 800;
-      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 1.6vh;
+      font-weight: 700;
+      vertical-align: middle;
     }
 
     @keyframes jackpotBurst {
@@ -179,22 +180,23 @@ export async function renderPrizePage(stage, appElement) {
     <style>${styles}</style>
     <div class="prize-tv-wrapper" id="prize-tv-wrapper">
       <header style="flex-shrink: 0; margin-bottom: 1vh; padding: 0;">
-        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1vh;">
-          <div class="title-group" style="display: flex; justify-content: flex-start; align-items: center; gap: 1.5vh;">
-            <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
-            <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
-          </div>
-          <div class="subtitle" style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; margin: 0;">
-            <div style="display: flex; align-items: center;">
-              <span class="subtitle-text" style="font-size: 1.8vh; color: var(--accent-blue); font-weight: 700;">
-                홀인원 누적 상금 현황
-              </span>
+        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1.5vh;">
+          
+          <div class="title-group" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 1.5vh;">
+              <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
+              <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
             </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.8vh;">
-              <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
-              <span class="last-updated" style="font-size: 1.5vh;">마지막 업데이트: <span id="prize-last-updated">-</span></span>
-            </div>
+            <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
           </div>
+          
+          <div class="subtitle" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 0;">
+            <span class="subtitle-text" style="font-size: 1.8vh; color: var(--accent-blue); font-weight: 700;">
+              홀인원 누적 상금 현황
+            </span>
+            <span class="last-updated" style="font-size: 1.5vh;">마지막 업데이트: <span id="prize-last-updated">-</span></span>
+          </div>
+
         </div>
       </header>
 
@@ -315,6 +317,11 @@ export async function renderPrizePage(stage, appElement) {
       if (effectiveDay > totalDays) effectiveDay = totalDays;
 
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
+
+      const formulaDescEl = document.getElementById("est-formula-desc");
+      if (formulaDescEl) {
+        formulaDescEl.textContent = `* 추정 상금 산출 방식: 현재 누적 상금 ÷ 진행 일차 × 28일`;
+      }
 
       const amountEl = document.getElementById("prize-amount");
       const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
