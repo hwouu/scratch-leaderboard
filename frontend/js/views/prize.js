@@ -129,9 +129,9 @@ export async function renderPrizePage(stage, appElement) {
       color: var(--accent-yellow);
       border: 1.5px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
-      padding: 0.5vh 1.5vw; 
-      border-radius: 10px;
-      font-size: 3.5vh; 
+      padding: 0.6vh 1.2vw; 
+      border-radius: 8px;
+      font-size: 2.5vh; /* 3.5vh에서 2.5vh로 줄여 균형 조정 */
       font-weight: 800;
       line-height: 1;
       display: flex;
@@ -174,10 +174,10 @@ export async function renderPrizePage(stage, appElement) {
   appElement.innerHTML = `
     <style>${styles}</style>
     <div class="prize-tv-wrapper" id="prize-tv-wrapper">
-      <header style="flex-shrink: 0; margin-bottom: 2vh; padding: 0;">
-        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 2vh;">
+      <header style="flex-shrink: 0; margin-bottom: 1vh; padding: 0;">
+        <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1.5vh;">
           
-          <div class="title-group" style="display: flex; justify-content: space-between; align-items: stretch; width: 100%;">
+          <div class="title-group" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div style="display: flex; align-items: center; gap: 1.5vh;">
               <h1 style="font-size: 3.5vh; margin: 0; line-height: 1;">2026 Scratch 1st OPEN</h1>
               <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>

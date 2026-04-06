@@ -45,7 +45,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .expected-prize {
         font-size: 1rem;
         font-weight: 600;
-        color: var(--text-primary);
+        color: var(--accent-yellow);
         text-align: center;
       }
 
@@ -152,31 +152,32 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
   document.getElementById('btn-close-overview').addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
+  // === 시상품 매핑 (SVG 반영 및 색상 반전 유지) ===
   const getPrizeForRank = (rank) => {
     const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle; filter: invert(1);';
     switch(rank) {
       case 1: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
-      case 2: return '50,000 Point';
-      case 3: return '50,000 Point';
-      case 4: return '50,000 Point';
+      case 2: return '50,000 P';
+      case 3: return '50,000 P';
+      case 4: return '50,000 P';
       case 5: return `<img src="/assets/logo-callaway.svg" alt="Callaway" style="${logoStyle}">`;
-      case 6: return '30,000 Point';
-      case 7: return '30,000 Point';
-      case 8: return '30,000 Point';
-      case 9: return '30,000 Point';
+      case 6: return '30,000 P';
+      case 7: return '30,000 P';
+      case 8: return '30,000 P';
+      case 9: return '30,000 P';
       case 10: return `<img src="/assets/logo-ping.svg" alt="Ping" style="${logoStyle}">`;
-      case 11: return '20,000 Point';
-      case 12: return '20,000 Point';
-      case 13: return '20,000 Point';
-      case 14: return '20,000 Point';
-      case 15: return '20,000 Point';
+      case 11: return '20,000 P';
+      case 12: return '20,000 P';
+      case 13: return '20,000 P';
+      case 14: return '20,000 P';
+      case 15: return '20,000 P';
       case 16: return `<img src="/assets/logo-pxg.svg" alt="PXG" style="${logoStyle}">`; 
-      case 17: return '10,000 Point';
-      case 18: return '10,000 Point';
-      case 19: return '10,000 Point';
-      case 20: return '10,000 Point';
-      case 21: return '10,000 Point';
-      case 22: return '10,000 Point';
+      case 17: return '10,000 P';
+      case 18: return '10,000 P';
+      case 19: return '10,000 P';
+      case 20: return '10,000 P';
+      case 21: return '10,000 P';
+      case 22: return '10,000 P';
       case 23: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
       default: return '';
     }
@@ -262,6 +263,12 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     }
 
     const top30 = data.total.slice(0, 30);
+    
+    // === 절대 순서(Row Index) 부여 로직 ===
+    top30.forEach((player, index) => {
+      player.absoluteIndex = index + 1;
+    });
+
     const halfIndex = Math.ceil(top30.length / 2);
     const col1 = top30.slice(0, halfIndex);
     const col2 = top30.slice(halfIndex, top30.length);
@@ -275,17 +282,18 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     const renderTable = (players) => {
       if (players.length === 0) return '<div></div>';
       
+      // === 황금 비율 너비 조정 ===
       const headHTML = `
         <thead>
           <tr>
-            <th style="width: 10%;">순위</th>
-            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
-            <th style="width: 11%;">라운드 수</th>
-            <th style="width: 10%;">A코스</th>
-            <th style="width: 10%;">B코스</th>
-            <th style="width: 10%;">C코스</th>
-            <th style="width: 12%;">합산성적</th>
-            <th style="width: 12%;">시상품</th>
+            <th style="width: 9%;">순위</th>
+            <th style="width: 24%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
+            <th style="width: 9%;">라운드 수</th>
+            <th style="width: 8%;">A코스</th>
+            <th style="width: 8%;">B코스</th>
+            <th style="width: 8%;">C코스</th>
+            <th style="width: 14%;">합산성적</th>
+            <th style="width: 20%;">시상품</th>
           </tr>
         </thead>`;
       
@@ -311,7 +319,8 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         const bScore = data.courseB?.find(p => p.userId === player.userId)?.score;
         const cScore = data.courseC?.find(p => p.userId === player.userId)?.score;
 
-        const prizeContent = getPrizeForRank(player.rank);
+        // 동점 순위가 아닌 절대 줄 순서로 시상품 맵핑
+        const prizeContent = getPrizeForRank(player.absoluteIndex);
 
         return `
           <tr class="${rankChangeClass}">
