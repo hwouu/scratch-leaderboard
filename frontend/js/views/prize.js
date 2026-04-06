@@ -8,7 +8,7 @@ export async function renderPrizePage(stage, appElement) {
       height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 3vh 3vw;
+      padding: 2vh 2vw; /* 전체 여백 축소 */
       box-sizing: border-box;
       overflow: hidden;
       position: relative;
@@ -20,7 +20,7 @@ export async function renderPrizePage(stage, appElement) {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin-top: 2vh;
+      margin-top: 1vh;
     }
 
     .prize-card {
@@ -28,19 +28,20 @@ export async function renderPrizePage(stage, appElement) {
       border: 1px solid var(--border-color);
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      padding: 6vh 5vw; /* 패딩 살짝 조절 */
+      /* 패딩 축소 및 너비 확장 */
+      padding: 5vh 3vw; 
       text-align: center;
-      width: 80%;
-      max-width: 1400px;
+      width: 90%; 
+      max-width: 1600px;
       display: flex;
       flex-direction: column;
-      gap: 4vh;
+      gap: 3.5vh;
       position: relative;
       z-index: 10;
     }
 
     .prize-label {
-      font-size: 4vh;
+      font-size: 4.5vh;
       font-weight: 700;
       color: var(--text-secondary);
       letter-spacing: 2px;
@@ -54,7 +55,7 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .prize-amount {
-      font-size: 16vh;
+      font-size: 18vh; /* 폰트 사이즈 살짝 키움 */
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
@@ -64,7 +65,7 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .prize-currency {
-      font-size: 6vh;
+      font-size: 6.5vh;
       font-weight: 700;
       color: var(--text-primary);
     }
@@ -72,9 +73,11 @@ export async function renderPrizePage(stage, appElement) {
     /* === 예상 최종 누적 상금 (추정치) 스타일 === */
     .estimated-prize-wrapper {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
       margin-top: -1vh;
-      margin-bottom: 1vh;
+      margin-bottom: 0;
     }
     
     .estimated-prize-box {
@@ -89,13 +92,13 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .est-label {
-      font-size: 2.5vh;
+      font-size: 2.8vh;
       color: var(--text-secondary);
       font-weight: 700;
     }
 
     .est-amount {
-      font-size: 5.5vh;
+      font-size: 6vh;
       font-weight: 900;
       color: var(--accent-green, #28a745);
       font-variant-numeric: tabular-nums;
@@ -103,24 +106,45 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .est-currency {
-      font-size: 2.5vh;
+      font-size: 2.8vh;
       color: var(--text-primary);
       font-weight: 700;
     }
 
+    /* 추정치 산출 방식 안내 문구 */
+    .est-formula-desc {
+      margin-top: 1.5vh;
+      font-size: 1.8vh;
+      color: var(--text-secondary);
+      opacity: 0.8;
+      font-weight: 500;
+    }
+
     .prize-footer {
-      margin-top: 1vh;
+      margin-top: 0;
       padding-top: 3vh;
       border-top: 1px solid var(--border-color);
-      font-size: 3vh;
+      font-size: 3.2vh;
       color: var(--text-secondary);
     }
 
     .highlight-rounds {
       color: var(--accent-green, #28a745);
       font-weight: 900;
-      font-size: 4.5vh;
+      font-size: 4.8vh;
       margin: 0 15px;
+    }
+
+    .tournament-day-badge {
+      margin-left: 12px;
+      color: var(--accent-yellow);
+      border: 1px solid var(--accent-yellow);
+      background: rgba(255, 193, 7, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 1.6vh;
+      font-weight: 700;
+      vertical-align: middle;
     }
 
     /* === 간결하고 임팩트 있는 단발성 폭발 애니메이션 === */
@@ -166,10 +190,13 @@ export async function renderPrizePage(stage, appElement) {
             <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
             <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
           </div>
-          <div class="subtitle" style="display: flex; justify-content: space-between; width: 100%; margin: 0;">
-            <span class="subtitle-text" style="font-size: 1.8vh; color: var(--accent-blue);">
-              홀인원 누적 상금 현황
-            </span>
+          <div class="subtitle" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 0;">
+            <div style="display: flex; align-items: center;">
+              <span class="subtitle-text" style="font-size: 1.8vh; color: var(--accent-blue); font-weight: 700;">
+                홀인원 누적 상금 현황
+              </span>
+              <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
+            </div>
             <span class="last-updated" style="font-size: 1.5vh;">마지막 업데이트: <span id="prize-last-updated">-</span></span>
           </div>
         </div>
@@ -189,10 +216,13 @@ export async function renderPrizePage(stage, appElement) {
               <span class="est-amount" id="est-amount">0</span>
               <span class="est-currency">원</span>
             </div>
+            <div class="est-formula-desc" id="est-formula-desc">
+              * 추정 상금 산출 방식: 현재 누적 상금 ÷ -일 × 28일
+            </div>
           </div>
 
           <div class="prize-footer">
-            현재 총 <span class="highlight-rounds" id="total-rounds">0</span> 라운드 진행 중! <span style="font-size:2vh; opacity:0.6; margin-left: 10px;">(1R당 2,000원 적립)</span>
+            현재 총 <span class="highlight-rounds" id="total-rounds">0</span> 라운드 진행 중! <span style="font-size:2.2vh; opacity:0.6; margin-left: 10px;">(1R당 2,000원 적립)</span>
           </div>
         </div>
       </main>
@@ -212,10 +242,10 @@ export async function renderPrizePage(stage, appElement) {
       coin.className = "casino-coin";
 
       const angle = Math.random() * Math.PI * 2;
-      const distance = 150 + Math.random() * 250;
+      const distance = 150 + Math.random() * 300;
       const tx = Math.cos(angle) * distance + "px";
       const ty = Math.sin(angle) * distance + "px";
-      const scale = 0.7 + Math.random() * 0.8;
+      const scale = 0.7 + Math.random() * 1;
 
       coin.style.setProperty("--tx", tx);
       coin.style.setProperty("--ty", ty);
@@ -226,7 +256,6 @@ export async function renderPrizePage(stage, appElement) {
     }
   };
 
-  // triggerEffect 변수를 통해 메인 상금일 때만 잭팟이 터지도록 제어
   const animateValue = (element, start, end, duration, triggerEffect = false) => {
     let startTimestamp = null;
 
@@ -274,38 +303,45 @@ export async function renderPrizePage(stage, appElement) {
       const targetPrize = totalRounds * 2000;
       document.getElementById("total-rounds").textContent = totalRounds.toLocaleString();
 
-      // 2. 최종 예상 상금 계산 (추정치)
+      // 2. 최종 예상 상금 계산 및 일차 로직
       const startDate = new Date("2026-03-31T00:00:00");
       const now = new Date();
       const diffTime = Math.max(0, now - startDate);
-      const totalDays = 28; // 대회 총 일수
+      const totalDays = 28; 
       
-      // 현재 진행 일차 계산
       let currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
       
-      // 대표님 요청 공식: 아침시간 오차를 줄이기 위해 (현재일차 - 1) 적용
-      let effectiveDay = currentDay - 1;
+      // 화면 상단 일차 표시 업데이트
+      const dayBadge = document.getElementById("tournament-day-badge");
+      if (dayBadge) {
+        dayBadge.textContent = `예선 ${currentDay}일차 (예선 기간 총 ${totalDays}일)`;
+      }
       
-      // 1일차일 경우 0으로 나누는 것을 방지하기 위해 최소 1일로 보정
+      // 대표님 공식: (진행일차 - 1) 적용
+      let effectiveDay = currentDay - 1;
       if (effectiveDay < 1) effectiveDay = 1;
-      // 대회가 끝나면 최대 28일로 고정
       if (effectiveDay > totalDays) effectiveDay = totalDays;
 
-      // 일일 평균 금액 * 총 28일
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
 
-      // DOM 업데이트 및 애니메이션 실행
-      const amountEl = document.getElementById("prize-amount");
-      const estAmountEl = document.getElementById("est-amount");
+      // 추정치 공식 하단 안내 텍스트 업데이트
+      const formulaDescEl = document.getElementById("est-formula-desc");
+      if (formulaDescEl) {
+        formulaDescEl.textContent = `* 추정 상금 산출 방식: 현재 누적 상금 ÷ ${effectiveDay}일(진행일차-1) × ${totalDays}일`;
+      }
 
+      // DOM 업데이트 및 애니메이션
+      const amountEl = document.getElementById("prize-amount");
       const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
+
+      const estAmountEl = document.getElementById("est-amount");
       const currentEstPrize = parseInt(estAmountEl.textContent.replace(/,/g, "")) || 0;
 
       if (currentPrize !== targetPrize) {
-        animateValue(amountEl, currentPrize, targetPrize, 2000, true); // 메인 상금은 잭팟 효과 ON
+        animateValue(amountEl, currentPrize, targetPrize, 2000, true); 
       }
       if (currentEstPrize !== estimatedTotalPrize) {
-        animateValue(estAmountEl, currentEstPrize, estimatedTotalPrize, 2000, false); // 추정치는 텍스트 효과만
+        animateValue(estAmountEl, currentEstPrize, estimatedTotalPrize, 2000, false); 
       }
       
     } catch (error) {
