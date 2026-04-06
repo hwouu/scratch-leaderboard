@@ -32,10 +32,31 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid table tr { display: table-row; }
       
       .tv-grid table th { font-size: 0.85rem; padding: 0.8rem 0.2rem; text-align: center; }
-      .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; } 
+      .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; vertical-align: middle; } 
       
       .tv-grid .rank { font-size: 1.5rem; font-weight: 800; }
-      .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; padding-left: 1.5rem !important; text-align: left; }
+      
+      .tv-grid .player-info { text-align: left; padding-left: 1.5rem !important; }
+      .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; display: block; }
+      
+      .prize-tag {
+        display: inline-block;
+        margin-top: 0.4rem;
+        font-size: 0.85rem;
+        color: var(--accent-yellow);
+        background: rgba(255, 193, 7, 0.1);
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .prize-tag.logo-only {
+        padding: 0.2rem 0;
+        background: transparent;
+        border: none;
+      }
+      
       .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
       
@@ -62,8 +83,6 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .btn-prize:hover { background-color: var(--accent-yellow); color: #000; box-shadow: 0 0 15px rgba(255, 193, 7, 0.4); }
       .btn-overview { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
       .btn-overview:hover { background-color: var(--accent-blue); color: #fff; box-shadow: 0 0 15px rgba(0, 145, 255, 0.4); }
-      
-      /* [추가됨] 코스 랭킹 버튼 스타일 */
       .btn-course { border: 1px solid var(--accent-green); color: var(--accent-green); }
       .btn-course:hover { background-color: var(--accent-green); color: #fff; box-shadow: 0 0 15px rgba(40, 167, 69, 0.4); }
 
@@ -139,43 +158,64 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     </div>
   `;
 
-  const modal = document.getElementById("tv-overview-modal");
-  document
-    .getElementById("btn-open-overview")
-    .addEventListener("click", () => modal.classList.add("active"));
-  document
-    .getElementById("btn-close-overview")
-    .addEventListener("click", () => modal.classList.remove("active"));
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.remove("active");
-  });
+  const modal = document.getElementById('tv-overview-modal');
+  document.getElementById('btn-open-overview').addEventListener('click', () => modal.classList.add('active'));
+  document.getElementById('btn-close-overview').addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+  // === PXG 및 23위 타이틀리스트 로고 포함 정확한 상품 맵핑 (SVG 반영) ===
+  const getPrizeForRank = (rank) => {
+    const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle;';
+    switch(rank) {
+      case 1: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
+      case 2: return '50,000 Point';
+      case 3: return '50,000 Point';
+      case 4: return '50,000 Point';
+      case 5: return `<img src="/assets/logo-callaway.svg" alt="Callaway" style="${logoStyle}">`;
+      case 6: return '30,000 Point';
+      case 7: return '30,000 Point';
+      case 8: return '30,000 Point';
+      case 9: return '30,000 Point';
+      case 10: return `<img src="/assets/logo-ping.svg" alt="Ping" style="${logoStyle}">`;
+      case 11: return '20,000 Point';
+      case 12: return '20,000 Point';
+      case 13: return '20,000 Point';
+      case 14: return '20,000 Point';
+      case 15: return '20,000 Point';
+      // 16위 PXG 로고 적용 (SVG)
+      case 16: return `<img src="/assets/logo-pxg.svg" alt="PXG" style="${logoStyle}">`; 
+      case 17: return '10,000 Point';
+      case 18: return '10,000 Point';
+      case 19: return '10,000 Point';
+      case 20: return '10,000 Point';
+      case 21: return '10,000 Point';
+      case 22: return '10,000 Point';
+      // 23위 타이틀리스트 로고 적용 (SVG)
+      case 23: return `<img src="/assets/logo-titleist.svg" alt="Titleist" style="${logoStyle}">`;
+      default: return '';
+    }
+  };
 
   const renderData = () => {
     const data = getLeaderboardData();
-    const container = document.getElementById("tv-grid-container");
-    const timeEl = document.getElementById("tv-last-updated");
-    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString("ko-KR");
+    const container = document.getElementById('tv-grid-container');
+    const timeEl = document.getElementById('tv-last-updated');
+    if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR');
 
     if (data && (!data.total || data.total.length === 0)) {
       const playerMap = new Map();
       let hasAnyCourseData = false;
 
-      ["courseA", "courseB", "courseC"].forEach((courseKey) => {
+      ['courseA', 'courseB', 'courseC'].forEach(courseKey => {
         if (data[courseKey] && Array.isArray(data[courseKey])) {
-          data[courseKey].forEach((p) => {
+          data[courseKey].forEach(p => {
             hasAnyCourseData = true;
             if (!playerMap.has(p.userId)) {
-              playerMap.set(p.userId, {
-                ...p,
-                score: 0,
-                totalScore: 0,
-                roundCount: 0,
-              });
+              playerMap.set(p.userId, { ...p, score: 0, totalScore: 0, roundCount: 0 });
             }
             const existing = playerMap.get(p.userId);
             existing.score += p.score;
-            existing.totalScore +=
-              p.totalScore !== undefined ? p.totalScore : p.score;
+            existing.totalScore += (p.totalScore !== undefined ? p.totalScore : p.score);
             existing.roundCount += p.roundCount;
           });
         }
@@ -183,23 +223,23 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
 
       if (hasAnyCourseData) {
         let syntheticTotal = Array.from(playerMap.values());
-
-        syntheticTotal.forEach((p) => {
+        
+        syntheticTotal.forEach(p => {
           let roundRevision = 0;
           if (p.roundCount >= 35) roundRevision = -6;
           else if (p.roundCount >= 25) roundRevision = -4;
           else if (p.roundCount >= 20) roundRevision = -3;
           else if (p.roundCount >= 15) roundRevision = -2;
           else if (p.roundCount >= 10) roundRevision = -1;
-
-          p.totalScore += roundRevision;
+          
+          p.totalScore += roundRevision; 
         });
 
         syntheticTotal.sort((a, b) => {
           if (a.totalScore !== b.totalScore) return a.totalScore - b.totalScore;
           return b.roundCount - a.roundCount;
         });
-
+        
         let currentRank = 1;
         let tieCount = 0;
 
@@ -209,24 +249,21 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             p.isTieRank = 0;
           } else {
             const prev = syntheticTotal[i - 1];
-            if (
-              p.totalScore === prev.totalScore &&
-              p.roundCount === prev.roundCount
-            ) {
+            if (p.totalScore === prev.totalScore && p.roundCount === prev.roundCount) {
               p.rank = currentRank;
               p.isTieRank = 1;
               prev.isTieRank = 1;
               tieCount++;
             } else {
-              currentRank += tieCount + 1;
+              currentRank += (tieCount + 1);
               p.rank = currentRank;
               p.isTieRank = 0;
               tieCount = 0;
             }
           }
         });
-
-        data.total = syntheticTotal;
+        
+        data.total = syntheticTotal; 
       }
     }
 
@@ -247,73 +284,68 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       col2.push({ isEmpty: true });
     }
 
-    const formatCourseScore = (s) =>
-      s === undefined || s === null ? "-" : s === 0 ? "E" : s > 0 ? `+${s}` : s;
+    const formatCourseScore = (s) => s === undefined || s === null ? '-' : (s === 0 ? 'E' : (s > 0 ? `+${s}` : s));
 
     const renderTable = (players) => {
-      if (players.length === 0) return "<div></div>";
-
+      if (players.length === 0) return '<div></div>';
+      
       const headHTML = `
         <thead>
           <tr>
             <th style="width: 10%;">순위</th>
-            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
-            <th style="width: 12%;">라운드 수</th>
-            <th style="width: 11%;">A코스</th>
-            <th style="width: 11%;">B코스</th>
-            <th style="width: 11%;">C코스</th>
-            <th style="width: 20%;">합산성적</th>
+            <th style="width: 28%;">선수 정보</th>
+            <th style="width: 11%;">라운드 수</th>
+            <th style="width: 10%;">A코스</th>
+            <th style="width: 10%;">B코스</th>
+            <th style="width: 10%;">C코스</th>
+            <th style="width: 21%;">합산성적</th>
           </tr>
         </thead>`;
-
-      const bodyHTML = players
-        .map((player) => {
-          if (player.isEmpty) {
-            return `
+      
+      const bodyHTML = players.map(player => {
+        if (player.isEmpty) {
+          return `
             <tr style="visibility: hidden;">
               <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
             </tr>`;
-          }
+        }
 
-          const isAdvanced = player.rank <= 16;
-          const rankChangeClass = isAdvanced ? "advanced-row" : "";
-          const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+        const isAdvanced = player.rank <= 16;
+        const rankChangeClass = isAdvanced ? 'advanced-row' : '';
+        const rank = player.isTieRank ? `T${player.rank}` : player.rank;
+        
+        const finalScore = player.totalScore !== undefined ? player.totalScore : player.score;
+        let scoreColor = 'var(--text-primary)';
+        if (finalScore > 0) scoreColor = 'var(--accent-red)';
+        if (finalScore < 0) scoreColor = 'var(--accent-blue)';
+        const scoreText = finalScore === 0 ? 'E' : (finalScore > 0 ? `+${finalScore}` : finalScore);
+        
+        const aScore = data.courseA?.find(p => p.userId === player.userId)?.score;
+        const bScore = data.courseB?.find(p => p.userId === player.userId)?.score;
+        const cScore = data.courseC?.find(p => p.userId === player.userId)?.score;
 
-          const finalScore =
-            player.totalScore !== undefined ? player.totalScore : player.score;
-          let scoreColor = "var(--text-primary)";
-          if (finalScore > 0) scoreColor = "var(--accent-red)";
-          if (finalScore < 0) scoreColor = "var(--accent-blue)";
-          const scoreText =
-            finalScore === 0
-              ? "E"
-              : finalScore > 0
-                ? `+${finalScore}`
-                : finalScore;
+        const prizeContent = getPrizeForRank(player.rank);
+        let prizeHTML = '';
+        if (prizeContent) {
+          const isLogo = prizeContent.includes('<img');
+          prizeHTML = `<div class="prize-tag ${isLogo ? 'logo-only' : ''}">${isLogo ? prizeContent : '🎁 ' + prizeContent}</div>`;
+        }
 
-          const aScore = data.courseA?.find(
-            (p) => p.userId === player.userId,
-          )?.score;
-          const bScore = data.courseB?.find(
-            (p) => p.userId === player.userId,
-          )?.score;
-          const cScore = data.courseC?.find(
-            (p) => p.userId === player.userId,
-          )?.score;
-
-          return `
+        return `
           <tr class="${rankChangeClass}">
             <td class="rank">${rank}</td>
-            <td class="nickname">${player.userNickname}</td>
+            <td class="player-info">
+              <span class="nickname">${player.userNickname}</span>
+              ${prizeHTML}
+            </td>
             <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
             <td class="course-score">${formatCourseScore(aScore)}</td>
             <td class="course-score">${formatCourseScore(bScore)}</td>
             <td class="course-score">${formatCourseScore(cScore)}</td>
             <td class="final-score" style="color: ${scoreColor};">${scoreText}</td>
           </tr>`;
-        })
-        .join("");
-
+      }).join('');
+      
       return `<div class="table-container"><table>${headHTML}<tbody>${bodyHTML}</tbody></table></div>`;
     };
 

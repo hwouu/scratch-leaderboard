@@ -8,7 +8,7 @@ export async function renderPrizePage(stage, appElement) {
       height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 2vh 2vw; /* 전체 여백 축소 */
+      padding: 2vh 2vw;
       box-sizing: border-box;
       overflow: hidden;
       position: relative;
@@ -28,7 +28,6 @@ export async function renderPrizePage(stage, appElement) {
       border: 1px solid var(--border-color);
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      /* 패딩 축소 및 너비 확장 */
       padding: 5vh 3vw; 
       text-align: center;
       width: 90%; 
@@ -55,7 +54,7 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .prize-amount {
-      font-size: 18vh; /* 폰트 사이즈 살짝 키움 */
+      font-size: 18vh;
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
@@ -70,7 +69,6 @@ export async function renderPrizePage(stage, appElement) {
       color: var(--text-primary);
     }
 
-    /* === 예상 최종 누적 상금 (추정치) 스타일 === */
     .estimated-prize-wrapper {
       display: flex;
       flex-direction: column;
@@ -111,7 +109,6 @@ export async function renderPrizePage(stage, appElement) {
       font-weight: 700;
     }
 
-    /* 추정치 산출 방식 안내 문구 */
     .est-formula-desc {
       margin-top: 1.5vh;
       font-size: 1.8vh;
@@ -136,18 +133,16 @@ export async function renderPrizePage(stage, appElement) {
     }
 
     .tournament-day-badge {
-      margin-left: 12px;
       color: var(--accent-yellow);
       border: 1px solid var(--accent-yellow);
       background: rgba(255, 193, 7, 0.1);
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 1.6vh;
-      font-weight: 700;
-      vertical-align: middle;
+      padding: 0.6vh 1.2vw; /* 패딩 증가 */
+      border-radius: 8px;
+      font-size: 2.2vh; /* 크기 키움 */
+      font-weight: 800;
+      display: inline-block;
     }
 
-    /* === 간결하고 임팩트 있는 단발성 폭발 애니메이션 === */
     @keyframes jackpotBurst {
       0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
       80% { opacity: 1; }
@@ -164,7 +159,6 @@ export async function renderPrizePage(stage, appElement) {
       animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
 
-    /* === 숫자 롤링 시 반짝임(Glow) 효과 === */
     @keyframes textGlow {
       0% { text-shadow: 0 0 30px rgba(255, 193, 7, 0.4); transform: scale(1); }
       50% { text-shadow: 0 0 80px rgba(255, 193, 7, 1), 0 0 120px rgba(255, 255, 255, 0.6); transform: scale(1.05); color: #fffacd; }
@@ -190,14 +184,16 @@ export async function renderPrizePage(stage, appElement) {
             <h1 style="font-size: 3.5vh; margin: 0;">2026 Scratch 1st OPEN</h1>
             <span class="live-indicator" style="font-size: 1.4vh; padding: 0.5vh 1vh;">LIVE</span>
           </div>
-          <div class="subtitle" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 0;">
+          <div class="subtitle" style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; margin: 0;">
             <div style="display: flex; align-items: center;">
               <span class="subtitle-text" style="font-size: 1.8vh; color: var(--accent-blue); font-weight: 700;">
                 홀인원 누적 상금 현황
               </span>
-              <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
             </div>
-            <span class="last-updated" style="font-size: 1.5vh;">마지막 업데이트: <span id="prize-last-updated">-</span></span>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.8vh;">
+              <span id="tournament-day-badge" class="tournament-day-badge">예선 -일차 (예선 기간 총 28일)</span>
+              <span class="last-updated" style="font-size: 1.5vh;">마지막 업데이트: <span id="prize-last-updated">-</span></span>
+            </div>
           </div>
         </div>
       </header>
@@ -217,7 +213,7 @@ export async function renderPrizePage(stage, appElement) {
               <span class="est-currency">원</span>
             </div>
             <div class="est-formula-desc" id="est-formula-desc">
-              * 추정 상금 산출 방식: 현재 누적 상금 ÷ -일 × 28일
+              * 추정 상금 산출 방식: 현재 누적 상금 ÷ 진행 일차 × 28일
             </div>
           </div>
 
@@ -299,11 +295,9 @@ export async function renderPrizePage(stage, appElement) {
         totalRounds = data.total.reduce((sum, player) => sum + (player.roundCount || 0), 0);
       }
 
-      // 1. 현재 누적 상금 계산
       const targetPrize = totalRounds * 2000;
       document.getElementById("total-rounds").textContent = totalRounds.toLocaleString();
 
-      // 2. 최종 예상 상금 계산 및 일차 로직
       const startDate = new Date("2026-03-31T00:00:00");
       const now = new Date();
       const diffTime = Math.max(0, now - startDate);
@@ -311,26 +305,17 @@ export async function renderPrizePage(stage, appElement) {
       
       let currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
       
-      // 화면 상단 일차 표시 업데이트
       const dayBadge = document.getElementById("tournament-day-badge");
       if (dayBadge) {
         dayBadge.textContent = `예선 ${currentDay}일차 (예선 기간 총 ${totalDays}일)`;
       }
       
-      // 대표님 공식: (진행일차 - 1) 적용
       let effectiveDay = currentDay - 1;
       if (effectiveDay < 1) effectiveDay = 1;
       if (effectiveDay > totalDays) effectiveDay = totalDays;
 
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
 
-      // 추정치 공식 하단 안내 텍스트 업데이트
-      const formulaDescEl = document.getElementById("est-formula-desc");
-      if (formulaDescEl) {
-        formulaDescEl.textContent = `* 추정 상금 산출 방식: 현재 누적 상금 ÷ ${effectiveDay}일(진행일차-1) × ${totalDays}일`;
-      }
-
-      // DOM 업데이트 및 애니메이션
       const amountEl = document.getElementById("prize-amount");
       const currentPrize = parseInt(amountEl.textContent.replace(/,/g, "")) || 0;
 
