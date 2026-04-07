@@ -114,6 +114,22 @@ export async function renderLeaderboard2026_1st_courses(stage, appElement) {
       ::-webkit-scrollbar { width: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 4px; }
+
+      /* =========================================
+         태블릿 & 모바일 반응형 (Responsive) 설정
+      ========================================= */
+      @media (max-width: 1200px) {
+        .tv-grid-3 { grid-template-columns: repeat(2, 1fr); } /* 2단 배포 */
+      }
+
+      @media (max-width: 768px) {
+        .tv-wrapper { padding: 1rem 5%; }
+        .tv-grid-3 { grid-template-columns: 1fr; } /* 1단 세로 정렬 */
+        .title-container { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        .title-container > div { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        .header-actions { width: 100%; justify-content: flex-start; margin-top: 0.5rem; }
+        .course-title { font-size: 1.1rem; }
+      }
     </style>
 
     <div class="tv-wrapper">

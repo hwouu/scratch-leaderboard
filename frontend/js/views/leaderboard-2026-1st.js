@@ -96,9 +96,27 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         transform: scale(1.1); background: var(--accent-red); color: #fff; border-color: var(--accent-red);
       }
 
-      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 4px; }
+
+      /* =========================================
+         태블릿 & 모바일 반응형 (Responsive) 설정
+      ========================================= */
+      @media (max-width: 1200px) {
+        .tv-grid { grid-template-columns: 1fr; } /* 1단 배포 */
+      }
+      
+      @media (max-width: 768px) {
+        .tv-wrapper { padding: 1rem 5%; }
+        .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        .header-actions { flex-wrap: wrap; margin-top: 0.5rem; justify-content: flex-start; }
+        .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        
+        /* 모바일에서는 표가 뭉개지지 않도록 최소 너비 보장 및 가로 스크롤(스와이프) 적용 */
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { min-width: 700px; }
+      }
     </style>
 
     <div class="tv-wrapper">
@@ -282,16 +300,17 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
     const renderTable = (players) => {
       if (players.length === 0) return '<div></div>';
       
-      // === 최적화된 너비 배분 (라운드 수 제거) ===
+      // === 최적화된 너비 배분 (라운드 수 포함) ===
       const headHTML = `
         <thead>
           <tr>
-            <th style="width: 10%;">순위</th>
-            <th style="width: 25%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
-            <th style="width: 10%;">A코스</th>
-            <th style="width: 10%;">B코스</th>
-            <th style="width: 10%;">C코스</th>
-            <th style="width: 15%;">합산성적</th>
+            <th style="width: 9%;">순위</th>
+            <th style="width: 24%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
+            <th style="width: 9%;">라운드 수</th>
+            <th style="width: 8%;">A코스</th>
+            <th style="width: 8%;">B코스</th>
+            <th style="width: 8%;">C코스</th>
+            <th style="width: 14%;">합산성적</th>
             <th style="width: 20%;">시상품</th>
           </tr>
         </thead>`;
@@ -300,7 +319,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         if (player.isEmpty) {
           return `
             <tr style="visibility: hidden;">
-              <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+              <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
             </tr>`;
         }
 
@@ -327,6 +346,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             <td class="player-info">
               <span class="nickname">${player.userNickname}</span>
             </td>
+            <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
             <td class="course-score">${formatCourseScore(aScore)}</td>
             <td class="course-score">${formatCourseScore(bScore)}</td>
             <td class="course-score">${formatCourseScore(cScore)}</td>

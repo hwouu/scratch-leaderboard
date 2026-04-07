@@ -110,6 +110,14 @@ export async function renderPrizePage(stage, appElement) {
       font-weight: 700;
     }
 
+    .est-formula-desc {
+      margin-top: 1.5vh;
+      font-size: 1.8vh;
+      color: var(--text-secondary);
+      opacity: 0.8;
+      font-weight: 500;
+    }
+
     .prize-footer {
       margin-top: 0;
       padding-top: 3vh;
@@ -170,6 +178,26 @@ export async function renderPrizePage(stage, appElement) {
 
     .prize-amount.rolling { animation: textGlow 0.4s ease-in-out infinite alternate; }
     .est-amount.rolling { animation: textGlowGreen 0.4s ease-in-out infinite alternate; }
+
+    /* =========================================
+       모바일 화면 최적화
+    ========================================= */
+    @media (max-width: 768px) {
+      .prize-tv-wrapper { padding: 1rem 5%; }
+      .prize-card { padding: 3vh 5vw; width: 100%; gap: 2.5vh; }
+      .prize-label { font-size: 3vh; }
+      .prize-amount { font-size: 12vh; }
+      .prize-currency { font-size: 4vh; }
+      .est-label { font-size: 2vh; }
+      .est-amount { font-size: 4.5vh; }
+      .est-currency { font-size: 2vh; }
+      .est-formula-desc { font-size: 1.4vh; }
+      .prize-footer { font-size: 2.5vh; }
+      .highlight-rounds { font-size: 3.5vh; }
+      .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+      .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+      .tournament-day-badge { margin-left: 0; margin-top: 0.5rem; }
+    }
   `;
 
   appElement.innerHTML = `
@@ -209,6 +237,9 @@ export async function renderPrizePage(stage, appElement) {
               <span class="est-label">최종 예상 상금 :</span>
               <span class="est-amount" id="est-amount">0</span>
               <span class="est-currency">원</span>
+            </div>
+            <div class="est-formula-desc" id="est-formula-desc">
+              * 추정 상금 산출 방식: 현재 누적 상금 ÷ -일 × 28일
             </div>
           </div>
 
@@ -328,6 +359,11 @@ export async function renderPrizePage(stage, appElement) {
       if (effectiveDay > totalDays) effectiveDay = totalDays;
 
       const estimatedTotalPrize = Math.floor((targetPrize / effectiveDay) * totalDays);
+
+      const formulaDescEl = document.getElementById("est-formula-desc");
+      if (formulaDescEl) {
+        formulaDescEl.textContent = `* 추정 상금 산출 방식: 현재 누적 상금 ÷ ${effectiveDay}일(진행일차-1) × ${totalDays}일`;
+      }
 
       const amountEl = document.getElementById("prize-amount");
       const estAmountEl = document.getElementById("est-amount");
