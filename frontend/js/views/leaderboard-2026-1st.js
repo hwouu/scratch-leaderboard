@@ -124,16 +124,33 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       }
       
       @media (max-width: 768px) {
-        .tv-wrapper { padding: 1rem 5%; }
-        .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
-        .header-actions { flex-wrap: wrap; margin-top: 0.5rem; justify-content: flex-start; }
-        .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        .tv-wrapper { padding: 1.5rem 4%; }
         
-        /* 모바일에서는 불필요한 열을 숨기고 심플하게 구성 */
+        /* 모바일 폰트 사이즈 약 70% 수준으로 일괄 축소 */
+        .title-group h1 { font-size: 1.6rem !important; }
+        .live-indicator { font-size: 0.7rem !important; padding: 0.2rem 0.4rem !important; }
+        .subtitle-text { font-size: 0.85rem !important; }
+        .last-updated { font-size: 0.75rem !important; }
+        
+        .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+        
+        /* 버튼 크기 및 여백 축소 */
+        .header-actions { flex-wrap: wrap; margin-top: 0.2rem; justify-content: flex-start; gap: 6px; }
+        .action-btn { font-size: 0.75rem; padding: 0.4rem 0.6rem; }
+        
+        .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; margin-top: 0.5rem !important; }
+        
+        /* 모바일 테이블 간소화 및 폰트 축소 */
         .hide-on-mobile { display: none !important; }
-        .mobile-col-rank { width: 15% !important; }
-        .mobile-col-info { width: 55% !important; }
-        .mobile-col-score { width: 30% !important; }
+        .mobile-col-rank { width: 18% !important; }
+        .mobile-col-info { width: 54% !important; }
+        .mobile-col-score { width: 28% !important; }
+        
+        .tv-grid table th { font-size: 0.7rem !important; padding: 0.6rem 0.1rem; }
+        .tv-grid table td { padding: 0.6rem 0.1rem; }
+        .rank { font-size: 1.1rem !important; }
+        .nickname { font-size: 0.95rem !important; }
+        .final-score { font-size: 1.2rem !important; }
         
         /* 모바일에서는 행 터치 효과 활성화 */
         .player-row { cursor: pointer; }

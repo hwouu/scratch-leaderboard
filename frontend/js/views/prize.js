@@ -180,23 +180,26 @@ export async function renderPrizePage(stage, appElement) {
     .est-amount.rolling { animation: textGlowGreen 0.4s ease-in-out infinite alternate; }
 
     /* =========================================
-       모바일 화면 최적화
+       모바일 화면 최적화 (가로 폭 비례로 텍스트 축소)
     ========================================= */
     @media (max-width: 768px) {
       .prize-tv-wrapper { padding: 1rem 5%; }
       .prize-card { padding: 3vh 5vw; width: 100%; gap: 2.5vh; }
-      .prize-label { font-size: 3vh; }
-      .prize-amount { font-size: 12vh; }
-      .prize-currency { font-size: 4vh; }
-      .est-label { font-size: 2vh; }
-      .est-amount { font-size: 4.5vh; }
-      .est-currency { font-size: 2vh; }
-      .est-formula-desc { font-size: 1.4vh; }
-      .prize-footer { font-size: 2.5vh; }
-      .highlight-rounds { font-size: 3.5vh; }
+      
+      /* 화면을 뚫고 나가지 않도록 vw 단위로 크기 지정 */
+      .prize-amount { font-size: 14vw; } 
+      .prize-currency { font-size: 6vw; }
+      
+      .est-amount { font-size: 8vw; }
+      .est-label { font-size: 3.5vw; }
+      .est-currency { font-size: 3.5vw; }
+      
+      .prize-label { font-size: 5vw; }
+      .prize-footer { font-size: 3.5vw; }
+      .highlight-rounds { font-size: 4.5vw; }
       .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
       .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
-      .tournament-day-badge { margin-left: 0; margin-top: 0.5rem; }
+      .tournament-day-badge { display: inline-block; font-size: 3vw; margin-top: 5px; margin-left: 0; padding: 4px 8px; }
     }
   `;
 
