@@ -29,37 +29,24 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       .tv-grid table { width: 100%; display: table; table-layout: fixed; } 
       .tv-grid table thead { display: table-header-group; }
       .tv-grid table tbody { display: table-row-group; overflow: visible; }
-      .tv-grid table tr { display: table-row; }
+      .tv-grid table tr { display: table-row; transition: background-color 0.2s; }
       
       .tv-grid table th { font-size: 0.85rem; padding: 0.8rem 0.2rem; text-align: center; }
       .tv-grid table td { padding: 0.7rem 0.2rem; text-align: center; vertical-align: middle; } 
       
       .tv-grid .rank { font-size: 1.5rem; font-weight: 800; }
-      
       .tv-grid .player-info { text-align: left; padding-left: 1.5rem !important; }
       .tv-grid .nickname { font-size: 1.2rem; font-weight: 700; display: block; }
-      
       .tv-grid .course-score { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
       .tv-grid .final-score { font-size: 1.6rem; font-weight: 800; }
+      .expected-prize { font-size: 1rem; font-weight: 600; color: var(--accent-yellow); }
       
-      .expected-prize {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--accent-yellow);
-        text-align: center;
-      }
-
       .advanced-row td {
         background-color: rgba(40, 167, 69, 0.08) !important;
         border-bottom: 1px solid rgba(40, 167, 69, 0.2) !important;
       }
-      body.light-mode .advanced-row td {
-        background-color: rgba(40, 167, 69, 0.05) !important;
-      }
-      .advanced-row .rank {
-        color: var(--accent-green) !important;
-        text-shadow: 0 0 10px rgba(40,167,69,0.3);
-      }
+      body.light-mode .advanced-row td { background-color: rgba(40, 167, 69, 0.05) !important; }
+      .advanced-row .rank { color: var(--accent-green) !important; text-shadow: 0 0 10px rgba(40,167,69,0.3); }
 
       .header-actions { display: flex; gap: 12px; }
       .action-btn {
@@ -92,9 +79,38 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         cursor: pointer; display: flex; align-items: center; justify-content: center;
         z-index: 10; transition: all 0.2s;
       }
-      .overview-modal-close:hover {
-        transform: scale(1.1); background: var(--accent-red); color: #fff; border-color: var(--accent-red);
+      .overview-modal-close:hover { transform: scale(1.1); background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+
+      /* =========================================
+         [신규] 선수 상세 정보 모달 (모바일용)
+      ========================================= */
+      .player-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 4000;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; visibility: hidden; transition: all 0.3s ease;
       }
+      .player-modal-overlay.active { opacity: 1; visibility: visible; }
+      .player-modal-content {
+        background: var(--bg-surface); border: 1px solid var(--border-color);
+        border-radius: 16px; padding: 25px 20px; width: 85%; max-width: 400px;
+        position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        text-align: center;
+      }
+      .player-modal-close {
+        position: absolute; top: 15px; right: 15px;
+        background: transparent; color: var(--text-secondary);
+        border: none; font-size: 28px; cursor: pointer; line-height: 1;
+      }
+      .player-modal-header { font-size: 1.6rem; font-weight: 800; margin-bottom: 20px; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+      .player-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+      .player-modal-item { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+      .player-modal-item.full-width { grid-column: 1 / -1; }
+      .pm-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;}
+      .pm-value { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+      .pm-score { font-size: 1.6rem; font-weight: 800; }
+      .pm-courses { display: flex; justify-content: space-around; text-align: center; }
+      .pm-courses > div { display: flex; flex-direction: column; gap: 5px; }
 
       ::-webkit-scrollbar { width: 8px; height: 8px; }
       ::-webkit-scrollbar-track { background: transparent; }
@@ -104,7 +120,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
          태블릿 & 모바일 반응형 (Responsive) 설정
       ========================================= */
       @media (max-width: 1200px) {
-        .tv-grid { grid-template-columns: 1fr; } /* 1단 배포 */
+        .tv-grid { grid-template-columns: 1fr; }
       }
       
       @media (max-width: 768px) {
@@ -113,9 +129,15 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         .header-actions { flex-wrap: wrap; margin-top: 0.5rem; justify-content: flex-start; }
         .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
         
-        /* 모바일에서는 표가 뭉개지지 않도록 최소 너비 보장 및 가로 스크롤(스와이프) 적용 */
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { min-width: 700px; }
+        /* 모바일에서는 불필요한 열을 숨기고 심플하게 구성 */
+        .hide-on-mobile { display: none !important; }
+        .mobile-col-rank { width: 15% !important; }
+        .mobile-col-info { width: 55% !important; }
+        .mobile-col-score { width: 30% !important; }
+        
+        /* 모바일에서는 행 터치 효과 활성화 */
+        .player-row { cursor: pointer; }
+        .player-row:active { background-color: rgba(255, 255, 255, 0.1) !important; }
       }
     </style>
 
@@ -163,14 +185,74 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         <img src="/assets/2026-1st-overview.jpg" alt="대회 개요 포스터" class="overview-modal-img" onerror="this.src='https://placehold.co/800x1131/1a1c1e/eaeaea?text=Image+Not+Found'" />
       </div>
     </div>
+
+    <div id="player-detail-modal" class="player-modal-overlay">
+      <div class="player-modal-content">
+        <button id="btn-close-player-modal" class="player-modal-close">&times;</button>
+        <div class="player-modal-header" id="pm-nickname">선수 닉네임</div>
+        
+        <div class="player-modal-grid">
+          <div class="player-modal-item">
+            <span class="pm-label">순위</span>
+            <span class="pm-value" id="pm-rank" style="color: var(--accent-green);">1</span>
+          </div>
+          <div class="player-modal-item">
+            <span class="pm-label">합산 성적</span>
+            <span class="pm-score" id="pm-final-score">E</span>
+          </div>
+          <div class="player-modal-item">
+            <span class="pm-label">라운드 수</span>
+            <span class="pm-value" id="pm-rounds">0</span>
+          </div>
+          <div class="player-modal-item">
+            <span class="pm-label">예상 시상품</span>
+            <span class="pm-value expected-prize" id="pm-prize">-</span>
+          </div>
+          <div class="player-modal-item full-width pm-courses">
+            <div><span class="pm-label">A코스</span><span class="pm-value" id="pm-a">-</span></div>
+            <div><span class="pm-label">B코스</span><span class="pm-value" id="pm-b">-</span></div>
+            <div><span class="pm-label">C코스</span><span class="pm-value" id="pm-c">-</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 
-  const modal = document.getElementById('tv-overview-modal');
-  document.getElementById('btn-open-overview').addEventListener('click', () => modal.classList.add('active'));
-  document.getElementById('btn-close-overview').addEventListener('click', () => modal.classList.remove('active'));
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+  // 모달 제어 이벤트
+  const overviewModal = document.getElementById('tv-overview-modal');
+  document.getElementById('btn-open-overview').addEventListener('click', () => overviewModal.classList.add('active'));
+  document.getElementById('btn-close-overview').addEventListener('click', () => overviewModal.classList.remove('active'));
+  overviewModal.addEventListener('click', (e) => { if (e.target === overviewModal) overviewModal.classList.remove('active'); });
 
-  // === 시상품 매핑 (SVG 반영 및 색상 반전 유지) ===
+  const playerModal = document.getElementById('player-detail-modal');
+  document.getElementById('btn-close-player-modal').addEventListener('click', () => playerModal.classList.remove('active'));
+  playerModal.addEventListener('click', (e) => { if (e.target === playerModal) playerModal.classList.remove('active'); });
+
+  // 선수 팝업 열기 함수
+  window.openPlayerModal = (dataStr) => {
+    // 모바일(768px 이하)에서만 팝업 동작
+    if (window.innerWidth > 768) return; 
+    
+    try {
+      const data = JSON.parse(decodeURIComponent(dataStr));
+      document.getElementById('pm-nickname').textContent = data.nickname;
+      document.getElementById('pm-rank').textContent = data.rank;
+      
+      const scoreEl = document.getElementById('pm-final-score');
+      scoreEl.textContent = data.finalScore;
+      scoreEl.style.color = data.scoreColor;
+
+      document.getElementById('pm-rounds').textContent = data.roundCount;
+      document.getElementById('pm-a').textContent = data.aScore;
+      document.getElementById('pm-b').textContent = data.bScore;
+      document.getElementById('pm-c').textContent = data.cScore;
+      document.getElementById('pm-prize').innerHTML = data.prize || '-';
+
+      playerModal.classList.add('active');
+    } catch (e) { console.error("Modal Data Parse Error", e); }
+  };
+
+
   const getPrizeForRank = (rank) => {
     const logoStyle = 'height: 1.8rem; object-fit: contain; vertical-align: middle; filter: invert(1);';
     switch(rank) {
@@ -280,38 +362,31 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       return;
     }
 
-    const top30 = data.total.slice(0, 30);
-    
-    // === 절대 순서(Row Index) 부여 로직 ===
-    top30.forEach((player, index) => {
-      player.absoluteIndex = index + 1;
-    });
+    data.total.forEach((p, i) => { p.absoluteIndex = i + 1; });
 
+    const top30 = data.total.slice(0, 30);
     const halfIndex = Math.ceil(top30.length / 2);
     const col1 = top30.slice(0, halfIndex);
     const col2 = top30.slice(halfIndex, top30.length);
 
-    if (col2.length < col1.length) {
-      col2.push({ isEmpty: true });
-    }
+    if (col2.length < col1.length) { col2.push({ isEmpty: true }); }
 
     const formatCourseScore = (s) => s === undefined || s === null ? '-' : (s === 0 ? 'E' : (s > 0 ? `+${s}` : s));
 
     const renderTable = (players) => {
       if (players.length === 0) return '<div></div>';
       
-      // === 최적화된 너비 배분 (라운드 수 포함) ===
       const headHTML = `
         <thead>
           <tr>
-            <th style="width: 9%;">순위</th>
-            <th style="width: 24%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
-            <th style="width: 9%;">라운드 수</th>
-            <th style="width: 8%;">A코스</th>
-            <th style="width: 8%;">B코스</th>
-            <th style="width: 8%;">C코스</th>
-            <th style="width: 14%;">합산성적</th>
-            <th style="width: 20%;">시상품</th>
+            <th class="mobile-col-rank" style="width: 9%;">순위</th>
+            <th class="mobile-col-info" style="width: 24%; text-align: left; padding-left: 1.5rem;">선수 정보</th>
+            <th class="hide-on-mobile" style="width: 9%;">라운드 수</th>
+            <th class="hide-on-mobile" style="width: 8%;">A코스</th>
+            <th class="hide-on-mobile" style="width: 8%;">B코스</th>
+            <th class="hide-on-mobile" style="width: 8%;">C코스</th>
+            <th class="mobile-col-score" style="width: 14%;">합산성적</th>
+            <th class="hide-on-mobile" style="width: 20%;">시상품</th>
           </tr>
         </thead>`;
       
@@ -337,21 +412,34 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         const bScore = data.courseB?.find(p => p.userId === player.userId)?.score;
         const cScore = data.courseC?.find(p => p.userId === player.userId)?.score;
 
-        // 동점 순위가 아닌 절대 줄 순서로 시상품 맵핑
         const prizeContent = getPrizeForRank(player.absoluteIndex);
 
+        // 팝업 모달로 전달할 데이터 패키징
+        const modalDataObj = {
+          nickname: player.userNickname,
+          rank: rank,
+          scoreColor: scoreColor,
+          finalScore: scoreText,
+          roundCount: player.roundCount,
+          aScore: formatCourseScore(aScore),
+          bScore: formatCourseScore(bScore),
+          cScore: formatCourseScore(cScore),
+          prize: prizeContent
+        };
+        const modalDataStr = encodeURIComponent(JSON.stringify(modalDataObj));
+
         return `
-          <tr class="${rankChangeClass}">
-            <td class="rank">${rank}</td>
-            <td class="player-info">
+          <tr class="${rankChangeClass} player-row" onclick="window.openPlayerModal('${modalDataStr}')">
+            <td class="rank mobile-col-rank">${rank}</td>
+            <td class="player-info mobile-col-info">
               <span class="nickname">${player.userNickname}</span>
             </td>
-            <td style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
-            <td class="course-score">${formatCourseScore(aScore)}</td>
-            <td class="course-score">${formatCourseScore(bScore)}</td>
-            <td class="course-score">${formatCourseScore(cScore)}</td>
-            <td class="final-score" style="color: ${scoreColor};">${scoreText}</td>
-            <td class="expected-prize">${prizeContent}</td>
+            <td class="hide-on-mobile" style="font-weight: 500; font-size: 1.1rem;">${player.roundCount}</td>
+            <td class="course-score hide-on-mobile">${formatCourseScore(aScore)}</td>
+            <td class="course-score hide-on-mobile">${formatCourseScore(bScore)}</td>
+            <td class="course-score hide-on-mobile">${formatCourseScore(cScore)}</td>
+            <td class="final-score mobile-col-score" style="color: ${scoreColor};">${scoreText}</td>
+            <td class="expected-prize hide-on-mobile">${prizeContent}</td>
           </tr>`;
       }).join('');
       
