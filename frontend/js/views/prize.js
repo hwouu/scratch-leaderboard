@@ -125,6 +125,14 @@ export async function renderPrizePage(stage, appElement) {
       margin: 0 15px;
     }
 
+    /* PC/태블릿 에서는 옆에 나란히 배치 */
+    .prize-footer-sub {
+      font-size: 2.2vh;
+      opacity: 0.6;
+      margin-left: 10px;
+      display: inline-block;
+    }
+
     .tournament-day-badge {
       margin: 0; 
       color: var(--accent-yellow);
@@ -187,8 +195,17 @@ export async function renderPrizePage(stage, appElement) {
       .est-currency { font-size: 3.5vw; }
       
       .prize-label { font-size: 5vw; }
-      .prize-footer { font-size: 3.5vw; }
-      .highlight-rounds { font-size: 4.5vw; }
+      .prize-footer { font-size: 3.5vw; line-height: 1.4; }
+      .highlight-rounds { font-size: 5.5vw; }
+
+      /* 모바일에서는 적립금 안내 문구를 줄바꿈 처리 */
+      .prize-footer-sub {
+        display: block;
+        margin-left: 0;
+        margin-top: 0.5vh;
+        font-size: 3vw;
+      }
+      
       .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
       .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
       .tournament-day-badge { display: inline-block; font-size: 3vw; margin-top: 5px; margin-left: 0; padding: 4px 8px; }
@@ -236,7 +253,8 @@ export async function renderPrizePage(stage, appElement) {
           </div>
 
           <div class="prize-footer">
-            현재 총 <span class="highlight-rounds" id="total-rounds">0</span> 라운드 진행 중! <span style="font-size:2.2vh; opacity:0.6; margin-left: 10px;">(1R당 2,000원 적립)</span>
+            현재 총 <span class="highlight-rounds" id="total-rounds">0</span> 라운드 진행 중!
+            <span class="prize-footer-sub">(1R당 2,000원 적립)</span>
           </div>
         </div>
       </main>
