@@ -126,25 +126,23 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       @media (max-width: 768px) {
         .tv-wrapper { padding: 1.5rem 4%; }
         
-        /* 모바일 폰트 사이즈 약 70% 수준으로 일괄 축소 */
         .title-group h1 { font-size: 1.6rem !important; }
         .live-indicator { font-size: 0.7rem !important; padding: 0.2rem 0.4rem !important; }
         .subtitle-text { font-size: 0.85rem !important; }
         .last-updated { font-size: 0.75rem !important; }
         
         .title-group { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
-        
-        /* 버튼 크기 및 여백 축소 */
         .header-actions { flex-wrap: wrap; margin-top: 0.2rem; justify-content: flex-start; gap: 6px; }
         .action-btn { font-size: 0.75rem; padding: 0.4rem 0.6rem; }
-        
         .subtitle { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; margin-top: 0.5rem !important; }
         
-        /* 모바일 테이블 간소화 및 폰트 축소 */
+        /* 모바일 테이블 간소화 및 비율 조정 (시상품 열 복구) */
         .hide-on-mobile { display: none !important; }
-        .mobile-col-rank { width: 18% !important; }
-        .mobile-col-info { width: 54% !important; }
-        .mobile-col-score { width: 28% !important; }
+        .mobile-col-rank { width: 12% !important; }
+        .mobile-col-info { width: 36% !important; padding-left: 0.2rem !important; }
+        .mobile-col-score { width: 22% !important; }
+        /* 시상품 열을 다시 노출 */
+        .mobile-col-prize { width: 30% !important; display: table-cell !important; }
         
         .tv-grid table th { font-size: 0.7rem !important; padding: 0.6rem 0.1rem; }
         .tv-grid table td { padding: 0.6rem 0.1rem; }
@@ -152,7 +150,10 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
         .nickname { font-size: 0.95rem !important; }
         .final-score { font-size: 1.2rem !important; }
         
-        /* 모바일에서는 행 터치 효과 활성화 */
+        /* 모바일 시상품 글자/로고 크기 조정 */
+        .expected-prize { font-size: 0.8rem !important; word-break: keep-all; line-height: 1.2; }
+        .expected-prize img { height: 1.2rem !important; } 
+        
         .player-row { cursor: pointer; }
         .player-row:active { background-color: rgba(255, 255, 255, 0.1) !important; }
       }
@@ -162,7 +163,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
       <header style="flex-shrink: 0; margin-bottom: 1rem; padding: 0;">
         <div class="title-container" style="width: 100%; display: flex; flex-direction: column; gap: 1rem;">
           <div class="title-group" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
               <h1 style="font-size: 2.2rem; margin: 0;">2026 Scratch 1st OPEN</h1>
               <span class="live-indicator" style="font-size: 0.9rem; padding: 0.3rem 0.6rem;">LIVE</span>
             </div>
@@ -223,7 +224,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
           </div>
           <div class="player-modal-item">
             <span class="pm-label">예상 시상품</span>
-            <span class="pm-value expected-prize" id="pm-prize">-</span>
+            <span class="pm-value expected-prize" id="pm-prize" style="font-size: 1rem;">-</span>
           </div>
           <div class="player-modal-item full-width pm-courses">
             <div><span class="pm-label">A코스</span><span class="pm-value" id="pm-a">-</span></div>
@@ -403,7 +404,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             <th class="hide-on-mobile" style="width: 8%;">B코스</th>
             <th class="hide-on-mobile" style="width: 8%;">C코스</th>
             <th class="mobile-col-score" style="width: 14%;">합산성적</th>
-            <th class="hide-on-mobile" style="width: 20%;">시상품</th>
+            <th class="mobile-col-prize" style="width: 20%;">시상품</th>
           </tr>
         </thead>`;
       
@@ -456,7 +457,7 @@ export async function renderLeaderboard2026_1st(stage, appElement) {
             <td class="course-score hide-on-mobile">${formatCourseScore(bScore)}</td>
             <td class="course-score hide-on-mobile">${formatCourseScore(cScore)}</td>
             <td class="final-score mobile-col-score" style="color: ${scoreColor};">${scoreText}</td>
-            <td class="expected-prize hide-on-mobile">${prizeContent}</td>
+            <td class="expected-prize mobile-col-prize">${prizeContent}</td>
           </tr>`;
       }).join('');
       
