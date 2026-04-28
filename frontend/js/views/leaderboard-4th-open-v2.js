@@ -6,7 +6,6 @@ import {
   getLastFetchTime,
 } from "../services/api.js";
 
-// --- 상태 변수 ---
 let currentStage = "4th-open";
 let activeTab = localStorage.getItem("activeTab-4th-v2") || "total";
 let currentViewMode =
@@ -14,7 +13,7 @@ let currentViewMode =
 let isSidebarCollapsed =
   localStorage.getItem("isSidebarCollapsed-v2") === "true";
 let refreshIntervalId = null;
-const REFRESH_INTERVAL_MS = 300000; // 5분
+const REFRESH_INTERVAL_MS = 300000;
 
 const tournamentInfo = {
   name: "스크래치 선물 팡팡",
@@ -27,7 +26,6 @@ const tournamentInfo = {
   },
 };
 
-// --- 템플릿 HTML ---
 const leaderboardPageHTML = `
   <div class="ticker-wrap-v2">
     <div class="ticker-v2"></div>
@@ -58,16 +56,10 @@ const leaderboardPageHTML = `
   </div>
 `;
 
-/**
- * 리더보드 페이지의 전체 구조를 렌더링하고 초기화합니다. (V2 신버전)
- * @param {string} stage - 렌더링할 스테이지 (항상 '4th-open')
- * @param {HTMLElement} app - 앱의 루트 요소
- */
 export function renderLeaderboard4thOpenPageV2(stage, app) {
   currentStage = stage;
   app.innerHTML = leaderboardPageHTML;
 
-  // V2 CSS 파일 로드
   if (!document.querySelector('link[href="/css/main-v2.css"]')) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -101,7 +93,6 @@ export function renderLeaderboard4thOpenPageV2(stage, app) {
   initialize(elements);
 }
 
-// --- 템플릿 렌더링 함수들 ---
 function renderHeader(header) {
   const currentTheme = localStorage.getItem("theme") || "dark";
   const themeIconClass =
@@ -128,32 +119,16 @@ function renderHeader(header) {
       <div class="controls-section-v2">
         <div class="view-controls-v2 desktop-show-v2">
           <nav id="view-toggle-v2" class="view-toggle-v2" role="tablist" aria-label="뷰 선택">
-            <button class="toggle-btn-v2" data-view="total" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-total">
-              합산
-            </button>
-            <button class="toggle-btn-v2" data-view="course-rankings" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-course-rankings">
-              코스별
-            </button>
-            <button class="toggle-btn-v2" data-view="courseA" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseA">
-              A코스
-            </button>
-            <button class="toggle-btn-v2" data-view="courseB" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseB">
-              B코스
-            </button>
-            <button class="toggle-btn-v2" data-view="courseC" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseC">
-              C코스
-            </button>
+            <button class="toggle-btn-v2" data-view="total" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-total">합산</button>
+            <button class="toggle-btn-v2" data-view="course-rankings" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-course-rankings">코스별</button>
+            <button class="toggle-btn-v2" data-view="courseA" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseA">A코스</button>
+            <button class="toggle-btn-v2" data-view="courseB" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseB">B코스</button>
+            <button class="toggle-btn-v2" data-view="courseC" role="tab" aria-selected="false" aria-controls="content-v2" id="tab-courseC">C코스</button>
           </nav>
         </div>
         <div class="view-dropdown-container-v2 mobile-show-v2">
           <div class="custom-dropdown-v2" id="view-dropdown-custom-v2">
-            <button 
-              class="custom-dropdown-button-v2" 
-              id="view-dropdown-button-v2"
-              aria-expanded="false"
-              aria-haspopup="true"
-              aria-label="뷰 선택"
-            >
+            <button class="custom-dropdown-button-v2" id="view-dropdown-button-v2" aria-expanded="false" aria-haspopup="true" aria-label="뷰 선택">
               <span class="dropdown-selected-v2">합산</span>
               <i class="fas fa-chevron-down dropdown-icon-v2" aria-hidden="true"></i>
             </button>
@@ -169,29 +144,13 @@ function renderHeader(header) {
         <div class="action-buttons-v2">
           <div class="search-container-v2">
             <label for="search-input-v2" class="sr-only-v2">닉네임 또는 아이디 검색</label>
-            <input 
-              type="search" 
-              id="search-input-v2" 
-              placeholder="닉네임 또는 아이디" 
-              aria-label="닉네임 또는 아이디 검색"
-              autocomplete="off"
-            />
-            <button id="search-button-v2" type="button" aria-label="검색">
-              <i class="fas fa-search" aria-hidden="true"></i>
-            </button>
+            <input type="search" id="search-input-v2" placeholder="닉네임 또는 아이디" aria-label="닉네임 또는 아이디 검색" autocomplete="off" />
+            <button id="search-button-v2" type="button" aria-label="검색"><i class="fas fa-search" aria-hidden="true"></i></button>
           </div>
-          <button id="refresh-button-v2" class="icon-button-v2" type="button" aria-label="새로고침">
-            <i class="fas fa-sync-alt" aria-hidden="true"></i>
-          </button>
-          <button id="sidebar-toggle-v2" class="icon-button-v2" type="button" aria-label="사이드바 열기/닫기" aria-expanded="false">
-            <i class="fas fa-expand" aria-hidden="true"></i>
-          </button>
-          <button id="overview-button-v2" class="icon-button-v2" type="button" aria-label="대회 요강">
-            <i class="fas fa-file-alt" aria-hidden="true"></i>
-          </button>
-          <button id="theme-toggle-v2" class="icon-button-v2" type="button" aria-label="테마 변경">
-            <i class="${themeIconClass}" aria-hidden="true"></i>
-          </button>
+          <button id="refresh-button-v2" class="icon-button-v2" type="button" aria-label="새로고침"><i class="fas fa-sync-alt" aria-hidden="true"></i></button>
+          <button id="sidebar-toggle-v2" class="icon-button-v2" type="button" aria-label="사이드바 열기/닫기" aria-expanded="false"><i class="fas fa-expand" aria-hidden="true"></i></button>
+          <button id="overview-button-v2" class="icon-button-v2" type="button" aria-label="대회 요강"><i class="fas fa-file-alt" aria-hidden="true"></i></button>
+          <button id="theme-toggle-v2" class="icon-button-v2" type="button" aria-label="테마 변경"><i class="${themeIconClass}" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>
@@ -203,14 +162,8 @@ function renderSidebar(sidebar) {
     <div class="info-panel-v2">
       <h2 class="panel-title-v2">대회 정보</h2>
       <div class="info-group-v2">
-        <div class="info-item-v2">
-          <span class="info-label-v2">대회 방식</span>
-          <span class="info-value-v2">${tournamentInfo.type}</span>
-        </div>
-        <div class="info-item-v2">
-          <span class="info-label-v2">대회 기간</span>
-          <span class="info-value-v2">${tournamentInfo.period}</span>
-        </div>
+        <div class="info-item-v2"><span class="info-label-v2">대회 방식</span><span class="info-value-v2">${tournamentInfo.type}</span></div>
+        <div class="info-item-v2"><span class="info-label-v2">대회 기간</span><span class="info-value-v2">${tournamentInfo.period}</span></div>
       </div>
       <div class="info-group-v2">
         <span class="info-label-v2">코스 정보</span>
@@ -227,15 +180,9 @@ function renderSidebar(sidebar) {
     </div>
     <footer class="desktop-footer-v2">
       <div class="footer-links-v2">
-        <a href="https://www.golfzon.com/tournament/glf/view?wtm_code=1197844" target="_blank" title="대회 페이지">
-          <i class="fas fa-trophy"></i>
-        </a>
-        <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu">
-          <i class="fab fa-github"></i>
-        </a>
-        <a href="mailto:nhw3990@gmail.com" title="Contact">
-          <i class="fas fa-envelope"></i>
-        </a>
+        <a href="https://www.golfzon.com/tournament/glf/view?wtm_code=1197844" target="_blank" title="대회 페이지"><i class="fas fa-trophy"></i></a>
+        <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
+        <a href="mailto:nhw3990@gmail.com" title="Contact"><i class="fas fa-envelope"></i></a>
       </div>
       <div class="footer-copyright-v2">&copy; 2025 Scratch Leaderboard</div>
     </footer>
@@ -245,15 +192,9 @@ function renderSidebar(sidebar) {
 function renderMobileFooter(footer) {
   footer.innerHTML = `
     <div class="footer-links-v2">
-      <a href="https://www.golfzon.com/tournament/glf/view?wtm_code=1197844" target="_blank" title="대회 페이지">
-        <i class="fas fa-trophy"></i>
-      </a>
-      <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu">
-        <i class="fab fa-github"></i>
-      </a>
-      <a href="mailto:nhw3990@gmail.com" title="Contact">
-        <i class="fas fa-envelope"></i>
-      </a>
+      <a href="https://www.golfzon.com/tournament/glf/view?wtm_code=1197844" target="_blank" title="대회 페이지"><i class="fas fa-trophy"></i></a>
+      <a href="https://github.com/hwouu/scratch-leaderboard" target="_blank" title="Developer: hwouu"><i class="fab fa-github"></i></a>
+      <a href="mailto:nhw3990@gmail.com" title="Contact"><i class="fas fa-envelope"></i></a>
       <a class="footer-copyright-mobile-v2">&copy; 2025 Scratch Leaderboard</a>
     </div>
   `;
@@ -263,63 +204,30 @@ async function initialize(elements) {
   setupEventListeners(elements);
   setActiveTabUI();
   setViewModeUI();
-  // 초기 로딩 시 스켈레톤 표시
   renderSkeleton(elements.contentElement);
   await fetchAndRender(elements);
   startAutoRefresh(elements);
 }
 
 function renderSkeleton(container) {
-  // 코스별 뷰인 경우
   if (currentViewMode === "course-rankings") {
     const courseSections = ["A", "B", "C"]
       .map((courseLabel) => {
-        const headHTML = `
-        <thead>
-          <tr>
-            <th>순위</th>
-            <th>닉네임</th>
-            <th>최종 성적</th>
-          </tr>
-        </thead>
-      `;
-
+        const headHTML = `<thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead>`;
         const skeletonRows = Array(5)
           .fill(0)
-          .map(() => {
-            return `
-            <tr>
-              <td><div class="skeleton-cell-v2 rank"></div></td>
-              <td><div class="skeleton-cell-v2 nickname"></div></td>
-              <td><div class="skeleton-cell-v2 score"></div></td>
-            </tr>
-          `;
-          })
+          .map(
+            () =>
+              `<tr><td><div class="skeleton-cell-v2 rank"></div></td><td><div class="skeleton-cell-v2 nickname"></div></td><td><div class="skeleton-cell-v2 score"></div></td></tr>`,
+          )
           .join("");
-
-        return `
-        <div class="course-ranking-section-v2">
-          <h3 class="course-ranking-title-v2">${courseLabel}코스</h3>
-          <div class="skeleton-container-v2">
-            <table class="skeleton-table-v2">
-              ${headHTML}
-              <tbody>${skeletonRows}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
+        return `<div class="course-ranking-section-v2"><h3 class="course-ranking-title-v2">${courseLabel}코스</h3><div class="skeleton-container-v2"><table class="skeleton-table-v2">${headHTML}<tbody>${skeletonRows}</tbody></table></div></div>`;
       })
       .join("");
-
-    container.innerHTML = `
-      <div class="course-rankings-container-v2">
-        ${courseSections}
-      </div>
-    `;
+    container.innerHTML = `<div class="course-rankings-container-v2">${courseSections}</div>`;
     return;
   }
 
-  // 일반 리더보드 뷰
   const headersConfig = {
     total: [
       { key: "순위" },
@@ -344,24 +252,15 @@ function renderSkeleton(container) {
     ],
   };
 
-  let headers;
-  if (currentViewMode === "total") {
-    headers = headersConfig.total;
-  } else if (
-    currentViewMode === "courseA" ||
-    currentViewMode === "courseB" ||
-    currentViewMode === "courseC"
-  ) {
-    headers = headersConfig.course;
-  } else {
-    headers =
-      activeTab === "total" ? headersConfig.total : headersConfig.course;
-  }
-
-  const headHTML = `<thead><tr>${headers
-    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
-    .join("")}</tr></thead>`;
-
+  let headers =
+    currentViewMode === "total"
+      ? headersConfig.total
+      : currentViewMode.startsWith("course")
+        ? headersConfig.course
+        : activeTab === "total"
+          ? headersConfig.total
+          : headersConfig.course;
+  const headHTML = `<thead><tr>${headers.map((h) => `<th class="${h.class || ""}">${h.key}</th>`).join("")}</tr></thead>`;
   const skeletonRows = Array(10)
     .fill(0)
     .map(() => {
@@ -370,33 +269,21 @@ function renderSkeleton(container) {
           let cellClass = "skeleton-cell-v2";
           if (idx === 0) cellClass += " rank";
           else if (idx === 1) cellClass += " nickname";
-          else if (idx === headers.length - 1) cellClass += " score";
           else cellClass += " score";
-
-          return `<td class="${
-            h.class || ""
-          }"><div class="${cellClass}"></div></td>`;
+          return `<td class="${h.class || ""}"><div class="${cellClass}"></div></td>`;
         })
         .join("");
       return `<tr>${cells}</tr>`;
     })
     .join("");
 
-  container.innerHTML = `
-    <div class="skeleton-container-v2">
-      <table class="skeleton-table-v2">
-        ${headHTML}
-        <tbody>${skeletonRows}</tbody>
-      </table>
-    </div>
-  `;
+  container.innerHTML = `<div class="skeleton-container-v2"><table class="skeleton-table-v2">${headHTML}<tbody>${skeletonRows}</tbody></table></div>`;
 }
 
 async function fetchAndRender(elements) {
   const refreshButton = document.getElementById("refresh-button-v2");
   const lastUpdatedTime = document.getElementById("last-updated-time-v2");
 
-  // 스켈레톤 UI 표시
   renderSkeleton(elements.contentElement);
   if (refreshButton) {
     refreshButton.setAttribute("aria-busy", "true");
@@ -407,10 +294,9 @@ async function fetchAndRender(elements) {
   if (success) {
     const leaderboardData = getLeaderboardData();
     const fetchTime = getLastFetchTime();
-    if (elements.lastUpdatedElement) {
+    if (elements.lastUpdatedElement)
       elements.lastUpdatedElement.textContent =
         fetchTime.toLocaleTimeString("ko-KR");
-    }
     if (lastUpdatedTime) {
       lastUpdatedTime.textContent = fetchTime.toLocaleTimeString("ko-KR");
       lastUpdatedTime.setAttribute("datetime", fetchTime.toISOString());
@@ -419,15 +305,7 @@ async function fetchAndRender(elements) {
     renderTicker(elements.tickerElement, leaderboardData.total);
     renderHighlights(elements.highlightContentElement, leaderboardData.total);
   } else {
-    elements.contentElement.innerHTML = `
-      <div class="error-container-v2" role="alert">
-        <div class="error-icon-v2" aria-hidden="true">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-        <h3 class="error-title-v2">데이터 로딩 실패</h3>
-        <p class="error-message-v2">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
-      </div>
-    `;
+    elements.contentElement.innerHTML = `<div class="error-container-v2" role="alert"><div class="error-icon-v2" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></div><h3 class="error-title-v2">데이터 로딩 실패</h3><p class="error-message-v2">데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.</p></div>`;
   }
   if (refreshButton) {
     refreshButton.setAttribute("aria-busy", "false");
@@ -439,7 +317,7 @@ function startAutoRefresh(elements) {
   if (refreshIntervalId) clearInterval(refreshIntervalId);
   refreshIntervalId = setInterval(
     () => fetchAndRender(elements),
-    REFRESH_INTERVAL_MS
+    REFRESH_INTERVAL_MS,
   );
 }
 
@@ -447,65 +325,51 @@ function setActiveTabUI() {
   document
     .querySelectorAll(".tab-button-v2")
     .forEach((t) =>
-      t.classList.toggle("active", t.dataset.target === activeTab)
+      t.classList.toggle("active", t.dataset.target === activeTab),
     );
 }
 
 function setViewModeUI() {
-  // 데스크톱 토글 버튼 업데이트
   document.querySelectorAll(".toggle-btn-v2").forEach((btn) => {
     const isActive = btn.dataset.view === currentViewMode;
     btn.classList.toggle("active", isActive);
     btn.setAttribute("aria-selected", isActive);
-    if (isActive) {
-      btn.setAttribute("tabindex", "0");
-    } else {
-      btn.setAttribute("tabindex", "-1");
-    }
+    btn.setAttribute("tabindex", isActive ? "0" : "-1");
   });
 
-  // 커스텀 드롭다운 업데이트
   const dropdownSelected = document.querySelector(
-    "#view-dropdown-button-v2 .dropdown-selected-v2"
+    "#view-dropdown-button-v2 .dropdown-selected-v2",
   );
   const dropdownOption = document.querySelector(
-    `#view-dropdown-menu-v2 .dropdown-option-v2[data-value="${currentViewMode}"]`
+    `#view-dropdown-menu-v2 .dropdown-option-v2[data-value="${currentViewMode}"]`,
   );
-  if (dropdownSelected && dropdownOption) {
+  if (dropdownSelected && dropdownOption)
     dropdownSelected.textContent = dropdownOption.textContent.trim();
-  }
 
-  // 드롭다운 옵션 활성화 상태 업데이트
   document
     .querySelectorAll("#view-dropdown-menu-v2 .dropdown-option-v2")
     .forEach((opt) => {
       const isSelected = opt.dataset.value === currentViewMode;
       opt.classList.toggle("selected", isSelected);
       const menuItem = opt.closest("li[role='menuitem']");
-      if (menuItem) {
-        menuItem.setAttribute("aria-selected", isSelected);
-      }
+      if (menuItem) menuItem.setAttribute("aria-selected", isSelected);
     });
 }
 
 const formatFinalScore = (score) =>
   score === null || score === undefined
     ? "<span>-</span>"
-    : `<span class="final-score-v2">${
-        parseInt(score, 10) > 0 ? `+${score}` : score
-      }</span>`;
+    : `<span class="final-score-v2">${parseInt(score, 10) > 0 ? `+${score}` : score}</span>`;
 const formatSimpleScore = (score) =>
   score === null || score === undefined
     ? "-"
     : parseInt(score, 10) > 0
-    ? `+${score}`
-    : score;
+      ? `+${score}`
+      : score;
 const formatTickerScore = (score) =>
   score === null || score === undefined
     ? "<span>-</span>"
-    : `<span class="score-final-v2">${
-        parseInt(score, 10) > 0 ? `+${score}` : score
-      }</span>`;
+    : `<span class="score-final-v2">${parseInt(score, 10) > 0 ? `+${score}` : score}</span>`;
 const formatSkillLevel = (grade) => {
   if (!grade || typeof grade !== "string" || grade.length < 4)
     return grade || "-";
@@ -527,7 +391,6 @@ const formatSkillLevel = (grade) => {
 
 function renderContent(container) {
   const leaderboardData = getLeaderboardData();
-
   if (currentViewMode === "course-rankings") {
     renderCourseRankingsView(container, leaderboardData);
   } else if (
@@ -545,9 +408,7 @@ function renderContent(container) {
 }
 
 function renderEmptyView(container, headers) {
-  const headHTML = `<thead><tr>${headers
-    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
-    .join("")}</tr></thead>`;
+  const headHTML = `<thead><tr>${headers.map((h) => `<th class="${h.class || ""}">${h.key}</th>`).join("")}</tr></thead>`;
   const bodyHTML = `<tbody><tr class="placeholder-row-v2"><td colspan="${headers.length}">등록된 데이터가 없습니다.</td></tr></tbody>`;
   container.innerHTML = `<div class="table-container-v2"><table class="table-v2">${headHTML}${bodyHTML}</table></div>`;
 }
@@ -577,37 +438,23 @@ function renderLeaderboardView(container, data) {
     ],
   };
 
-  let headers;
-  if (currentViewMode === "total") {
-    headers = headersConfig.total;
-  } else if (
-    currentViewMode === "courseA" ||
-    currentViewMode === "courseB" ||
-    currentViewMode === "courseC"
-  ) {
-    headers = headersConfig.course;
-  } else {
-    // fallback: activeTab 사용 (하위 호환성)
-    const fallbackKey = activeTab || "total";
-    headers =
-      fallbackKey === "total" ? headersConfig.total : headersConfig.course;
-  }
+  let headers =
+    currentViewMode === "total"
+      ? headersConfig.total
+      : currentViewMode.startsWith("course")
+        ? headersConfig.course
+        : activeTab === "total"
+          ? headersConfig.total
+          : headersConfig.course;
 
   if (!data || data.length === 0) {
     renderEmptyView(container, headers);
     return;
   }
 
-  const headHTML = `<thead><tr>${headers
-    .map((h) => `<th class="${h.class || ""}">${h.key}</th>`)
-    .join("")}</tr></thead>`;
-
-  // currentViewMode를 사용하여 이전 데이터 가져오기
+  const headHTML = `<thead><tr>${headers.map((h) => `<th class="${h.class || ""}">${h.key}</th>`).join("")}</tr></thead>`;
   const dataKey =
-    currentViewMode === "total" ||
-    currentViewMode === "courseA" ||
-    currentViewMode === "courseB" ||
-    currentViewMode === "courseC"
+    currentViewMode === "total" || currentViewMode.startsWith("course")
       ? currentViewMode
       : activeTab || "total";
   const prevData = getPrevLeaderboardData()?.[dataKey] || [];
@@ -620,7 +467,7 @@ function renderLeaderboardView(container, data) {
   };
 
   const bodyHTML = data
-    .map((player, index) => {
+    .map((player) => {
       const rank = player.tieCount > 1 ? `T${player.rank}` : player.rank;
       const prevPlayer = prevData.find((p) => p.userId === player.userId);
       let rankChangeClass = "";
@@ -638,15 +485,13 @@ function renderLeaderboardView(container, data) {
       const revisionDisplay =
         totalRevision > 0 ? `+${totalRevision}` : totalRevision.toString();
 
-      // currentViewMode에 따라 최종 성적 계산
       const isTotalView = currentViewMode === "total";
       let finalScore;
       if (isTotalView) {
         const courseAScore = getCourseScore(player.userId, "courseA") || 0;
         const courseBScore = getCourseScore(player.userId, "courseB") || 0;
         const courseCScore = getCourseScore(player.userId, "courseC") || 0;
-        const totalCourseScore = courseAScore + courseBScore + courseCScore;
-        finalScore = totalCourseScore + totalRevision;
+        finalScore = courseAScore + courseBScore + courseCScore + totalRevision;
       } else {
         finalScore = (player.score || 0) + totalRevision;
       }
@@ -656,42 +501,22 @@ function renderLeaderboardView(container, data) {
 
       const rowCells = isTotalView
         ? `<td class="rank-v2">${rank}</td>
-             <td class="nickname-v2">${
-               player.userNickname
-             }<span class="user-id-v2">(${
-            player.userId
-          })</span><span class="shop-name-mobile-v2">${
-            player.shopName || ""
-          }</span></td>
-             <td class="mobile-hide-v2">${player.shopName || ""}</td>
-             <td class="mobile-hide-v2">${player.roundCount || "-"}</td>
-             <td class="mobile-hide-v2">${formatSimpleScore(
-               getCourseScore(player.userId, "courseA")
-             )}</td>
-             <td class="mobile-hide-v2">${formatSimpleScore(
-               getCourseScore(player.userId, "courseB")
-             )}</td>
-             <td class="mobile-hide-v2">${formatSimpleScore(
-               getCourseScore(player.userId, "courseC")
-             )}</td>
-             <td>${revisionDisplay}</td>
-             <td>${formatFinalScore(finalScore)}</td>`
+           <td class="nickname-v2">${player.userNickname}<span class="user-id-v2">(${player.userId})</span><span class="shop-name-mobile-v2">${player.shopName || ""}</span></td>
+           <td class="mobile-hide-v2">${player.shopName || ""}</td>
+           <td class="mobile-hide-v2">${player.roundCount || "-"}</td>
+           <td class="mobile-hide-v2">${formatSimpleScore(getCourseScore(player.userId, "courseA"))}</td>
+           <td class="mobile-hide-v2">${formatSimpleScore(getCourseScore(player.userId, "courseB"))}</td>
+           <td class="mobile-hide-v2">${formatSimpleScore(getCourseScore(player.userId, "courseC"))}</td>
+           <td>${revisionDisplay}</td>
+           <td>${formatFinalScore(finalScore)}</td>`
         : `<td class="rank-v2">${rank}</td>
-             <td class="nickname-v2">${
-               player.userNickname
-             }<span class="user-id-v2">(${
-            player.userId
-          })</span><span class="shop-name-mobile-v2">${
-            player.shopName || ""
-          }</span></td>
-             <td class="tablet-hide-v2 mobile-hide-v2">${
-               player.shopName || ""
-             }</td>
-             <td class="mobile-hide-v2">${player.roundCount || "-"}</td>
-             <td class="mobile-hide-v2">${formatSimpleScore(player.score)}</td>
-             <td class="mobile-hide-v2">${formatSkillLevel(player.grade)}</td>
-             <td class="mobile-hide-v2">${revisionDisplay}</td>
-             <td>${formatFinalScore(finalScore)}</td>`;
+           <td class="nickname-v2">${player.userNickname}<span class="user-id-v2">(${player.userId})</span><span class="shop-name-mobile-v2">${player.shopName || ""}</span></td>
+           <td class="tablet-hide-v2 mobile-hide-v2">${player.shopName || ""}</td>
+           <td class="mobile-hide-v2">${player.roundCount || "-"}</td>
+           <td class="mobile-hide-v2">${formatSimpleScore(player.score)}</td>
+           <td class="mobile-hide-v2">${formatSkillLevel(player.grade)}</td>
+           <td class="mobile-hide-v2">${revisionDisplay}</td>
+           <td>${formatFinalScore(finalScore)}</td>`;
       return `<tr class="${rankChangeClass} ${rowClass}" data-userid="${player.userId}">${rowCells}</tr>`;
     })
     .join("");
@@ -705,34 +530,9 @@ function renderCourseRankingsView(container, leaderboardData) {
 
   const renderCourseSection = (courseData, courseLabel) => {
     if (!courseData || courseData.length === 0) {
-      return `
-        <div class="course-ranking-section-v2">
-          <h3 class="course-ranking-title-v2">${courseLabel}코스</h3>
-          <div class="table-container-v2">
-            <table class="table-v2">
-              <thead>
-                <tr>
-                  <th>순위</th>
-                  <th>닉네임</th>
-                  <th>최종 성적</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="placeholder-row-v2">
-                  <td colspan="3">등록된 데이터가 없습니다.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
+      return `<div class="course-ranking-section-v2"><h3 class="course-ranking-title-v2">${courseLabel}코스</h3><div class="table-container-v2"><table class="table-v2"><thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead><tbody><tr class="placeholder-row-v2"><td colspan="3">등록된 데이터가 없습니다.</td></tr></tbody></table></div></div>`;
     }
-
-    const headers = [{ key: "순위" }, { key: "닉네임" }, { key: "최종 성적" }];
-    const headHTML = `<thead><tr>${headers
-      .map((h) => `<th>${h.key}</th>`)
-      .join("")}</tr></thead>`;
-
+    const headHTML = `<thead><tr><th>순위</th><th>닉네임</th><th>최종 성적</th></tr></thead>`;
     const bodyHTML = courseData
       .map((player) => {
         const rank = player.tieCount > 1 ? `T${player.rank}` : player.rank;
@@ -742,46 +542,17 @@ function renderCourseRankingsView(container, leaderboardData) {
           (player.genderRevision || 0) +
           (player.roundCountRevision || 0);
         const finalScore = (player.score || 0) + totalRevision;
-
-        return `
-          <tr data-userid="${player.userId}">
-            <td class="rank-v2">${rank}</td>
-            <td class="nickname-v2">${
-              player.userNickname
-            }<span class="user-id-v2">(${player.userId})</span></td>
-            <td>${formatFinalScore(finalScore)}</td>
-          </tr>
-        `;
+        return `<tr data-userid="${player.userId}"><td class="rank-v2">${rank}</td><td class="nickname-v2">${player.userNickname}<span class="user-id-v2">(${player.userId})</span></td><td>${formatFinalScore(finalScore)}</td></tr>`;
       })
       .join("");
-
-    return `
-      <div class="course-ranking-section-v2">
-        <h3 class="course-ranking-title-v2">${courseLabel}코스</h3>
-        <div class="table-container-v2">
-          <table class="table-v2">
-            ${headHTML}
-            <tbody class="clickable-v2">${bodyHTML}</tbody>
-          </table>
-        </div>
-      </div>
-    `;
+    return `<div class="course-ranking-section-v2"><h3 class="course-ranking-title-v2">${courseLabel}코스</h3><div class="table-container-v2"><table class="table-v2">${headHTML}<tbody class="clickable-v2">${bodyHTML}</tbody></table></div></div>`;
   };
 
-  const html = `
-    <div class="course-rankings-container-v2">
-      ${renderCourseSection(courseA, "A")}
-      ${renderCourseSection(courseB, "B")}
-      ${renderCourseSection(courseC, "C")}
-    </div>
-  `;
-
-  container.innerHTML = html;
+  container.innerHTML = `<div class="course-rankings-container-v2">${renderCourseSection(courseA, "A")}${renderCourseSection(courseB, "B")}${renderCourseSection(courseC, "C")}</div>`;
 }
 
 function renderTicker(element, data) {
   const tickerWrap = document.querySelector(".ticker-wrap-v2");
-
   if (tickerWrap) tickerWrap.style.display = "block";
 
   if (!data || data.length === 0) {
@@ -805,18 +576,14 @@ function renderTicker(element, data) {
       const courseAScore = getCourseScore(p.userId, "courseA") || 0;
       const courseBScore = getCourseScore(p.userId, "courseB") || 0;
       const courseCScore = getCourseScore(p.userId, "courseC") || 0;
-      const totalCourseScore = courseAScore + courseBScore + courseCScore;
       const totalRevision =
         (p.gradeRevision || 0) +
         (p.systemRevision || 0) +
         (p.genderRevision || 0) +
         (p.roundCountRevision || 0);
-      const finalScore = totalCourseScore + totalRevision;
-      return `<div class="ticker-item-v2"><span class="rank-v2-ticker">${rank}</span><span class="name-v2-ticker">${
-        p.userNickname
-      }</span><span class="score-v2-ticker">${formatTickerScore(
-        finalScore
-      )}</span></div>`;
+      const finalScore =
+        courseAScore + courseBScore + courseCScore + totalRevision;
+      return `<div class="ticker-item-v2"><span class="rank-v2-ticker">${rank}</span><span class="name-v2-ticker">${p.userNickname}</span><span class="score-v2-ticker">${formatTickerScore(finalScore)}</span></div>`;
     })
     .join("");
   element.innerHTML = tickerContent.repeat(2);
@@ -838,33 +605,24 @@ function renderHighlights(element, data) {
     const courseAScore = getCourseScore(p.userId, "courseA") || 0;
     const courseBScore = getCourseScore(p.userId, "courseB") || 0;
     const courseCScore = getCourseScore(p.userId, "courseC") || 0;
-    const totalCourseScore = courseAScore + courseBScore + courseCScore;
     const totalRevision =
       (p.gradeRevision || 0) +
       (p.systemRevision || 0) +
       (p.genderRevision || 0) +
       (p.roundCountRevision || 0);
-    const finalScore = totalCourseScore + totalRevision;
-    return { ...p, finalScore };
+    return {
+      ...p,
+      finalScore: courseAScore + courseBScore + courseCScore + totalRevision,
+    };
   });
   const best = sortedByFinal.sort((a, b) => a.finalScore - b.finalScore)[0];
   const most = [...data].sort(
-    (a, b) => (b.roundCount || 0) - (a.roundCount || 0)
+    (a, b) => (b.roundCount || 0) - (a.roundCount || 0),
   )[0];
   if (element) {
     element.innerHTML = `
-      <div class="highlight-item-v2">
-        <div class="highlight-title-v2">최고 성적</div>
-        <div class="highlight-value-v2">${
-          best.userNickname
-        }: ${formatSimpleScore(best.finalScore)}</div>
-      </div>
-      <div class="highlight-item-v2">
-        <div class="highlight-title-v2">최다 라운드</div>
-        <div class="highlight-value-v2">${most.userNickname}: ${
-      most.roundCount || 0
-    }회</div>
-      </div>
+      <div class="highlight-item-v2"><div class="highlight-title-v2">최고 성적</div><div class="highlight-value-v2">${best.userNickname}: ${formatSimpleScore(best.finalScore)}</div></div>
+      <div class="highlight-item-v2"><div class="highlight-title-v2">최다 라운드</div><div class="highlight-value-v2">${most.userNickname}: ${most.roundCount || 0}회</div></div>
     `;
   }
 }
@@ -872,9 +630,9 @@ function renderHighlights(element, data) {
 function setupEventListeners(elements) {
   const { contentElement, searchModal, overviewModal } = elements;
 
-  document.getElementById("refresh-button-v2").addEventListener("click", () => {
-    fetchAndRender(elements);
-  });
+  document
+    .getElementById("refresh-button-v2")
+    .addEventListener("click", () => fetchAndRender(elements));
 
   document.getElementById("sidebar-toggle-v2").addEventListener("click", () => {
     const mainGrid = document.getElementById("main-grid-v2");
@@ -883,20 +641,13 @@ function setupEventListeners(elements) {
     localStorage.setItem("isSidebarCollapsed-v2", isSidebarCollapsed);
     mainGrid.classList.toggle("sidebar-collapsed", isSidebarCollapsed);
     sidebarToggle.setAttribute("aria-expanded", !isSidebarCollapsed);
-    sidebarToggle.setAttribute(
-      "aria-label",
-      isSidebarCollapsed ? "사이드바 열기" : "사이드바 닫기"
-    );
     const icon = sidebarToggle.querySelector("i");
-    if (icon) {
+    if (icon)
       icon.className = isSidebarCollapsed ? "fas fa-compress" : "fas fa-expand";
-    }
   });
 
   const viewToggle = document.getElementById("view-toggle-v2");
-
   if (viewToggle) {
-    // 마우스 클릭
     viewToggle.addEventListener("click", (e) => {
       const btn = e.target.closest(".toggle-btn-v2");
       if (btn) {
@@ -907,102 +658,42 @@ function setupEventListeners(elements) {
         btn.focus();
       }
     });
-
-    // 키보드 네비게이션 (화살표 키)
-    viewToggle.addEventListener("keydown", (e) => {
-      const buttons = Array.from(viewToggle.querySelectorAll(".toggle-btn-v2"));
-      const currentIndex = buttons.findIndex(
-        (btn) => btn === document.activeElement
-      );
-
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        e.preventDefault();
-        const nextIndex = (currentIndex + 1) % buttons.length;
-        buttons[nextIndex].focus();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        e.preventDefault();
-        const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-        buttons[prevIndex].focus();
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        buttons[0].focus();
-      } else if (e.key === "End") {
-        e.preventDefault();
-        buttons[buttons.length - 1].focus();
-      }
-    });
   }
 
   const dropdownButton = document.getElementById("view-dropdown-button-v2");
   const dropdownMenu = document.getElementById("view-dropdown-menu-v2");
   const dropdownSelected = dropdownButton?.querySelector(
-    ".dropdown-selected-v2"
+    ".dropdown-selected-v2",
   );
-  const dropdownOptions = dropdownMenu?.querySelectorAll(".dropdown-option-v2");
-
   if (dropdownButton && dropdownMenu) {
     const toggleDropdown = (isOpen) => {
       dropdownMenu.classList.toggle("active", isOpen);
       dropdownButton.classList.toggle("active", isOpen);
       dropdownButton.setAttribute("aria-expanded", isOpen);
     };
-
     dropdownButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isOpen = !dropdownMenu.classList.contains("active");
-      toggleDropdown(isOpen);
+      toggleDropdown(!dropdownMenu.classList.contains("active"));
     });
-
-    // 키보드 네비게이션 지원
-    dropdownButton.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        const isOpen = !dropdownMenu.classList.contains("active");
-        toggleDropdown(isOpen);
-      } else if (e.key === "Escape") {
+    dropdownMenu.querySelectorAll(".dropdown-option-v2").forEach((option) => {
+      option.closest("li[role='menuitem']").addEventListener("click", (e) => {
+        e.stopPropagation();
+        currentViewMode = option.dataset.value;
+        localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
+        if (dropdownSelected)
+          dropdownSelected.textContent = option.textContent.trim();
         toggleDropdown(false);
+        setViewModeUI();
+        renderContent(contentElement);
         dropdownButton.focus();
-      }
+      });
     });
-
-    dropdownOptions?.forEach((option) => {
-      const menuItem = option.closest("li[role='menuitem']");
-      if (menuItem) {
-        menuItem.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const value = option.dataset.value;
-          const text = option.textContent.trim();
-
-          currentViewMode = value;
-          localStorage.setItem("currentViewMode-4th-v2", currentViewMode);
-
-          if (dropdownSelected) dropdownSelected.textContent = text;
-          toggleDropdown(false);
-
-          setViewModeUI();
-          renderContent(contentElement);
-          dropdownButton.focus();
-        });
-
-        menuItem.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            menuItem.click();
-          } else if (e.key === "Escape") {
-            toggleDropdown(false);
-            dropdownButton.focus();
-          }
-        });
-      }
-    });
-
     document.addEventListener("click", (e) => {
       if (
         !dropdownButton.contains(e.target) &&
         !dropdownMenu.contains(e.target)
-      ) {
+      )
         toggleDropdown(false);
-      }
     });
   }
 
@@ -1012,7 +703,7 @@ function setupEventListeners(elements) {
   document
     .getElementById("search-button-v2")
     .addEventListener("click", () =>
-      handleSearch(searchInput, searchModal, openModal)
+      handleSearch(searchInput, searchModal, openModal),
     );
   searchInput.addEventListener("keyup", (e) => {
     if (e.key === "Enter") handleSearch(searchInput, searchModal, openModal);
@@ -1054,9 +745,7 @@ function setupEventListeners(elements) {
       if (fullPlayerInfo) {
         player = { ...fullPlayerInfo, ...player };
         showPlayerModal(player, searchModal, openModal);
-      } else if (player) {
-        showPlayerModal(player, searchModal, openModal);
-      }
+      } else if (player) showPlayerModal(player, searchModal, openModal);
     }
   });
 }
@@ -1074,12 +763,11 @@ function handleSearch(input, modal, openCallback) {
   const player = allData.find(
     (p) =>
       p.userNickname.toLowerCase().includes(searchTerm) ||
-      p.userId.toLowerCase().includes(searchTerm)
+      p.userId.toLowerCase().includes(searchTerm),
   );
 
-  if (player) {
-    showPlayerModal(player, modal, openCallback);
-  } else {
+  if (player) showPlayerModal(player, modal, openCallback);
+  else {
     const modalBody = modal.querySelector("#modal-body-v2");
     modalBody.innerHTML = `<p><strong>'${input.value}'</strong> 선수를 찾을 수 없습니다.</p>`;
     openCallback(modal);
@@ -1089,19 +777,18 @@ function handleSearch(input, modal, openCallback) {
 
 function showPlayerModal(player, modal, openCallback) {
   if (!player) return;
-
   const leaderboardData = getLeaderboardData();
   const rank = player.tieCount > 1 ? `T${player.rank}` : player.rank || "-";
   let totalRounds = player.roundCount;
 
   const courseAData = (leaderboardData.courseA || []).find(
-    (p) => p.userId === player.userId
+    (p) => p.userId === player.userId,
   );
   const courseBData = (leaderboardData.courseB || []).find(
-    (p) => p.userId === player.userId
+    (p) => p.userId === player.userId,
   );
   const courseCData = (leaderboardData.courseC || []).find(
-    (p) => p.userId === player.userId
+    (p) => p.userId === player.userId,
   );
 
   const totalRevision =
@@ -1110,64 +797,21 @@ function showPlayerModal(player, modal, openCallback) {
     (player.genderRevision || 0) +
     (player.roundCountRevision || 0);
 
-  const courseAScore = courseAData?.score || 0;
-  const courseBScore = courseBData?.score || 0;
-  const courseCScore = courseCData?.score || 0;
-  const totalCourseScore = courseAScore + courseBScore + courseCScore;
-  const finalScore = totalCourseScore + totalRevision;
+  const finalScore =
+    (courseAData?.score || 0) +
+    (courseBData?.score || 0) +
+    (courseCData?.score || 0) +
+    totalRevision;
 
   const detailsHTML = `
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">순위</span>
-      <span class="result-value-v2 rank-v2">${rank}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">참여 매장</span>
-      <span class="result-value-v2">${player.shopName || "-"}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">라운드</span>
-      <span class="result-value-v2">${totalRounds || "-"}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">A코스</span>
-      <span class="result-value-v2">${formatSimpleScore(
-        courseAData?.score
-      )}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">B코스</span>
-      <span class="result-value-v2">${formatSimpleScore(
-        courseBData?.score
-      )}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">C코스</span>
-      <span class="result-value-v2">${formatSimpleScore(
-        courseCData?.score
-      )}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">실력 등급</span>
-      <span class="result-value-v2">${formatSkillLevel(
-        player.grade ||
-          courseAData?.grade ||
-          courseBData?.grade ||
-          courseCData?.grade
-      )}</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">보정치</span>
-      <span class="result-value-v2">${
-        totalRevision > 0 ? `+${totalRevision}` : totalRevision
-      }</span>
-    </div>
-    <div class="search-result-item-v2">
-      <span class="result-label-v2">최종 성적</span>
-      <span class="result-value-v2 final-score-v2">${formatSimpleScore(
-        finalScore
-      )}</span>
-    </div>
+    <div class="search-result-item-v2"><span class="result-label-v2">순위</span><span class="result-value-v2 rank-v2">${rank}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">참여 매장</span><span class="result-value-v2">${player.shopName || "-"}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">라운드</span><span class="result-value-v2">${totalRounds || "-"}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">A코스</span><span class="result-value-v2">${formatSimpleScore(courseAData?.score)}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">B코스</span><span class="result-value-v2">${formatSimpleScore(courseBData?.score)}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">C코스</span><span class="result-value-v2">${formatSimpleScore(courseCData?.score)}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">보정치</span><span class="result-value-v2">${totalRevision > 0 ? `+${totalRevision}` : totalRevision}</span></div>
+    <div class="search-result-item-v2"><span class="result-label-v2">최종 성적</span><span class="result-value-v2 final-score-v2">${formatSimpleScore(finalScore)}</span></div>
   `;
 
   const modalBody = modal.querySelector("#modal-body-v2");

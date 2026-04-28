@@ -1,4 +1,5 @@
 let cachedData = null;
+let prevCachedData = null;
 let lastFetchTime = null;
 const CACHE_DURATION = 2 * 60 * 1000;
 let currentStage = null;
@@ -14,9 +15,9 @@ export async function fetchLeaderboardData(stage) {
     cachedData &&
     currentStage === stage &&
     lastFetchTime &&
-    Date.now() - lastFetchTime < CACHE_DURATION
+    Date.now() - lastFetchTime.getTime() < CACHE_DURATION
   ) {
-    return cachedData;
+    return { success: true };
   }
 
   try {
@@ -29,32 +30,41 @@ export async function fetchLeaderboardData(stage) {
     }
 
     const data = await response.json();
-    console.log(`Raw API Response for ${stage}:`, data);
 
-    // [중요] 대진표 API 호출인 경우 가공 로직을 타지 않고 그대로 캐싱 및 반환
+    // 이전 데이터 상태 저장 (순위 변동 애니메이션용)
+    prevCachedData = cachedData;
+    currentStage = stage;
+    lastFetchTime = new Date();
+
+    // 본선 대진표 API 처리 (가공 없이 그대로 저장)
     if (stage === "2026-1st-bracket") {
       cachedData = data;
-      currentStage = stage;
-      lastFetchTime = Date.now();
-      return cachedData;
+      return { success: true };
     }
 
-    // 그 외 일반 리더보드 API 처리
-    if (data.total) {
-      const processedData = processAllPlayersData(data);
-      cachedData = processedData;
-      currentStage = stage;
-      lastFetchTime = Date.now();
-      return cachedData;
+    // 일반 리더보드 데이터 가공
+    if (data.total || data.courseA) {
+      cachedData = processAllPlayersData(data);
+      return { success: true };
     } else {
-      console.warn("API response does not contain 'total' data:", data);
       cachedData = data;
-      currentStage = stage;
-      lastFetchTime = Date.now();
-      return cachedData;
+      return { success: true };
     }
   } catch (error) {
     console.error("Error fetching leaderboard data:", error);
+    return { success: false };
+  }
+}
+
+// 과거 tournament.js 등에서 사용하는 순수 fetch 함수 복구
+export async function fetchData(stage) {
+  try {
+    const url = `${API_BASE_URL}?stage=${stage}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("Error in fetchData:", error);
     return null;
   }
 }
@@ -84,13 +94,13 @@ function processAllPlayersData(data) {
     });
   };
 
+  if (data.total) processCourse(data.total);
   processCourse(data.courseA);
   processCourse(data.courseB);
   processCourse(data.courseC);
 
   let syntheticTotal = Array.from(playerMap.values());
 
-  // 성적순 정렬 -> 동점일 경우 라운드 수 순 정렬
   syntheticTotal.sort((a, b) => {
     if (a.totalScore !== b.totalScore) return a.totalScore - b.totalScore;
     return b.roundCount - a.roundCount;
@@ -125,12 +135,31 @@ function processAllPlayersData(data) {
   return {
     info: data.info || {},
     total: syntheticTotal,
-    courseA: data.courseA || [],
-    courseB: data.courseB || [],
-    courseC: data.courseC || [],
+    courseA: Array.isArray(data.courseA)
+      ? data.courseA
+      : data.courseA?.items || [],
+    courseB: Array.isArray(data.courseB)
+      ? data.courseB
+      : data.courseB?.items || [],
+    courseC: Array.isArray(data.courseC)
+      ? data.courseC
+      : data.courseC?.items || [],
   };
 }
 
 export function getLeaderboardData() {
   return cachedData;
+}
+
+export function getPrevLeaderboardData() {
+  return prevCachedData || {};
+}
+
+export function getLastFetchTime() {
+  return lastFetchTime || new Date();
+}
+
+export function getAllPlayers() {
+  if (!cachedData || !cachedData.total) return [];
+  return cachedData.total;
 }

@@ -4,11 +4,9 @@ import { renderLeaderboard } from "./leaderboard.js";
 
 let currentView = "total"; // 'total', 'courseA', 'courseB'
 
-// --- 렌더링 함수 ---
-
 export async function renderTournamentPage(stage, data) {
   const mainContent = document.getElementById("main-content");
-  mainContent.innerHTML = ""; // 이전 내용 지우기
+  mainContent.innerHTML = "";
 
   const tournamentContainer = createHTMLElement("div", {
     id: "tournament-container",
@@ -24,7 +22,7 @@ export async function renderTournamentPage(stage, data) {
   mainContent.appendChild(tournamentContainer);
 
   renderTournamentHeader(leaderboardContainer, stage, data);
-  renderLeaderboard(leaderboardContainer, data.total.items, "total"); // 초기 뷰
+  renderLeaderboard(leaderboardContainer, data.total.items, "total");
   renderBracket(bracketContainer, stage, data);
   setupEventListeners(leaderboardContainer, bracketContainer, stage, data);
 }
@@ -44,7 +42,7 @@ function renderTournamentHeader(container, stage, data) {
     const button = createHTMLElement(
       "button",
       { id: btnInfo.id, className: "view-button" },
-      btnInfo.text
+      btnInfo.text,
     );
     if (btnInfo.view === currentView) {
       button.classList.add("active");
@@ -57,7 +55,7 @@ function renderTournamentHeader(container, stage, data) {
 }
 
 function renderBracket(container, stage, data) {
-  container.innerHTML = ""; // 초기화
+  container.innerHTML = "";
 
   const bracketWrapper = createHTMLElement("div", {
     className: "bracket-wrapper",
@@ -69,7 +67,7 @@ function renderBracket(container, stage, data) {
   const fullBracketButton = createHTMLElement(
     "button",
     { id: "full-bracket-btn", className: "full-bracket-button" },
-    "전체 대진표 보기"
+    "전체 대진표 보기",
   );
 
   bracketHeader.append(title, fullBracketButton);
@@ -106,13 +104,11 @@ function populateColumn(column, players) {
   }
 }
 
-// --- 이벤트 리스너 ---
-
 function setupEventListeners(
   leaderboardContainer,
   bracketContainer,
   stage,
-  data
+  data,
 ) {
   const totalBtn = leaderboardContainer.querySelector("#total-rank-btn");
   const courseABtn = leaderboardContainer.querySelector("#a-course-rank-btn");
@@ -124,40 +120,30 @@ function setupEventListeners(
       .querySelector(".leaderboard-table-container")
       ?.remove();
     renderLeaderboard(leaderboardContainer, rankData, view);
-    // 버튼 활성화 상태 업데이트
     leaderboardContainer
       .querySelectorAll(".view-button")
       .forEach((btn) => btn.classList.remove("active"));
     leaderboardContainer
       .querySelector(
-        `#${view === "total" ? "total" : `course${view.charAt(6)}`}-rank-btn`
+        `#${view === "total" ? "total" : `course${view.charAt(6)}`}-rank-btn`,
       )
       .classList.add("active");
   };
 
   totalBtn.addEventListener("click", () =>
-    switchView("total", data.total.items)
+    switchView("total", data.total.items),
   );
   courseABtn.addEventListener("click", () =>
-    switchView("courseA", data.courseA.items)
+    switchView("courseA", data.courseA.items),
   );
   courseBBtn.addEventListener("click", () =>
-    switchView("courseB", data.courseB.items)
+    switchView("courseB", data.courseB.items),
   );
 
   const fullBracketBtn = bracketContainer.querySelector("#full-bracket-btn");
   fullBracketBtn.addEventListener("click", () => renderFullBracketModal(stage));
 }
 
-// --- 전체 대진표 모달 ---
-
-/**
- * =================================================================
- * 수정된 부분 1: renderFullBracketModal
- * - 32강과 16강 데이터를 각각 비동기적으로 불러옵니다.
- * - 각 라운드에 맞는 데이터를 populateRound 함수로 전달합니다.
- * =================================================================
- */
 async function renderFullBracketModal(stage) {
   const modal = createHTMLElement("div", {
     id: "full-bracket-modal",
@@ -167,7 +153,7 @@ async function renderFullBracketModal(stage) {
   const closeButton = createHTMLElement(
     "span",
     { className: "close-button" },
-    "×"
+    "×",
   );
   const modalTitle = createHTMLElement("h2", {}, "전체 대진표");
   const bracketContainer = createHTMLElement("div", {
@@ -208,96 +194,67 @@ async function renderFullBracketModal(stage) {
 
   closeButton.onclick = () => modal.remove();
   window.onclick = (event) => {
-    if (event.target === modal) {
-      modal.remove();
-    }
+    if (event.target === modal) modal.remove();
   };
 
-  // 데이터 로딩 시작
   try {
-    // 32강과 16강 데이터를 병렬로 가져옵니다.
     const [data32, data16] = await Promise.all([
       api.fetchData("32"),
       api.fetchData("16"),
     ]);
 
-    // 32강 데이터 채우기
     if (data32 && data32.brackets && data32.brackets.items) {
       populateRound(
         modal.querySelector(".round-of-32"),
         data32.brackets.items,
-        32
+        32,
       );
     }
-
-    // 16강 데이터 채우기
     if (data16 && data16.brackets && data16.brackets.items) {
       populateRound(
         modal.querySelector(".round-of-16"),
         data16.brackets.items,
-        16
+        16,
       );
     }
-
-    // TODO: 8강, 4강, 결승 데이터 로직 추가
-    // populateRound(modal.querySelector('.round-of-8'), players8, 8);
-    // populateRound(modal.querySelector('.round-of-4'), players4, 4);
-    // populateRound(modal.querySelector('.final'), finalPlayers, 2);
   } catch (error) {
     console.error("전체 대진표 데이터를 가져오는 데 실패했습니다.", error);
     bracketContainer.textContent = "대진표를 불러오는 중 오류가 발생했습니다.";
   }
 }
 
-/**
- * =================================================================
- * 수정된 부분 2: populateRound
- * - slotNo를 기준으로 선수 목록을 정렬합니다.
- * - roundNumber(32, 16)에 따라 slotNo 범위에 맞게 선수를 좌/우로 분배합니다.
- * =================================================================
- */
 function populateRound(roundElement, players, roundNumber) {
   const leftColumn = roundElement.querySelector(".bracket-column:first-child");
   const rightColumn = roundElement.querySelector(".bracket-column:last-child");
   leftColumn.innerHTML = "";
   rightColumn.innerHTML = "";
 
-  // slotNo 기준으로 선수들을 정렬합니다.
   const sortedPlayers = players.sort((a, b) => a.slotNo - b.slotNo);
-
   let leftPlayers, rightPlayers;
 
   if (roundNumber === 32) {
-    // 32강: 좌측 1-16, 우측 17-32
     leftPlayers = sortedPlayers.filter((p) => p.slotNo >= 1 && p.slotNo <= 16);
     rightPlayers = sortedPlayers.filter(
-      (p) => p.slotNo >= 17 && p.slotNo <= 32
+      (p) => p.slotNo >= 17 && p.slotNo <= 32,
     );
   } else if (roundNumber === 16) {
-    // 16강: 좌측 1-8, 우측 9-16
     leftPlayers = sortedPlayers.filter((p) => p.slotNo >= 1 && p.slotNo <= 8);
     rightPlayers = sortedPlayers.filter((p) => p.slotNo >= 9 && p.slotNo <= 16);
   } else {
-    // 기타 라운드 (8강 이상)는 기존처럼 절반으로 나눕니다.
     const half = Math.ceil(sortedPlayers.length / 2);
     leftPlayers = sortedPlayers.slice(0, half);
     rightPlayers = sortedPlayers.slice(half);
   }
 
-  // 좌측 컬럼 채우기
   for (let i = 0; i < leftPlayers.length; i += 2) {
     const matchup = createMatchupElement(leftPlayers[i], leftPlayers[i + 1]);
     leftColumn.appendChild(matchup);
   }
-
-  // 우측 컬럼 채우기
   for (let i = 0; i < rightPlayers.length; i += 2) {
     const matchup = createMatchupElement(rightPlayers[i], rightPlayers[i + 1]);
     rightColumn.appendChild(matchup);
   }
 }
-
-// --- 유틸리티 및 헬퍼 함수 ---
 
 function createMatchupElement(player1, player2) {
   const matchupDiv = createHTMLElement("div", { className: "matchup" });
@@ -308,38 +265,29 @@ function createMatchupElement(player1, player2) {
 
 function createPlayerElement(player) {
   const playerDiv = createHTMLElement("div", { className: "player" });
-
   if (!player) {
     playerDiv.textContent = "부전승";
     playerDiv.classList.add("bye");
     return playerDiv;
   }
-
-  const isWinner = player.winLose === "WIN";
-  if (isWinner) {
+  if (player.winLose === "WIN") {
     playerDiv.classList.add("winner");
   }
 
   const rank = createHTMLElement(
     "span",
     { className: "player-rank" },
-    `${player.rank || "-"}`
+    `${player.rank || "-"}`,
   );
   const nickname = createHTMLElement(
     "span",
     { className: "player-nickname" },
-    player.memberNickname
+    player.memberNickname,
   );
   const score = createHTMLElement(
     "span",
     { className: "player-score" },
-    `${
-      player.score === 0
-        ? "E"
-        : player.score > 0
-        ? `+${player.score}`
-        : player.score
-    }`
+    `${player.score === 0 ? "E" : player.score > 0 ? `+${player.score}` : player.score}`,
   );
 
   playerDiv.append(rank, nickname, score);
