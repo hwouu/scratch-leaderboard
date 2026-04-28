@@ -88,7 +88,7 @@ API_URLS = {
         "info": "https://fairway.golfzon.com/v2/tournament/infos/12711"
     },
 
-    # === 2026 Scratch 1st OPEN ===
+    # === 2026 Scratch 1st OPEN 예선 ===
     "2026-1st-qualifying": {
         "total": "https://fairway.golfzon.com/v2/tournament/ranks/rounds/total/14843/stroke?gender=0&page=1&size=100",
         "courseA": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14844/stroke?gender=0&page=1&size=100",
@@ -124,7 +124,7 @@ API_URLS = {
         "courseB": "https://fairway.golfzon.com/v2/tournament/ranks/courses/14858/stroke?gender=0&page=1&size=50"
     },
 
-    # [중요] 대진표 API 호출 키
+    # === 대진표 API 호출 키 ===
     "2026-1st-bracket": {
         "bracket16": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14847",
         "bracket8": "https://fairway.golfzon.com/v2/tournament/brackets/rounds/14850",
@@ -139,10 +139,15 @@ def fetch_url(url):
     try:
         with request.urlopen(req) as response:
             data = json.loads(response.read().decode('utf-8'))
-            # 골프존 API 구조상 실제 데이터는 'data' 키 안에 들어있음
-            return data.get('data', data) 
+            # [수정] 골프존 API가 리스트(배열)로 바로 내려주는 경우 AttributeError를 방지
+            if isinstance(data, dict):
+                return data.get('data', data)
+            return data
     except error.URLError as e:
         print(f"Error fetching {url}: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error parsing {url}: {e}")
         return None
 
 class handler(BaseHTTPRequestHandler):
@@ -158,7 +163,7 @@ class handler(BaseHTTPRequestHandler):
         urls = API_URLS[stage]
         results = {}
 
-        # 병렬 스레드를 통해 다수의 API를 동시에 호출하여 속도 최적화
+        # 병렬 처리로 API를 호출하여 성능을 최적화
         with ThreadPoolExecutor(max_workers=len(urls)) as executor:
             future_to_key = {executor.submit(fetch_url, url): key for key, url in urls.items()}
             for future in future_to_key:
