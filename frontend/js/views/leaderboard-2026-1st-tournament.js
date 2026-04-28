@@ -109,7 +109,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     <div class="tv-wrapper">
       <header class="main-header">
         <div class="title-section">
-          <h1>2026 SCRATCH 1st <span>${current.label}</span> <span class="live-tag">LIVE</span></h1>
+          <h1>2026 SCRATCH 1st OPEN <span>${current.label}</span> <span class="live-tag">LIVE</span></h1>
           <span class="stage-date">${current.date}</span>
         </div>
         <div class="header-actions">

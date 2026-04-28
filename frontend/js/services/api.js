@@ -1,142 +1,136 @@
-let leaderboardData = null;
-let prevLeaderboardData = null;
-let allPlayers = [];
+let cachedData = null;
 let lastFetchTime = null;
+const CACHE_DURATION = 2 * 60 * 1000;
+let currentStage = null;
 
-const CACHE_DURATION = 2 * 60 * 1000; // 2분
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3000/api/index"
+    : "/api/index";
 
-/**
- * 서버에서 리더보드 데이터를 가져와 전역 상태를 업데이트합니다.
- * @param {string} stage - 가져올 데이터의 스테이지
- * @param {boolean} forceRefresh - 캐시를 무시하고 새로고침할지 여부
- * @returns {Promise<{success: boolean}>} 데이터 fetch 성공 여부를 반환합니다.
- */
-export async function fetchLeaderboardData(stage, forceRefresh = false) {
-  const now = new Date();
-  if (!forceRefresh && lastFetchTime && now - lastFetchTime < CACHE_DURATION) {
-    console.log("Using cached data.");
-    return { success: true }; // 수정: 캐시 사용 시 성공 객체 반환
+export async function fetchLeaderboardData(stage) {
+  if (
+    cachedData &&
+    currentStage === stage &&
+    lastFetchTime &&
+    Date.now() - lastFetchTime < CACHE_DURATION
+  ) {
+    return cachedData;
   }
 
-  const API_ENDPOINT = `/api?stage=${stage}`;
   try {
-    const response = await fetch(API_ENDPOINT);
+    const url = `${API_BASE_URL}?stage=${stage}`;
+    console.log(`Fetching from API: ${url}`);
+
+    const response = await fetch(url);
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`HTTP error! status: ${response.status}, response: ${errorText}`);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`API returned status ${response.status}`);
     }
+
     const data = await response.json();
+    console.log(`Raw API Response for ${stage}:`, data);
 
-    // 데이터가 null이거나 에러가 있는지 확인
-    const hasErrors = Object.values(data).some(value => 
-      value === null || (typeof value === 'object' && value.error)
-    );
-    
-    if (hasErrors) {
-      console.warn("API returned null or error values:", data);
-      // 에러가 있어도 부분적으로 사용 가능한 데이터는 처리
-      const hasValidData = Object.values(data).some(value => 
-        value !== null && !(typeof value === 'object' && value.error)
-      );
-      if (!hasValidData) {
-        console.error("No valid data received from API");
-        leaderboardData = null;
-        return { success: false, error: "No valid data received" };
-      }
+    // [중요] 대진표 API 호출인 경우 가공 로직을 타지 않고 그대로 캐싱 및 반환
+    if (stage === "2026-1st-bracket") {
+      cachedData = data;
+      currentStage = stage;
+      lastFetchTime = Date.now();
+      return cachedData;
     }
 
-    prevLeaderboardData = leaderboardData;
-    leaderboardData = data;
-    lastFetchTime = new Date();
-
-    processAllPlayersData(data);
-    return { success: true }; // 수정: 성공 시 성공 객체 반환
+    // 그 외 일반 리더보드 API 처리
+    if (data.total) {
+      const processedData = processAllPlayersData(data);
+      cachedData = processedData;
+      currentStage = stage;
+      lastFetchTime = Date.now();
+      return cachedData;
+    } else {
+      console.warn("API response does not contain 'total' data:", data);
+      cachedData = data;
+      currentStage = stage;
+      lastFetchTime = Date.now();
+      return cachedData;
+    }
   } catch (error) {
-    console.error("Failed to fetch leaderboard data:", error);
-    leaderboardData = null;
-    return { success: false, error: error.message }; // 수정: 실패 시 실패 객체 반환
+    console.error("Error fetching leaderboard data:", error);
+    return null;
   }
 }
 
-/**
- * API 응답 데이터를 기반으로 모든 플레이어 정보를 통합 처리합니다.
- * @param {object} data - API에서 받은 데이터 객체
- */
 function processAllPlayersData(data) {
   const playerMap = new Map();
 
-  const processRankData = (rankData, courseKey) => {
-    if (!rankData || !Array.isArray(rankData)) return;
-    rankData.forEach((player) => {
-      if (!playerMap.has(player.userId)) {
-        playerMap.set(player.userId, {
-          ...player,
-          courseScores: {},
-          courseRanks: {},
-          courseRoundCounts: {},
+  const processCourse = (courseData) => {
+    if (!courseData) return;
+    const items = Array.isArray(courseData)
+      ? courseData
+      : courseData.items || [];
+    items.forEach((p) => {
+      if (!playerMap.has(p.userId)) {
+        playerMap.set(p.userId, {
+          ...p,
+          score: 0,
+          totalScore: 0,
+          roundCount: 0,
         });
       }
-      const p = playerMap.get(player.userId);
-      p.courseScores[courseKey] = player.score;
-      p.courseRanks[courseKey] = player.rank;
-      p.courseRoundCounts[courseKey] = player.roundCount;
-
-      if (courseKey === "total") {
-        p.totalScore = player.totalScore;
-        p.rank = player.rank;
-        p.isTieRank = player.isTieRank;
-        p.roundCount = player.roundCount;
-        p.revisionGrade = player.revisionGrade;
-      }
+      const existing = playerMap.get(p.userId);
+      existing.score += p.score || 0;
+      existing.totalScore +=
+        p.totalScore !== undefined ? p.totalScore : p.score || 0;
+      existing.roundCount += p.roundCount || 0;
     });
   };
 
-  processRankData(data.total, "total");
-  processRankData(data.courseA, "courseA");
-  processRankData(data.courseB, "courseB");
-  if (data.courseC) {
-    processRankData(data.courseC, "courseC");
-  }
+  processCourse(data.courseA);
+  processCourse(data.courseB);
+  processCourse(data.courseC);
 
-  allPlayers = Array.from(playerMap.values());
+  let syntheticTotal = Array.from(playerMap.values());
+
+  // 성적순 정렬 -> 동점일 경우 라운드 수 순 정렬
+  syntheticTotal.sort((a, b) => {
+    if (a.totalScore !== b.totalScore) return a.totalScore - b.totalScore;
+    return b.roundCount - a.roundCount;
+  });
+
+  let currentRank = 1;
+  let tieCount = 0;
+
+  syntheticTotal.forEach((p, i) => {
+    if (i === 0) {
+      p.rank = currentRank;
+      p.isTieRank = 0;
+    } else {
+      const prev = syntheticTotal[i - 1];
+      if (
+        p.totalScore === prev.totalScore &&
+        p.roundCount === prev.roundCount
+      ) {
+        p.rank = currentRank;
+        p.isTieRank = 1;
+        prev.isTieRank = 1;
+        tieCount++;
+      } else {
+        currentRank += tieCount + 1;
+        p.rank = currentRank;
+        p.isTieRank = 0;
+        tieCount = 0;
+      }
+    }
+  });
+
+  return {
+    info: data.info || {},
+    total: syntheticTotal,
+    courseA: data.courseA || [],
+    courseB: data.courseB || [],
+    courseC: data.courseC || [],
+  };
 }
 
-export const getLeaderboardData = () => leaderboardData;
-export const getPrevLeaderboardData = () => prevLeaderboardData;
-export const getAllPlayers = () => allPlayers;
-export const getLastFetchTime = () => lastFetchTime;
-
-/**
- * 특정 스테이지의 데이터를 서버에서 직접 가져와 반환합니다. (전역 상태를 변경하지 않음)
- * @param {string} stage - 가져올 데이터의 스테이지
- * @returns {Promise<Object|null>} 성공 시 해당 스테이지의 데이터, 실패 시 null
- */
-export async function fetchStageData(stage) {
-  const API_ENDPOINT = `/api?stage=${stage}`;
-  try {
-    const response = await fetch(API_ENDPOINT);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `HTTP error! status: ${response.status} for stage: ${stage}, response: ${errorText}`
-      );
-      return null;
-    }
-    const data = await response.json();
-    
-    // 데이터가 null이거나 에러가 있는지 확인
-    const hasErrors = Object.values(data).some(value => 
-      value === null || (typeof value === 'object' && value.error)
-    );
-    
-    if (hasErrors) {
-      console.warn(`API returned null or error values for stage ${stage}:`, data);
-    }
-    
-    return data;
-  } catch (error) {
-    console.error(`Failed to fetch data for stage ${stage}:`, error);
-    return null;
-  }
+export function getLeaderboardData() {
+  return cachedData;
 }

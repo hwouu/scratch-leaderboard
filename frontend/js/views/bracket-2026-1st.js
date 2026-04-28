@@ -4,50 +4,51 @@ let updateInterval;
 
 export async function renderBracket2026_1st(stage, appElement) {
   const styles = `
-    .bracket-wrapper { background: #0b0c0e; height: 100vh; padding: 3vh 2vw; display: flex; flex-direction: column; align-items: center; color: #fff; overflow: hidden; font-family: 'Pretendard', sans-serif; }
+    .bracket-wrapper { background: #0b0c0e; height: 100vh; padding: 2vh 2vw; display: flex; flex-direction: column; align-items: center; color: #fff; overflow: hidden; font-family: 'Pretendard', sans-serif; }
     
     /* 상단 상금 보드 */
-    .prize-glass-board { background: linear-gradient(180deg, #1e2128 0%, #111318 100%); border: 1px solid #333; border-radius: 16px; padding: 2vh 4vw; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-bottom: 3vh; position: relative; z-index: 10; }
-    .prize-label { font-size: 1.4vh; color: #666; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5vh; }
+    .prize-glass-board { background: linear-gradient(180deg, #1e2128 0%, #111318 100%); border: 1px solid #333; border-radius: 16px; padding: 2vh 4vw; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-bottom: 2vh; position: relative; z-index: 10; }
+    .prize-label { font-size: 1.6vh; color: #888; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5vh; }
     .prize-value { font-size: 6.5vh; font-weight: 900; color: var(--accent-yellow); text-shadow: 0 0 30px rgba(255,193,7,0.3); font-variant-numeric: tabular-nums; }
     .prize-currency { font-size: 2.5vh; color: #fff; margin-left: 10px; font-weight: 700; }
 
-    /* 좌우 대칭 대진표 구조 */
+    /* 대진표 구조 */
     .tournament-stage { display: flex; justify-content: center; align-items: center; gap: 0; width: 100%; flex: 1; min-width: 1100px; }
-    
     .side-wing { display: flex; gap: 0; align-items: center; }
     .side-wing.right { flex-direction: row-reverse; }
 
     .round-col { display: flex; flex-direction: column; justify-content: space-around; width: 180px; height: 55vh; }
     .match-pair { margin: 1.5vh 0; position: relative; padding: 0 20px; width: 100%; box-sizing: border-box; }
     
-    /* 연결 라인 */
     .left .match-pair::after { content: ''; position: absolute; right: 0; top: 25%; height: 50%; width: 20px; border: 2px solid #333; border-left: none; border-radius: 0 8px 8px 0; }
     .right .match-pair::before { content: ''; position: absolute; left: 0; top: 25%; height: 50%; width: 20px; border: 2px solid #333; border-right: none; border-radius: 8px 0 0 8px; }
 
-    .slot { background: #1c1f26; border: 1px solid #333; padding: 1vh 1vw; font-weight: 700; font-size: 1.6vh; display: flex; justify-content: space-between; border-radius: 4px; position: relative; z-index: 2; align-items: center; }
+    .slot { background: #1c1f26; border: 1px solid #333; padding: 1.2vh 1vw; font-weight: 700; font-size: 1.8vh; display: flex; justify-content: space-between; border-radius: 4px; position: relative; z-index: 2; align-items: center; }
     .slot:first-child { margin-bottom: 2px; }
     .slot-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
-    .slot-rank { color: #666; font-size: 1.3vh; font-weight: 600; }
+    .slot-rank { color: #666; font-size: 1.4vh; font-weight: 600; }
 
-    /* 중앙 결승전 */
     .final-center { display: flex; flex-direction: column; align-items: center; gap: 2vh; padding: 0 3vw; position: relative; }
     .center-line-horizontal { position: absolute; top: 50%; left: -20px; right: -20px; height: 2px; background: #333; z-index: 1; }
     .final-box { background: #16181c; border: 2px solid var(--accent-yellow); border-radius: 12px; width: 220px; padding: 0; box-shadow: 0 0 40px rgba(255,193,7,0.2); z-index: 2; overflow: hidden; }
-    .final-label { background: rgba(255,193,7,0.1); color: var(--accent-yellow); font-size: 1.3vh; font-weight: 900; text-align: center; padding: 1vh; letter-spacing: 2px; border-bottom: 1px solid rgba(255,193,7,0.3); }
+    .final-label { background: rgba(255,193,7,0.1); color: var(--accent-yellow); font-size: 1.5vh; font-weight: 900; text-align: center; padding: 1vh; letter-spacing: 2px; border-bottom: 1px solid rgba(255,193,7,0.3); }
 
-    .bracket-nav { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2vh; }
-    .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.8vh 1.2vw; border-radius: 6px; font-size: 1.5vh; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5vw; text-decoration: none; transition: 0.2s; }
+    /* 헤더 텍스트 확대 및 LIVE 배지 복구 */
+    .bracket-nav { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2vh; }
+    .bracket-nav h2 { margin: 0; font-weight: 900; font-size: 3.5vh; display: flex; align-items: center; gap: 10px; }
+    .live-tag { background: #ff0000; color: #fff; padding: 0.3vh 0.8vw; font-size: 1.6vh; font-weight: 800; border-radius: 4px; vertical-align: middle; animation: pulse 2s infinite; }
+    
+    .header-actions { display: flex; gap: 10px; }
+    .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 1vh 1.5vw; border-radius: 6px; font-size: 1.6vh; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5vw; text-decoration: none; transition: 0.2s; }
     .btn-glass:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
     .btn-gold { border-color: var(--accent-yellow); color: var(--accent-yellow); }
 
-    .footer-note { font-size: 1.4vh; color: #555; margin-top: 2vh; }
+    .footer-note { font-size: 1.6vh; color: #777; margin-top: 1vh; font-weight: 600; }
 
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     @keyframes jackpotBurst { 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; } }
     .casino-coin { position: absolute; top: 30%; left: 50%; font-size: 3rem; pointer-events: none; z-index: 9999; animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-    @keyframes textGlow { 0% { text-shadow: 0 0 30px rgba(255, 193, 7, 0.4); transform: scale(1); } 50% { text-shadow: 0 0 80px rgba(255, 193, 7, 1), 0 0 120px rgba(255, 255, 255, 0.6); transform: scale(1.05); color: #fffacd; } 100% { text-shadow: 0 0 30px rgba(255, 193, 7, 0.4); transform: scale(1); } }
-    .prize-amount.rolling { animation: textGlow 0.4s ease-in-out infinite alternate; }
-
+    
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .overview-modal-content { position: relative; padding: 20px; text-align: center; max-width: 90vw; }
@@ -59,8 +60,8 @@ export async function renderBracket2026_1st(stage, appElement) {
     <style>${styles}</style>
     <div class="bracket-wrapper" id="bracket-tv-wrapper">
       <div class="bracket-nav">
-        <h2 style="margin:0; font-weight:900; font-size:2.2vh;">2026 SCRATCH 1st <span style="color:var(--accent-yellow)">BRACKET</span></h2>
-        <div style="display:flex; gap:10px;">
+        <h2>2026 SCRATCH 1st <span style="color:var(--accent-yellow)">BRACKET</span> <span class="live-tag">LIVE</span></h2>
+        <div class="header-actions">
           <button id="btn-open-overview-br" class="btn-glass"><i class="fas fa-info-circle"></i> 개요</button>
           <a href="/" class="btn-glass btn-gold"><i class="fas fa-list-ol"></i> 랭킹 보기</a>
         </div>
@@ -72,12 +73,12 @@ export async function renderBracket2026_1st(stage, appElement) {
       </div>
 
       <div class="tournament-stage" id="bracket-render-area">
-        <div style="text-align: center; width: 100%; color: #888;">
+        <div style="text-align: center; width: 100%; color: #888; font-size: 2vh;">
           <i class="fas fa-spinner fa-spin" style="margin-right:10px;"></i> 대진표 데이터를 불러오는 중...
         </div>
       </div>
 
-      <div class="footer-note">"결승전 중 홀인원은 첫번째 홀인원 달성자에게 전액 지급됩니다"</div>
+      <div class="footer-note">"결승전 중 홀인원은 첫번째 홀인원 달성자에게 전액(100%) 지급됩니다"</div>
     </div>
 
     <div id="br-overview-modal" class="modal-overlay">
@@ -129,8 +130,6 @@ export async function renderBracket2026_1st(stage, appElement) {
 
   const getPlayer = (rawList, slot) => {
     if (!rawList) return { name: "준비중", rank: "" };
-
-    // API 응답 형태 지원 (배열이거나 data 안의 배열이거나)
     let players = Array.isArray(rawList)
       ? rawList
       : rawList.data || rawList.result || [];
@@ -147,15 +146,15 @@ export async function renderBracket2026_1st(stage, appElement) {
 
   const renderMatches = () => {
     const data = getLeaderboardData();
-    const renderArea = document.getElementById("bracket-render-area");
-    if (!renderArea) return;
+    if (!data) return;
 
-    const b16 = data?.bracket16;
-    const b8 = data?.bracket8;
-    const b4 = data?.bracket4;
-    const bFinal = data?.bracketFinal;
+    // api.js 수정에 의해 bracket16 등 키값이 보장됨
+    const b16 = data.bracket16 || [];
+    const b8 = data.bracket8 || [];
+    const b4 = data.bracket4 || [];
+    const bFinal = data.bracketFinal || [];
 
-    // 좌측 날개 (1,2,3,4,5,6,7,8)
+    // 좌측 날개 (1~8)
     let leftHtml = '<div class="side-wing left"><div class="round-col">';
     for (let i = 1; i <= 8; i += 2) {
       const p1 = getPlayer(b16, i);
@@ -194,14 +193,14 @@ export async function renderBracket2026_1st(stage, appElement) {
         <div class="center-line-horizontal"></div>
         <div class="final-box">
           <div class="final-label">🏆 THE FINAL MATCH 🏆</div>
-          <div class="slot" style="border:none; border-radius:0; justify-content:center; font-size: 2vh; padding: 2vh 0;"><span class="slot-name">${f1.name}</span></div>
+          <div class="slot" style="border:none; border-radius:0; justify-content:center; font-size: 2.2vh; padding: 2vh 0;"><span class="slot-name">${f1.name}</span></div>
           <div style="text-align:center; color:#555; background:#16181c; padding: 0.5vh 0;">VS</div>
-          <div class="slot" style="border:none; border-radius:0; justify-content:center; font-size: 2vh; padding: 2vh 0;"><span class="slot-name">${f2.name}</span></div>
+          <div class="slot" style="border:none; border-radius:0; justify-content:center; font-size: 2.2vh; padding: 2vh 0;"><span class="slot-name">${f2.name}</span></div>
         </div>
       </div>
     `;
 
-    // 우측 날개 (9,10,11,12,13,14,15,16) -> 역방향 진행
+    // 우측 날개 (9~16) 역방향
     let rightHtml = '<div class="side-wing right"><div class="round-col">';
     for (let i = 9; i <= 16; i += 2) {
       const p1 = getPlayer(b16, i);
@@ -232,19 +231,18 @@ export async function renderBracket2026_1st(stage, appElement) {
         </div>
       </div></div>`;
 
-    renderArea.innerHTML = leftHtml + centerHtml + rightHtml;
+    document.getElementById("bracket-render-area").innerHTML =
+      leftHtml + centerHtml + rightHtml;
   };
 
   const updatePrize = async () => {
     try {
-      await fetchLeaderboardData(stage);
+      await fetchLeaderboardData("2026-1st-bracket");
       renderMatches();
 
-      const totalQualRound = 3838;
-      const holeInOneCount = 0;
-      const targetAmount = Math.floor(
-        totalQualRound * 2000 * Math.pow(0.5, holeInOneCount),
-      );
+      // 대표님 요청 고정상수: 955게임
+      const fixedQualGames = 955;
+      const targetAmount = fixedQualGames * 2000;
 
       const amountEl = document.getElementById("br-prize-amount");
       if (!amountEl) return;
@@ -267,5 +265,5 @@ export async function renderBracket2026_1st(stage, appElement) {
 
   await updatePrize();
   if (updateInterval) clearInterval(updateInterval);
-  updateInterval = setInterval(updatePrize, 60000);
+  updateInterval = setInterval(updatePrize, 60000); // 1분 갱신
 }
