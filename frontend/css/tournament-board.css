@@ -12,7 +12,9 @@
     color: #fff;
   }
   
-  /* 상단 헤더 영역 */
+  /* =========================================
+     상단 헤더 영역
+  ========================================= */
   .tb-header {
     display: flex;
     flex-direction: column;
@@ -63,35 +65,52 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
   
-  .tb-info-left { display: flex; gap: 3.5rem; align-items: center; flex-wrap: wrap; }
+  .tb-info-left {
+    display: flex;
+    gap: 3.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
   .tb-info-stage { font-size: 1.15rem; color: var(--accent-blue, #3b82f6); font-weight: 800; display: flex; align-items: center; gap: 8px; }
   .tb-info-stage span { font-size: 0.95rem; color: #aaa; font-weight: 600; }
   .tb-info-item { display: flex; align-items: center; gap: 10px; color: #d1d5db; font-size: 1rem; }
   .tb-info-item i { color: var(--accent-blue, #3b82f6); width: 18px; text-align: center; font-size: 1.1rem; }
   .tb-info-value { color: #fff; font-weight: 700; letter-spacing: 0.5px; }
+  
   .tb-info-update { font-size: 0.95rem; color: #888; display: flex; align-items: center; gap: 8px; }
   .tb-info-update-time { color: #fff; font-weight: 600; }
   
-  /* 대진표 버튼 전용 스타일 */
+  /* 버튼 스타일 (기본 투명, 대진표 버튼은 노란색 강조) */
   .btn-glass {
-    background: rgba(255, 193, 7, 0.1);
-    border: 1px solid var(--accent-yellow, #ffc107);
-    color: var(--accent-yellow, #ffc107);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
     padding: 0.6rem 1.2rem;
     border-radius: 6px;
     font-size: 0.95rem;
-    font-weight: 800;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     text-decoration: none;
     transition: 0.2s;
+  }
+  .btn-glass:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+  
+  .btn-bracket {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid var(--accent-yellow, #ffc107) !important;
+    color: var(--accent-yellow, #ffc107) !important;
     box-shadow: 0 0 10px rgba(255, 193, 7, 0.2);
   }
-  .btn-glass:hover { background: rgba(255, 193, 7, 0.2); }
+  .btn-bracket:hover { background: rgba(255, 193, 7, 0.2); }
   
-  /* 2단 분할 그리드 */
+  
+  /* =========================================
+     2단 분할 그리드 및 테이블 레이아웃
+  ========================================= */
   .tb-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -106,7 +125,6 @@
     min-height: 200px;
   }
   
-  /* 테이블 레이아웃 */
   .tb-table-container {
     width: 100%;
     background: #16181c;
@@ -114,6 +132,11 @@
     border: 1px solid #333;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  /* PC에서 데이터가 전혀 없는 표를 투명하게 만들어 빈 공간처럼 보이게 함 */
+  .tb-empty-table-container {
+    opacity: 0.3;
   }
   
   .tb-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; }
@@ -124,27 +147,35 @@
   .tb-table tr.clickable { cursor: pointer; }
   .tb-table tr.clickable:hover td { background: rgba(255, 255, 255, 0.06); }
   
-  /* 데이터 강조 스타일 */
+  
+  /* =========================================
+     데이터 강조 스타일
+  ========================================= */
   .tb-rank { font-size: 1.5rem; font-weight: 900; }
   .tb-player { text-align: left; padding-left: 1.5rem !important; }
   .tb-name { font-size: 1.2rem; font-weight: 800; }
   .tb-score { font-size: 1.1rem; color: #aaa; }
   .tb-final-score { font-size: 1.6rem; font-weight: 900; }
   
-  .tb-row-top-eight td { background-color: rgba(40, 167, 69, 0.08); }
+  .tb-row-top-eight td { background-color: rgba(40, 167, 69, 0.08) !important; }
   .tb-row-top-eight .tb-rank { color: var(--accent-green, #28a745); }
   
   /* 컷오프 경계선 */
   .tb-cutoff-line td { border-bottom: 2px dashed #ff4757 !important; position: relative; }
   .tb-cutoff-line td:last-child::after { content: "CUT-OFF"; position: absolute; right: 10px; bottom: -10px; background: #ff4757; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; z-index: 5; }
   
-  /* 스켈레톤 UI */
+  
+  /* =========================================
+     스켈레톤 UI
+  ========================================= */
   .tb-skeleton-box { height: 20px; background: #2a2d35; border-radius: 4px; position: relative; overflow: hidden; margin: 0 auto; }
   .tb-skeleton-box.left { margin: 0; max-width: 120px; }
   .tb-skeleton-box.short { max-width: 40px; }
   .tb-skeleton-box::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; transform: translateX(-100%); background: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.05) 20%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0)); animation: shimmer 1.5s infinite; }
+  
   @keyframes shimmer { 100% { transform: translateX(100%); } }
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+  
   
   /* =========================================
      [NEW] 프리미엄 VS 대결 구도 모달 UI
@@ -247,7 +278,9 @@
   /* =========================================
      [모바일 최적화 미디어 쿼리]
   ========================================= */
-  @media (max-width: 1200px) { .tb-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1200px) { 
+    .tb-grid { grid-template-columns: 1fr; } 
+  }
   @media (max-width: 950px) {
     .tb-info-bar { flex-direction: column; align-items: flex-start; padding: 1.5rem; gap: 1.5rem; }
     .tb-info-left { flex-direction: column; align-items: flex-start; gap: 1rem; }
@@ -263,22 +296,23 @@
     .tb-info-item { font-size: 0.85rem; gap: 6px; }
     .tb-info-update { font-size: 0.85rem; }
   
-    /* 모바일 대진표 버튼 아이콘화 & 숨김 */
+    /* 모바일에서 버튼 아이콘화 & 불필요한 버튼 숨김 */
     .btn-glass { padding: 0.6rem 0.8rem; font-size: 1.1rem; justify-content: center; }
     .btn-text { display: none; }
     .btn-bracket { display: none !important; } 
+    .pc-only-btn { display: none !important; } 
   
-    /* 테이블 축소 */
+    /* 테이블 축소 및 모바일 전용 컬럼 숨김 */
     .tb-table th { font-size: 0.75rem; padding: 0.6rem 0.2rem; }
     .tb-table td { height: 3.4rem; padding: 0 0.3rem; }
     .tb-rank { font-size: 1.2rem; }
     .tb-name { font-size: 1.05rem; }
     .tb-final-score { font-size: 1.3rem; }
     .tb-player { padding-left: 0.6rem !important; }
-    
     .tb-hide-mobile { display: none !important; }
   
-    /* 모바일 빈 행/테이블 숨김 */
+    /* 모바일에서 빈 행/테이블 완전 숨김 (PC에서는 유지) */
     .tb-empty-row { display: none !important; }
     .tb-empty-table-placeholder { display: none !important; }
+    .tb-empty-table-container { display: none !important; }
   }

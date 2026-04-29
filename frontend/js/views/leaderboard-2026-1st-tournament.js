@@ -17,21 +17,20 @@ function getTournamentConfig(stage) {
 }
 
 function renderSkeletonTable(rowCount) {
-  const rows = Array.from({ length: rowCount }).map(() => `
-    <tr class="tb-skeleton-row">
-      <td><div class="tb-skeleton-box short"></div></td>
-      <td class="tb-player"><div class="tb-skeleton-box left"></div></td>
-      <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
-      <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
-      <td><div class="tb-skeleton-box short"></div></td>
-    </tr>
-  `).join('');
-
   return `
     <div class="tb-table-container">
       <table class="tb-table"><colgroup><col style="width: 15%;"><col style="width: 40%;"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;"></colgroup>
         <thead><tr><th>순위</th><th class="tb-player">선수 정보</th><th class="tb-hide-mobile">A코스</th><th class="tb-hide-mobile">B코스</th><th>합산성적</th></tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>
+          ${Array.from({ length: rowCount }).map(() => `
+            <tr class="tb-skeleton-row">
+              <td><div class="tb-skeleton-box short"></div></td>
+              <td class="tb-player"><div class="tb-skeleton-box left"></div></td>
+              <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
+              <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
+              <td><div class="tb-skeleton-box short"></div></td>
+            </tr>`).join('')}
+        </tbody>
       </table>
     </div>`;
 }
@@ -43,7 +42,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   }
 
   const config = getTournamentConfig(stage);
-  const halfCount = Math.ceil(config.total / 2) || 8;
+  const halfCount = 8;
   const stagePrefix = config.name.split(' ')[0];
 
   appElement.innerHTML = `
@@ -52,6 +51,8 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
         <div class="tb-title-group">
           <h1 class="tb-title">2026 Scratch 1st <span style="color:var(--accent-yellow)">OPEN</span> <span class="tb-live-badge">LIVE</span></h1>
           <div class="header-actions" style="display:flex; gap:8px;">
+            <button id="btn-refresh-tb" class="btn-glass pc-only-btn"><i class="fas fa-sync-alt"></i> <span class="btn-text">새로고침</span></button>
+            <button id="btn-open-overview-tb" class="btn-glass pc-only-btn" style="color: var(--accent-blue); border-color: var(--accent-blue);"><i class="fas fa-info-circle"></i> <span class="btn-text">대회 개요</span></button>
             <a href="/2026-1st/bracket" class="btn-glass btn-bracket"><i class="fas fa-sitemap"></i> <span class="btn-text">대진표 보기</span></a>
           </div>
         </div>
@@ -72,10 +73,16 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       </main>
     </div>
 
+    <div id="tb-overview-modal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s;">
+      <div class="overview-modal-content" style="position: relative; padding: 20px; text-align: center; max-width: 90vw;">
+        <button id="btn-close-overview-tb" style="position: absolute; top: -15px; right: -15px; background: #16181c; color: #fff; border: 2px solid #333; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 3001;">&times;</button>
+        <img src="/assets/2026-1st-overview.jpg" style="max-width: 100%; max-height: 85vh; border-radius: 12px; position: relative;" />
+      </div>
+    </div>
+
     <div id="player-detail-modal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(5px);">
       <div class="player-modal-content">
         <button id="btn-close-player-modal" class="player-modal-close"><i class="fas fa-times"></i></button>
-        
         <div class="pm-vs-container">
           <div class="pm-side pm-me">
             <div class="pm-label">나의 성적</div>
@@ -89,9 +96,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
             <div class="pm-score" id="pm-opp-score" style="color: #ccc;">-</div>
           </div>
         </div>
-
         <div class="pm-status-msg" id="pm-status">-</div>
-
         <div class="pm-detail-box">
           <div class="pm-detail-row"><span class="label">현재 전체 순위</span><span class="value" id="pm-rank">-</span></div>
           <div class="pm-detail-row"><span class="label">A코스 점수</span><span class="value" id="pm-a">-</span></div>
@@ -102,24 +107,18 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   `;
 
   const formatScore = (s) => s === undefined || s === null || s === '-' ? '-' : (s === 0 ? 'E' : (s > 0 ? `+${s}` : s));
-  const getScoreColor = (score) => {
-    if (score === null || score === undefined || score === '-') return '#fff';
-    return score > 0 ? '#ff4757' : (score < 0 ? '#3b82f6' : '#fff');
-  };
+  const getScoreColor = (score) => score > 0 ? '#ff4757' : (score < 0 ? '#3b82f6' : '#fff');
 
   const getMatchInfo = (playerName, bracketData, bracketKey) => {
     if (!bracketData || !bracketKey) return null;
     let bList = bracketData[bracketKey] || [];
     if (bList.data) bList = bList.data;
     if (!Array.isArray(bList)) return null;
-
     const me = bList.find(p => p.userNickname === playerName);
     if (!me) return null;
-
     const mySlot = me.slotNo;
     const oppSlot = mySlot % 2 === 1 ? mySlot + 1 : mySlot - 1;
     const opp = bList.find(p => p.slotNo === oppSlot);
-
     return {
       oppName: opp && opp.userNickname ? opp.userNickname : '대기중/부전승',
       oppScoreRaw: opp && opp.userNickname ? (opp.totalScore !== undefined ? opp.totalScore : opp.score) : null
@@ -128,31 +127,22 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
 
   const generateTableHtml = (playersGroup, bracketData) => {
     const hasValidData = playersGroup.some(p => p && p.userId);
-    if (!hasValidData) {
-      return `<div class="tb-empty-table-placeholder tb-hide-mobile"></div>`;
-    }
-
+    // PC 버전에서는 데이터가 없어도 빈 표(Skeleton/Placeholder)를 보여주기 위해 rowHTML 생성 강제
     const rowsHTML = playersGroup.map((player, idx) => {
       if (!player || !player.userId) {
         return `<tr class="tb-empty-row"><td class="tb-rank" style="color:#333;">-</td><td class="tb-player"><span class="tb-name" style="color:#333;">-</span></td><td class="tb-hide-mobile">-</td><td class="tb-hide-mobile">-</td><td>-</td></tr>`;
       }
-
       const isTopEight = player.rank <= 8;
       const isCutoffLine = player.rank === config.advanceCount && (playersGroup[idx + 1]?.rank > config.advanceCount || idx === playersGroup.length - 1);
       let rowClass = isTopEight ? 'tb-row-top-eight' : '';
       if (isCutoffLine) rowClass += ' tb-cutoff-line';
-
       const scoresArr = player.scores || [];
       const aScore = scoresArr[0] ? scoresArr[0].score : null;
       const bScore = scoresArr[1] ? scoresArr[1].score : null;
-      
       const myScoreRaw = player.totalScore;
       const scoreStr = formatScore(myScoreRaw);
       const scoreColor = getScoreColor(myScoreRaw);
       const rankStr = player.isTieRank ? `T${player.rank}` : player.rank;
-      const f_aScore = formatScore(aScore);
-      const f_bScore = formatScore(bScore);
-
       const matchInfo = getMatchInfo(player.userNickname, bracketData, config.bracketKey);
       const oppName = matchInfo ? matchInfo.oppName : '데이터 없음';
       const oppScoreRaw = matchInfo ? matchInfo.oppScoreRaw : null;
@@ -160,36 +150,18 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       const oppScoreColor = getScoreColor(oppScoreRaw);
 
       return `
-        <tr class="${rowClass} clickable player-row" 
-            data-name="${player.userNickname}" 
-            data-rank="${rankStr}" 
-            data-a="${f_aScore}" 
-            data-b="${f_bScore}" 
-            data-total="${scoreStr}" 
-            data-color="${scoreColor}"
-            data-raw="${myScoreRaw}"
-            data-oppname="${oppName}"
-            data-oppscore="${oppScoreStr}"
-            data-oppcolor="${oppScoreColor}"
-            data-oppraw="${oppScoreRaw !== null && oppScoreRaw !== undefined ? oppScoreRaw : 'null'}">
-          <td class="tb-rank">${rankStr}</td>
-          <td class="tb-player"><span class="tb-name">${player.userNickname}</span></td>
-          <td class="tb-score tb-hide-mobile">${f_aScore}</td>
-          <td class="tb-score tb-hide-mobile">${f_bScore}</td>
-          <td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
-        </tr>
-      `;
+        <tr class="${rowClass} clickable player-row" data-name="${player.userNickname}" data-rank="${rankStr}" data-a="${formatScore(aScore)}" data-b="${formatScore(bScore)}" data-total="${scoreStr}" data-color="${scoreColor}" data-raw="${myScoreRaw}" data-oppname="${oppName}" data-oppscore="${oppScoreStr}" data-oppcolor="${oppScoreColor}" data-oppraw="${oppScoreRaw !== null && oppScoreRaw !== undefined ? oppScoreRaw : 'null'}">
+          <td class="tb-rank">${rankStr}</td><td class="tb-player"><span class="tb-name">${player.userNickname}</span></td><td class="tb-score tb-hide-mobile">${formatScore(aScore)}</td><td class="tb-score tb-hide-mobile">${formatScore(bScore)}</td><td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
+        </tr>`;
     }).join('');
 
     return `
-      <div class="tb-table-container">
-        <table class="tb-table">
-          <colgroup><col style="width: 15%;"><col style="width: 40%;"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;"></colgroup>
+      <div class="tb-table-container ${!hasValidData ? 'tb-empty-table-container' : ''}">
+        <table class="tb-table"><colgroup><col style="width: 15%;"><col style="width: 40%;"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;" class="tb-hide-mobile"><col style="width: 15%;"></colgroup>
           <thead><tr><th>순위</th><th class="tb-player">선수 정보</th><th class="tb-hide-mobile">A코스</th><th class="tb-hide-mobile">B코스</th><th>합산성적</th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
-      </div>
-    `;
+      </div>`;
   };
 
   const renderData = async () => {
@@ -197,86 +169,59 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       fetchData(stage).catch(() => null),
       fetchData("2026-1st-bracket").catch(() => null)
     ]);
-
     const timeEl = document.getElementById('tb-last-updated');
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR');
     const contentArea = document.getElementById('tb-content-area');
-
     if (!rawData || !rawData.total || rawData.total.length === 0) {
       contentArea.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #888; padding: 3rem;">아직 해당 라운드의 데이터가 없습니다.</div>`;
       return;
     }
-
     const players = rawData.total;
     let paddedPlayers = [...players];
     while (paddedPlayers.length < config.total) paddedPlayers.push({});
-
     const col1 = paddedPlayers.slice(0, halfCount);
     const col2 = paddedPlayers.slice(halfCount, config.total);
-
     contentArea.innerHTML = generateTableHtml(col1, bracketData) + generateTableHtml(col2, bracketData);
   };
 
+  // 새로고침 및 모달 이벤트 복구
+  document.getElementById("btn-refresh-tb").onclick = async () => {
+    document.getElementById('tb-content-area').innerHTML = renderSkeletonTable(halfCount) + renderSkeletonTable(halfCount);
+    await renderData();
+  };
+  const modal = document.getElementById("tb-overview-modal");
+  document.getElementById("btn-open-overview-tb").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
+  document.getElementById("btn-close-overview-tb").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
+
+  // 선수 상세 모달 로직 (위와 동일)
   const pModal = document.getElementById("player-detail-modal");
   document.getElementById("tb-content-area").addEventListener("click", (e) => {
     const row = e.target.closest(".player-row");
     if (!row) return;
-
     document.getElementById("pm-name").textContent = row.dataset.name;
     document.getElementById("pm-rank").textContent = row.dataset.rank + "위";
     document.getElementById("pm-a").textContent = row.dataset.a;
     document.getElementById("pm-b").textContent = row.dataset.b;
-    
     const totalEl = document.getElementById("pm-total");
-    totalEl.textContent = row.dataset.total;
-    totalEl.style.color = row.dataset.color;
-
+    totalEl.textContent = row.dataset.total; totalEl.style.color = row.dataset.color;
     document.getElementById("pm-opp-name").textContent = row.dataset.oppname;
     const oppScoreEl = document.getElementById("pm-opp-score");
-    oppScoreEl.textContent = row.dataset.oppscore;
-    oppScoreEl.style.color = row.dataset.oppcolor;
-
-    // 💡 [수정됨] 데이터 유무(NaN) 판별 완벽 대응 및 상태 문구 추가
+    oppScoreEl.textContent = row.dataset.oppscore; oppScoreEl.style.color = row.dataset.oppcolor;
     const statusEl = document.getElementById("pm-status");
-    const myRaw = parseFloat(row.dataset.raw);
-    const oppRawStr = row.dataset.oppraw;
-    
-    // 유효한 숫자인지(NaN이 아닌지) 검사
-    const hasMyScore = !isNaN(myRaw);
-    const hasOppScore = oppRawStr !== 'null' && oppRawStr !== 'undefined' && oppRawStr !== '' && !isNaN(parseFloat(oppRawStr));
-
+    const myRaw = parseFloat(row.dataset.raw); const oppRawStr = row.dataset.oppraw;
+    const hasMyScore = !isNaN(myRaw); const hasOppScore = oppRawStr !== 'null' && oppRawStr !== 'undefined' && !isNaN(parseFloat(oppRawStr));
     if (!hasOppScore) {
-      // 상대방 점수는 없는데 내 점수는 있는 경우 (내가 먼저 쳤거나, 부전승)
-      if (hasMyScore) {
-        statusEl.innerHTML = `현재 앞서가는 중! <span style="color:#28a745;">🟢</span>`;
-        statusEl.style.color = "#fff";
-      } else {
-        // 둘 다 점수가 없는 경우
-        statusEl.textContent = "경기 전 ⏳";
-        statusEl.style.color = "#aaa";
-      }
+      statusEl.innerHTML = hasMyScore ? `현재 앞서가는 중! <span style="color:#28a745;">👑👑</span>` : "경기 전 ⏳";
+      statusEl.style.color = hasMyScore ? "#fff" : "#aaa";
     } else {
-      // 둘 다 점수가 있는 경우
-      const oppRaw = parseFloat(oppRawStr);
-      const diff = myRaw - oppRaw;
-      if (diff < 0) {
-        statusEl.innerHTML = `현재 ${Math.abs(diff)}타 차 리드 중! <span style="color:#28a745;">🟢</span>`;
-        statusEl.style.color = "#fff";
-      } else if (diff > 0) {
-        statusEl.innerHTML = `현재 ${diff}타 차 뒤처짐 <span style="color:#ff4757;">🔴</span>`;
-        statusEl.style.color = "#ff4757";
-      } else {
-        statusEl.innerHTML = `현재 동점 (Tied) <span style="color:#ffc107;">🟡</span>`;
-        statusEl.style.color = "#ffc107";
-      }
+      const oppRaw = parseFloat(oppRawStr); const diff = myRaw - oppRaw;
+      if (diff < 0) { statusEl.innerHTML = `현재 ${Math.abs(diff)}타 차 리드 중! <span style="color:#28a745;">👑👑</span>`; statusEl.style.color = "#fff"; }
+      else if (diff > 0) { statusEl.innerHTML = `현재 ${diff}타 차 뒤처짐 <span style="color:#ff4757;">⛳⛳</span>`; statusEl.style.color = "#ff4757"; }
+      else { statusEl.innerHTML = `현재 동점 (Tied) <span style="color:#ffc107;">🏌️🏌️</span>`; statusEl.style.color = "#ffc107"; }
     }
-
-    pModal.style.opacity = "1";
-    pModal.style.visibility = "visible";
+    pModal.style.opacity = "1"; pModal.style.visibility = "visible";
   });
-
   document.getElementById("btn-close-player-modal").onclick = () => { pModal.style.opacity = "0"; pModal.style.visibility = "hidden"; };
-  pModal.onclick = (e) => { if (e.target === pModal) { pModal.style.opacity = "0"; pModal.style.visibility = "hidden"; } };
 
   await renderData();
   if (refreshInterval) clearInterval(refreshInterval);
