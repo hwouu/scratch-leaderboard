@@ -3,26 +3,27 @@ import { fetchData } from "../services/api.js";
 let refreshInterval;
 
 /**
- * 단계(stage)에 따른 진출자 수와 라운드 이름을 반환합니다.
+ * 단계(stage)에 따른 설정값을 반환합니다. (진출수, 일정, 코스 등)
  */
 function getTournamentConfig(stage) {
-  if (stage.includes("-16")) return { name: "16강 본선", advanceCount: 8, total: 16 };
-  if (stage.includes("-8")) return { name: "8강 본선", advanceCount: 4, total: 8 };
-  if (stage.includes("-4")) return { name: "4강 본선", advanceCount: 2, total: 4 };
-  if (stage.includes("-third-place")) return { name: "3·4위전", advanceCount: 1, total: 2 };
-  if (stage.includes("-final")) return { name: "결승전", advanceCount: 1, total: 2 };
-  return { name: "토너먼트", advanceCount: 0, total: 0 };
+  const base = {
+    "2026-1st-16": { name: "16강 본선", advanceCount: 8, total: 16, date: "4/28(화) ~ 5/2(토)", courses: "A: 아크로CC / B: 써닝포인트CC" },
+    "2026-1st-8": { name: "8강 본선", advanceCount: 4, total: 8, date: "5/2(토) ~ 5/6(수)", courses: "A: 아크로CC / B: 써닝포인트CC" },
+    "2026-1st-4": { name: "4강 본선", advanceCount: 2, total: 4, date: "5/6(수) ~ 5/10(일)", courses: "A: 아크로CC / B: 써닝포인트CC" },
+    "2026-1st-third-place": { name: "3·4위전", advanceCount: 1, total: 2, date: "5/10(일) ~ 5/13(수)", courses: "A: 아크로CC / B: 써닝포인트CC" },
+    "2026-1st-final": { name: "결승전", advanceCount: 1, total: 2, date: "5/10(일) ~ 5/13(수)", courses: "A: 아크로CC / B: 써닝포인트CC" }
+  };
+  return base[stage] || { name: "토너먼트", advanceCount: 0, total: 16, date: "-", courses: "-" };
 }
 
 /**
- * 스켈레톤 테이블 UI를 생성합니다.
+ * 스켈레톤 테이블 UI를 생성합니다. (RND 열 제외)
  */
 function renderSkeletonTable(rowCount) {
   const rows = Array.from({ length: rowCount }).map(() => `
     <tr class="tb-skeleton-row">
       <td><div class="tb-skeleton-box short"></div></td>
       <td class="tb-player"><div class="tb-skeleton-box left"></div></td>
-      <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
       <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
       <td class="tb-hide-mobile"><div class="tb-skeleton-box short"></div></td>
       <td><div class="tb-skeleton-box short"></div></td>
@@ -34,12 +35,11 @@ function renderSkeletonTable(rowCount) {
       <table class="tb-table">
         <thead>
           <tr>
-            <th style="width: 12%;">순위</th>
-            <th class="tb-player" style="width: 32%;">선수 정보</th>
-            <th class="tb-hide-mobile" style="width: 12%;">Rnd</th>
-            <th class="tb-hide-mobile" style="width: 12%;">A코스</th>
-            <th class="tb-hide-mobile" style="width: 12%;">B코스</th>
-            <th style="width: 20%;">합산성적</th>
+            <th style="width: 15%;">순위</th>
+            <th class="tb-player" style="width: 40%;">선수 정보</th>
+            <th class="tb-hide-mobile" style="width: 15%;">A코스</th>
+            <th class="tb-hide-mobile" style="width: 15%;">B코스</th>
+            <th style="width: 15%;">합산성적</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -49,32 +49,35 @@ function renderSkeletonTable(rowCount) {
 }
 
 export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
-  // 1. 외부 CSS 동적 로드
   if (!document.getElementById('tournament-board-style')) {
     const link = document.createElement('link');
-    link.id = 'tournament-board-style';
-    link.rel = 'stylesheet';
-    link.href = '/css/tournament-board.css';
+    link.id = 'tournament-board-style'; link.rel = 'stylesheet'; link.href = '/css/tournament-board.css';
     document.head.appendChild(link);
   }
 
   const config = getTournamentConfig(stage);
-  const halfCount = Math.ceil(config.total / 2) || 8; // 좌우 분할을 위한 절반 카운트 (16강 기준 8명)
+  const halfCount = 8; // 16강 기준 좌우 항상 8개 행 유지
 
-  // 2. 기본 뼈대, 헤더 버튼(대회 개요 복구), 스켈레톤 초기 렌더링
   appElement.innerHTML = `
     <div class="tb-wrapper">
       <header class="tb-header">
         <div class="tb-title-group">
-          <h1 class="tb-title">2026 Scratch 1st <span class="tb-live-badge">LIVE</span></h1>
-          <div class="header-actions" style="display:flex; gap:10px; flex-wrap: wrap;">
-            <button id="btn-open-overview-tb" class="btn-glass" style="border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; background: transparent; font-weight: bold;"><i class="fas fa-info-circle"></i> 대회 개요</button>
-            <a href="/2026-1st/bracket" class="btn-glass" style="border: 1px solid var(--accent-yellow); color: var(--accent-yellow); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: bold;"><i class="fas fa-sitemap"></i> 대진표 보기</a>
+          <h1 class="tb-title">2026 Scratch 1st <span style="color:var(--accent-yellow)">OPEN</span> <span class="tb-live-badge">LIVE</span></h1>
+          <div class="header-actions" style="display:flex; gap:10px;">
+            <button id="btn-refresh-tb" class="btn-glass"><i class="fas fa-sync-alt"></i> 새로고침</button>
+            <button id="btn-open-overview-tb" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);"><i class="fas fa-info-circle"></i> 대회 개요</button>
+            <a href="/2026-1st/bracket" class="btn-glass" style="color: var(--accent-yellow); border-color: var(--accent-yellow);"><i class="fas fa-sitemap"></i> 대진표</a>
           </div>
         </div>
+
+        <div class="tb-info-bar">
+          <div class="tb-info-item"><i class="fas fa-calendar-alt"></i> 진행 기간: <span class="tb-info-value">${config.date}</span></div>
+          <div class="tb-info-item"><i class="fas fa-map-marker-alt"></i> 코스 정보: <span class="tb-info-value">${config.courses}</span></div>
+        </div>
+
         <div class="tb-subtitle-group">
-          <span class="tb-subtitle">${config.name} (Top ${config.advanceCount} 진출)</span>
-          <span style="font-size: 0.9rem; color: #888;">업데이트: <span id="tb-last-updated">-</span></span>
+          <span class="tb-subtitle">${config.name} (상위 ${config.advanceCount}명 진출)</span>
+          <span style="font-size: 0.9rem; color: #888;">최근 업데이트: <span id="tb-last-updated">-</span></span>
         </div>
       </header>
 
@@ -87,55 +90,38 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     <div id="tb-overview-modal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s;">
       <div class="overview-modal-content" style="position: relative; padding: 20px; text-align: center; max-width: 90vw;">
         <button id="btn-close-overview-tb" style="position: absolute; top: -15px; right: -15px; background: #16181c; color: #fff; border: 2px solid #333; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 3001;">&times;</button>
-        <img src="/assets/2026-1st-overview.jpg" class="overview-modal-img" style="max-width: 100%; max-height: 85vh; border-radius: 12px; position: relative; z-index: 3000;" />
+        <img src="/assets/2026-1st-overview.jpg" style="max-width: 100%; max-height: 85vh; border-radius: 12px; position: relative;" />
       </div>
     </div>
   `;
 
-  // 모달 제어 이벤트 바인딩
-  const modal = document.getElementById("tb-overview-modal");
-  document.getElementById("btn-open-overview-tb").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
-  document.getElementById("btn-close-overview-tb").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
-  modal.onclick = (e) => { if (e.target === modal) { modal.style.opacity = "0"; modal.style.visibility = "hidden"; } };
-
-  // 점수 포맷팅 유틸
   const formatScore = (s) => s === undefined || s === null ? '-' : (s === 0 ? 'E' : (s > 0 ? `+${s}` : s));
-  const getScoreColor = (score) => score > 0 ? 'var(--accent-red, #ff4757)' : (score < 0 ? 'var(--accent-blue, #3b82f6)' : '#fff');
+  const getScoreColor = (score) => score > 0 ? '#ff4757' : (score < 0 ? '#3b82f6' : '#fff');
 
-  // 테이블 생성기 (1단위 테이블)
-  const generateTableHtml = (playersGroup, startIndex) => {
-    if (!playersGroup || playersGroup.length === 0) return `<div></div>`;
-
+  const generateTableHtml = (playersGroup) => {
     const rowsHTML = playersGroup.map((player, idx) => {
-      // 데이터가 없는 빈 슬롯 패딩 처리
       if (!player || !player.userId) {
-        return `<tr style="visibility:hidden;"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>`;
+        return `<tr><td class="tb-rank" style="color:#333;">-</td><td class="tb-player"><span class="tb-name" style="color:#333;">-</span></td><td class="tb-hide-mobile">-</td><td class="tb-hide-mobile">-</td><td>-</td></tr>`;
       }
 
-      // 진출 여부 및 컷오프 계산
-      const isAdvance = player.rank <= config.advanceCount;
-      const isCutoffLine = player.rank === config.advanceCount && 
-                           (idx + 1 === playersGroup.length || playersGroup[idx + 1]?.rank > config.advanceCount);
+      const isTopEight = player.rank <= 8;
+      const isCutoffLine = player.rank === config.advanceCount && (playersGroup[idx + 1]?.rank > config.advanceCount || idx === playersGroup.length - 1);
       
-      let rowClass = isAdvance ? 'tb-row-advance' : 'tb-row-eliminated';
+      let rowClass = isTopEight ? 'tb-row-top-eight' : '';
       if (isCutoffLine) rowClass += ' tb-cutoff-line';
 
-      // API 제공 원본 배열에서 점수 추출 (별도 집계 우회)
       const scoresArr = player.scores || [];
       const aScore = scoresArr[0] ? scoresArr[0].score : null;
       const bScore = scoresArr[1] ? scoresArr[1].score : null;
       
-      // 이미 계산되어 내려온 totalScore 직접 사용
-      const finalScore = player.totalScore;
-      const scoreStr = formatScore(finalScore);
-      const scoreColor = getScoreColor(finalScore);
+      const scoreStr = formatScore(player.totalScore);
+      const scoreColor = getScoreColor(player.totalScore);
       const rankStr = player.isTieRank ? `T${player.rank}` : player.rank;
 
       return `
         <tr class="${rowClass}">
           <td class="tb-rank">${rankStr}</td>
           <td class="tb-player"><span class="tb-name">${player.userNickname}</span></td>
-          <td class="tb-hide-mobile" style="font-weight: 500;">${player.roundCount || 0}</td>
           <td class="tb-score tb-hide-mobile">${formatScore(aScore)}</td>
           <td class="tb-score tb-hide-mobile">${formatScore(bScore)}</td>
           <td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
@@ -148,12 +134,11 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
         <table class="tb-table">
           <thead>
             <tr>
-              <th style="width: 12%;">순위</th>
-              <th class="tb-player" style="width: 32%;">선수 정보</th>
-              <th class="tb-hide-mobile" style="width: 12%;">Rnd</th>
-              <th class="tb-hide-mobile" style="width: 12%;">A코스</th>
-              <th class="tb-hide-mobile" style="width: 12%;">B코스</th>
-              <th style="width: 20%;">합산성적</th>
+              <th style="width: 15%;">순위</th>
+              <th class="tb-player" style="width: 40%;">선수 정보</th>
+              <th class="tb-hide-mobile" style="width: 15%;">A코스</th>
+              <th class="tb-hide-mobile" style="width: 15%;">B코스</th>
+              <th style="width: 15%;">합산성적</th>
             </tr>
           </thead>
           <tbody>${rowsHTML}</tbody>
@@ -162,39 +147,32 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     `;
   };
 
-  // 3. 실제 API 데이터 Fetch 및 렌더링
   const renderData = async () => {
-    // 주의: 프론트단 재가공(api.js)을 피하기 위해 fetchData를 직접 호출하여 순수 API 원본 확보
     const rawData = await fetchData(stage);
-    
     const timeEl = document.getElementById('tb-last-updated');
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR');
     const contentArea = document.getElementById('tb-content-area');
 
-    if (!rawData || !rawData.total || rawData.total.length === 0) {
-      contentArea.innerHTML = `<div class="tb-table-container" style="grid-column: 1/-1; padding: 3rem; text-align: center; color: #888;">아직 해당 라운드의 데이터가 없습니다.</div>`;
-      return;
-    }
+    if (!rawData || !rawData.total) return;
 
     const players = rawData.total;
-    
-    // 좌우 8명씩 레이아웃이 무너지지 않도록 부족한 개수만큼 빈 객체 패딩 삽입
     let paddedPlayers = [...players];
-    while (paddedPlayers.length < config.total) {
-      paddedPlayers.push({});
-    }
+    // 좌우 균형을 위해 항상 16개 슬롯 유지
+    while (paddedPlayers.length < 16) paddedPlayers.push({});
 
-    // 배열을 좌측 / 우측용으로 분할
-    const col1 = paddedPlayers.slice(0, halfCount);
-    const col2 = paddedPlayers.slice(halfCount, config.total);
+    const col1 = paddedPlayers.slice(0, 8);
+    const col2 = paddedPlayers.slice(8, 16);
 
-    // 2단 그리드 렌더링
-    contentArea.innerHTML = generateTableHtml(col1, 0) + generateTableHtml(col2, halfCount);
+    contentArea.innerHTML = generateTableHtml(col1) + generateTableHtml(col2);
   };
 
-  // 최초 데이터 로드 및 갱신 셋업
-  await renderData();
+  // 이벤트 리스너
+  document.getElementById("btn-refresh-tb").onclick = () => renderData();
+  const modal = document.getElementById("tb-overview-modal");
+  document.getElementById("btn-open-overview-tb").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
+  document.getElementById("btn-close-overview-tb").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
 
+  await renderData();
   if (refreshInterval) clearInterval(refreshInterval);
-  refreshInterval = setInterval(renderData, 5 * 60 * 1000); // 5분마다 갱신
+  refreshInterval = setInterval(renderData, 5 * 60 * 1000);
 }
