@@ -32,7 +32,7 @@ export async function renderBracket2026_1st(stage, appElement) {
   appElement.innerHTML = `
     <div class="bracket-wrapper" id="bracket-tv-wrapper">
       <div class="bracket-nav">
-        <h2>2026 SCRATCH 1st <span style="color:var(--accent-yellow)">BRACKET</span> <span class="live-tag">LIVE</span></h2>
+        <h2>2026 SCRATCH 1st OPEN<span style="color:var(--accent-yellow)">BRACKET</span> <span class="live-tag">LIVE</span></h2>
         <div class="header-actions">
           <button id="btn-open-overview-br" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);">
             <i class="fas fa-info-circle"></i> 개요
