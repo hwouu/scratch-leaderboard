@@ -45,7 +45,7 @@ export async function renderBracket2026_1st(stage, appElement) {
 
       <div class="prize-glass-board">
         <div class="prize-label">Tournament Hole-In-One Prize</div>
-        <div class="prize-amount" id="br-prize-amount">0<span class="prize-currency">원</span></div>
+        <div class="prize-value" id="br-prize-amount">0<span class="prize-currency">원</span></div>
       </div>
 
       <div class="tournament-stage" id="bracket-render-area">
