@@ -3,7 +3,7 @@ import { fetchData } from "../services/api.js";
 let refreshInterval;
 
 /**
- * 단계(stage)에 따른 설정값을 반환합니다. (진출수, 일정, 코스 등)
+ * 단계(stage)에 따른 설정값을 반환합니다.
  */
 function getTournamentConfig(stage) {
   const base = {
@@ -17,7 +17,7 @@ function getTournamentConfig(stage) {
 }
 
 /**
- * 스켈레톤 테이블 UI를 생성합니다. (RND 열 제외)
+ * 스켈레톤 테이블 UI를 생성합니다. (colgroup 포함하여 정렬 유지)
  */
 function renderSkeletonTable(rowCount) {
   const rows = Array.from({ length: rowCount }).map(() => `
@@ -33,13 +33,20 @@ function renderSkeletonTable(rowCount) {
   return `
     <div class="tb-table-container">
       <table class="tb-table">
+        <colgroup>
+          <col style="width: 15%;">
+          <col style="width: 40%;">
+          <col style="width: 15%;" class="tb-hide-mobile">
+          <col style="width: 15%;" class="tb-hide-mobile">
+          <col style="width: 15%;">
+        </colgroup>
         <thead>
           <tr>
-            <th style="width: 15%;">순위</th>
-            <th class="tb-player" style="width: 40%;">선수 정보</th>
-            <th class="tb-hide-mobile" style="width: 15%;">A코스</th>
-            <th class="tb-hide-mobile" style="width: 15%;">B코스</th>
-            <th style="width: 15%;">합산성적</th>
+            <th>순위</th>
+            <th class="tb-player">선수 정보</th>
+            <th class="tb-hide-mobile">A코스</th>
+            <th class="tb-hide-mobile">B코스</th>
+            <th>합산성적</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -57,6 +64,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
 
   const config = getTournamentConfig(stage);
   const halfCount = 8; // 16강 기준 좌우 항상 8개 행 유지
+  const stagePrefix = config.name.split(' ')[0]; // 예: "16강"
 
   appElement.innerHTML = `
     <div class="tb-wrapper">
@@ -71,13 +79,14 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
         </div>
 
         <div class="tb-info-bar">
-          <div class="tb-info-item"><i class="fas fa-calendar-alt"></i> 진행 기간: <span class="tb-info-value">${config.date}</span></div>
-          <div class="tb-info-item"><i class="fas fa-map-marker-alt"></i> 코스 정보: <span class="tb-info-value">${config.courses}</span></div>
-        </div>
-
-        <div class="tb-subtitle-group">
-          <span class="tb-subtitle">${config.name} (상위 ${config.advanceCount}명 진출)</span>
-          <span style="font-size: 0.9rem; color: #888;">최근 업데이트: <span id="tb-last-updated">-</span></span>
+          <div class="tb-info-left">
+            <div class="tb-info-stage">${config.name} <span>(상위 ${config.advanceCount}명 진출)</span></div>
+            <div class="tb-info-item"><i class="fas fa-calendar-alt"></i> ${stagePrefix} 진행 기간: <span class="tb-info-value">${config.date}</span></div>
+            <div class="tb-info-item"><i class="fas fa-map-marker-alt"></i> 코스 정보: <span class="tb-info-value">${config.courses}</span></div>
+          </div>
+          <div class="tb-info-update">
+            <i class="fas fa-clock"></i> 최근 업데이트: <span id="tb-last-updated" class="tb-info-update-time">-</span>
+          </div>
         </div>
       </header>
 
@@ -132,13 +141,20 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     return `
       <div class="tb-table-container">
         <table class="tb-table">
+          <colgroup>
+            <col style="width: 15%;">
+            <col style="width: 40%;">
+            <col style="width: 15%;" class="tb-hide-mobile">
+            <col style="width: 15%;" class="tb-hide-mobile">
+            <col style="width: 15%;">
+          </colgroup>
           <thead>
             <tr>
-              <th style="width: 15%;">순위</th>
-              <th class="tb-player" style="width: 40%;">선수 정보</th>
-              <th class="tb-hide-mobile" style="width: 15%;">A코스</th>
-              <th class="tb-hide-mobile" style="width: 15%;">B코스</th>
-              <th style="width: 15%;">합산성적</th>
+              <th>순위</th>
+              <th class="tb-player">선수 정보</th>
+              <th class="tb-hide-mobile">A코스</th>
+              <th class="tb-hide-mobile">B코스</th>
+              <th>합산성적</th>
             </tr>
           </thead>
           <tbody>${rowsHTML}</tbody>
@@ -153,11 +169,13 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     if (timeEl) timeEl.textContent = new Date().toLocaleTimeString('ko-KR');
     const contentArea = document.getElementById('tb-content-area');
 
-    if (!rawData || !rawData.total) return;
+    if (!rawData || !rawData.total) {
+      contentArea.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #888;">데이터를 불러오지 못했습니다.</div>`;
+      return;
+    }
 
     const players = rawData.total;
     let paddedPlayers = [...players];
-    // 좌우 균형을 위해 항상 16개 슬롯 유지
     while (paddedPlayers.length < 16) paddedPlayers.push({});
 
     const col1 = paddedPlayers.slice(0, 8);
@@ -166,8 +184,13 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     contentArea.innerHTML = generateTableHtml(col1) + generateTableHtml(col2);
   };
 
-  // 이벤트 리스너
-  document.getElementById("btn-refresh-tb").onclick = () => renderData();
+  // 새로고침 버튼 이벤트 (클릭 시 스켈레톤 UI 노출 후 재조회)
+  document.getElementById("btn-refresh-tb").onclick = async () => {
+    document.getElementById('tb-content-area').innerHTML = renderSkeletonTable(halfCount) + renderSkeletonTable(halfCount);
+    document.getElementById('tb-last-updated').textContent = "업데이트 중...";
+    await renderData();
+  };
+
   const modal = document.getElementById("tb-overview-modal");
   document.getElementById("btn-open-overview-tb").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
   document.getElementById("btn-close-overview-tb").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
