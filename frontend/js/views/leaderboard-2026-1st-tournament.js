@@ -16,9 +16,6 @@ function getTournamentConfig(stage) {
   return base[stage] || { name: "토너먼트", advanceCount: 0, total: 16, date: "-", courses: "-" };
 }
 
-/**
- * 스켈레톤 테이블 UI를 생성합니다. (colgroup 포함하여 정렬 유지)
- */
 function renderSkeletonTable(rowCount) {
   const rows = Array.from({ length: rowCount }).map(() => `
     <tr class="tb-skeleton-row">
@@ -63,18 +60,18 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   }
 
   const config = getTournamentConfig(stage);
-  const halfCount = 8; // 16강 기준 좌우 항상 8개 행 유지
-  const stagePrefix = config.name.split(' ')[0]; // 예: "16강"
+  const halfCount = 8;
+  const stagePrefix = config.name.split(' ')[0];
 
   appElement.innerHTML = `
     <div class="tb-wrapper">
       <header class="tb-header">
         <div class="tb-title-group">
-          <h1 class="tb-title"> 2026 Scratch 1st OPEN <span style="color:var(--accent-yellow)">LEADERBOARD</span> <span class="tb-live-badge">LIVE</span></h1>
-          <div class="header-actions" style="display:flex; gap:10px;">
-            <button id="btn-refresh-tb" class="btn-glass"><i class="fas fa-sync-alt"></i> 새로고침</button>
-            <button id="btn-open-overview-tb" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);"><i class="fas fa-info-circle"></i> 대회 개요</button>
-            <a href="/2026-1st/bracket" class="btn-glass" style="color: var(--accent-yellow); border-color: var(--accent-yellow);"><i class="fas fa-sitemap"></i> 대진표</a>
+          <h1 class="tb-title">2026 Scratch 1st <span style="color:var(--accent-yellow)">OPEN</span> <span class="tb-live-badge">LIVE</span></h1>
+          <div class="header-actions" style="display:flex; gap:8px;">
+            <button id="btn-refresh-tb" class="btn-glass"><i class="fas fa-sync-alt"></i> <span class="btn-text">새로고침</span></button>
+            <button id="btn-open-overview-tb" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);"><i class="fas fa-info-circle"></i> <span class="btn-text">대회 개요</span></button>
+            <a href="/2026-1st/bracket" class="btn-glass btn-bracket" style="color: var(--accent-yellow); border-color: var(--accent-yellow);"><i class="fas fa-sitemap"></i> <span class="btn-text">대진표</span></a>
           </div>
         </div>
 
@@ -102,6 +99,20 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
         <img src="/assets/2026-1st-overview.jpg" style="max-width: 100%; max-height: 85vh; border-radius: 12px; position: relative;" />
       </div>
     </div>
+
+    <div id="player-detail-modal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s;">
+      <div class="player-modal-content">
+        <button id="btn-close-player-modal" class="player-modal-close"><i class="fas fa-times"></i></button>
+        <div class="player-modal-header" id="pm-name">선수명</div>
+        <div class="player-modal-row"><span class="label">현재 순위</span><span class="value" id="pm-rank">-</span></div>
+        <div class="player-modal-row"><span class="label">A코스 점수</span><span class="value" id="pm-a">-</span></div>
+        <div class="player-modal-row"><span class="label">B코스 점수</span><span class="value" id="pm-b">-</span></div>
+        <div class="player-modal-row" style="margin-top: 1.5rem; border-top: 1px solid #333; padding-top: 1.2rem; align-items: center;">
+          <span class="label" style="color: #fff; font-weight: 800;">합산 성적</span>
+          <span class="value" id="pm-total" style="font-size: 1.8rem; font-weight: 900;">-</span>
+        </div>
+      </div>
+    </div>
   `;
 
   const formatScore = (s) => s === undefined || s === null ? '-' : (s === 0 ? 'E' : (s > 0 ? `+${s}` : s));
@@ -109,8 +120,9 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
 
   const generateTableHtml = (playersGroup) => {
     const rowsHTML = playersGroup.map((player, idx) => {
+      // 1. 데이터가 없는 빈 슬롯은 모바일에서 숨기기 위해 'tb-empty-row' 클래스 부여
       if (!player || !player.userId) {
-        return `<tr><td class="tb-rank" style="color:#333;">-</td><td class="tb-player"><span class="tb-name" style="color:#333;">-</span></td><td class="tb-hide-mobile">-</td><td class="tb-hide-mobile">-</td><td>-</td></tr>`;
+        return `<tr class="tb-empty-row"><td class="tb-rank" style="color:#333;">-</td><td class="tb-player"><span class="tb-name" style="color:#333;">-</span></td><td class="tb-hide-mobile">-</td><td class="tb-hide-mobile">-</td><td>-</td></tr>`;
       }
 
       const isTopEight = player.rank <= 8;
@@ -126,13 +138,22 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       const scoreStr = formatScore(player.totalScore);
       const scoreColor = getScoreColor(player.totalScore);
       const rankStr = player.isTieRank ? `T${player.rank}` : player.rank;
+      const f_aScore = formatScore(aScore);
+      const f_bScore = formatScore(bScore);
 
+      // 2. 행(Row) 클릭 이벤트를 위해 data-* 속성 및 'clickable player-row' 클래스 주입
       return `
-        <tr class="${rowClass}">
+        <tr class="${rowClass} clickable player-row" 
+            data-name="${player.userNickname}" 
+            data-rank="${rankStr}" 
+            data-a="${f_aScore}" 
+            data-b="${f_bScore}" 
+            data-total="${scoreStr}" 
+            data-color="${scoreColor}">
           <td class="tb-rank">${rankStr}</td>
           <td class="tb-player"><span class="tb-name">${player.userNickname}</span></td>
-          <td class="tb-score tb-hide-mobile">${formatScore(aScore)}</td>
-          <td class="tb-score tb-hide-mobile">${formatScore(bScore)}</td>
+          <td class="tb-score tb-hide-mobile">${f_aScore}</td>
+          <td class="tb-score tb-hide-mobile">${f_bScore}</td>
           <td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
         </tr>
       `;
@@ -184,16 +205,41 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     contentArea.innerHTML = generateTableHtml(col1) + generateTableHtml(col2);
   };
 
-  // 새로고침 버튼 이벤트 (클릭 시 스켈레톤 UI 노출 후 재조회)
+  // 새로고침 버튼 이벤트
   document.getElementById("btn-refresh-tb").onclick = async () => {
     document.getElementById('tb-content-area').innerHTML = renderSkeletonTable(halfCount) + renderSkeletonTable(halfCount);
     document.getElementById('tb-last-updated').textContent = "업데이트 중...";
     await renderData();
   };
 
+  // 개요 모달 이벤트
   const modal = document.getElementById("tb-overview-modal");
   document.getElementById("btn-open-overview-tb").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
   document.getElementById("btn-close-overview-tb").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
+
+  // [NEW] 선수 상세 정보 모달 제어 이벤트 (이벤트 위임 활용)
+  const pModal = document.getElementById("player-detail-modal");
+  document.getElementById("tb-content-area").addEventListener("click", (e) => {
+    const row = e.target.closest(".player-row");
+    if (!row) return;
+
+    // data-* 속성 읽어서 모달 내용 채우기
+    document.getElementById("pm-name").textContent = row.dataset.name;
+    document.getElementById("pm-rank").textContent = row.dataset.rank + "위";
+    document.getElementById("pm-a").textContent = row.dataset.a;
+    document.getElementById("pm-b").textContent = row.dataset.b;
+    
+    const totalEl = document.getElementById("pm-total");
+    totalEl.textContent = row.dataset.total;
+    totalEl.style.color = row.dataset.color;
+
+    // 모달 띄우기
+    pModal.style.opacity = "1";
+    pModal.style.visibility = "visible";
+  });
+
+  document.getElementById("btn-close-player-modal").onclick = () => { pModal.style.opacity = "0"; pModal.style.visibility = "hidden"; };
+  pModal.onclick = (e) => { if (e.target === pModal) { pModal.style.opacity = "0"; pModal.style.visibility = "hidden"; } };
 
   await renderData();
   if (refreshInterval) clearInterval(refreshInterval);
