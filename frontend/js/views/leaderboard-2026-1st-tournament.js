@@ -70,7 +70,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     <div class="tb-wrapper">
       <header class="tb-header">
         <div class="tb-title-group">
-          <h1 class="tb-title"> OPEN <span style="color:var(--accent-yellow)">LEADERBOARD</span> <span class="tb-live-badge">LIVE</span></h1>
+          <h1 class="tb-title"> 2026 Scratch 1st OPEN <span style="color:var(--accent-yellow)">LEADERBOARD</span> <span class="tb-live-badge">LIVE</span></h1>
           <div class="header-actions" style="display:flex; gap:10px;">
             <button id="btn-refresh-tb" class="btn-glass"><i class="fas fa-sync-alt"></i> 새로고침</button>
             <button id="btn-open-overview-tb" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);"><i class="fas fa-info-circle"></i> 대회 개요</button>
