@@ -1,7 +1,7 @@
 /* Bracket V2 전용 스타일 및 스켈레톤 UI */
 
 .bracket-wrapper {
-    background: #0b0c0e;
+    background: var(--bg-main, #0b0c0e);
     min-height: 100vh;
     padding: 2vh 2vw;
     display: flex;
@@ -12,45 +12,93 @@
     font-family: 'Pretendard', -apple-system, sans-serif;
   }
   
-  /* 상단 상금 보드 */
+  /* =========================================
+     상단 네비게이션 및 헤더
+  ========================================= */
+  .bracket-nav { 
+    width: 100%; 
+    max-width: 1600px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 2vh; 
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .bracket-nav h2 { 
+    margin: 0; 
+    font-weight: 900; 
+    font-size: 3vh; 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+  }
+  .live-tag {
+    background: #ff0000; color: #fff; padding: 0.3vh 0.8vw; font-size: 1.4vh;
+    font-weight: 800; border-radius: 4px; animation: pulse 2s infinite;
+  }
+  
+  .header-actions { 
+    display: flex; 
+    flex-direction: row; /* 좌우 배치 강제 */
+    gap: 12px; 
+    flex-wrap: wrap;
+  }
+  
+  /* 버튼 스타일 */
+  .btn-glass {
+    background: transparent; border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 0.8vh 1.2vw; border-radius: 6px; font-size: 1.5vh;
+    font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    text-decoration: none; transition: 0.2s;
+  }
+  .btn-glass:hover { background: rgba(255,255,255,0.1); }
+  
+  /* =========================================
+     [UI 업그레이드] 상금 글래스 보드
+  ========================================= */
   .prize-glass-board {
-    background: linear-gradient(180deg, #1e2128 0%, #111318 100%);
-    border: 1px solid #333;
+    background: linear-gradient(135deg, #1e2128 0%, #0d0f14 100%);
+    border: 1px solid rgba(255, 193, 7, 0.4);
     border-radius: 16px;
-    padding: 2vh 4vw;
+    padding: 2.5vh 5vw;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    box-shadow: 0 15px 40px rgba(255, 193, 7, 0.15), inset 0 0 20px rgba(255, 193, 7, 0.05);
     margin-bottom: 3vh;
     position: relative;
     z-index: 10;
-    min-width: 300px;
+    min-width: 350px;
   }
   
   .prize-label {
-    font-size: 1.6vh;
-    color: #888;
-    font-weight: 800;
-    letter-spacing: 3px;
+    font-size: 1.8vh;
+    color: var(--accent-yellow, #ffc107);
+    font-weight: 900;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    margin-bottom: 0.5vh;
+    margin-bottom: 1vh;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
   }
   
   .prize-value {
-    font-size: 6.5vh;
+    font-size: 7vh;
     font-weight: 900;
-    color: var(--accent-yellow);
-    text-shadow: 0 0 30px rgba(255,193,7,0.3);
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 193, 7, 0.4);
     font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
   }
   
   .prize-currency {
-    font-size: 2.5vh;
-    color: #fff;
-    margin-left: 10px;
-    font-weight: 700;
+    font-size: 2.8vh;
+    color: var(--accent-yellow);
+    margin-left: 8px;
+    font-weight: 800;
   }
   
-  /* 대진표 구조 */
+  /* =========================================
+     대진표 구조
+  ========================================= */
   .tournament-stage {
     display: flex;
     justify-content: center;
@@ -58,7 +106,7 @@
     gap: 0;
     width: 100%;
     flex: 1;
-    min-width: 1100px; /* 대진표가 깨지지 않는 최소 너비 */
+    min-width: 1500px; /* 슬롯 확장으로 인한 최소 너비 증가 */
   }
   
   .side-wing { display: flex; gap: 0; align-items: center; }
@@ -68,8 +116,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    width: 180px;
-    height: 60vh;
+    width: 250px; /* 180px -> 250px 로 너비 확장 */
+    height: 65vh;
   }
   
   .match-pair {
@@ -80,78 +128,104 @@
     box-sizing: border-box;
   }
   
-  /* 연결선 스타일 */
+  /* 연결선 스타일 강화 */
   .left .match-pair::after {
     content: ''; position: absolute; right: 0; top: 25%; height: 50%; width: 20px;
-    border: 2px solid #333; border-left: none; border-radius: 0 8px 8px 0;
+    border: 2px solid #555; border-left: none; border-radius: 0 8px 8px 0;
   }
   .right .match-pair::before {
     content: ''; position: absolute; left: 0; top: 25%; height: 50%; width: 20px;
-    border: 2px solid #333; border-right: none; border-radius: 8px 0 0 8px;
+    border: 2px solid #555; border-right: none; border-radius: 8px 0 0 8px;
   }
   
-  /* 슬롯 공통 */
+  /* =========================================
+     [UI 업그레이드] 선수 슬롯 및 승자 하이라이트
+  ========================================= */
   .slot {
-    background: #1c1f26;
+    background: #16181c;
     border: 1px solid #333;
-    padding: 1.2vh 1vw;
+    padding: 1vh 1vw;
     font-weight: 700;
-    font-size: 1.8vh;
+    font-size: 1.6vh;
     display: flex;
     justify-content: space-between;
-    border-radius: 4px;
+    align-items: center;
+    border-radius: 6px;
     position: relative;
     z-index: 2;
-    align-items: center;
-    min-height: 4.5vh;
+    min-height: 5vh;
+    transition: all 0.3s ease;
   }
-  .slot:first-child { margin-bottom: 4px; }
-  .slot-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
-  .slot-rank { color: #666; font-size: 1.4vh; font-weight: 600; }
+  .slot:first-child { margin-bottom: 6px; }
   
-  /* 중앙 결승박스 */
+  /* 승자 하이라이트 클래스 */
+  .slot.winner {
+    border: 2px solid var(--accent-green, #28a745);
+    background: rgba(40, 167, 69, 0.08);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+  }
+  
+  .slot-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .slot-rank { 
+    color: #aaa; 
+    font-size: 1.2vh; 
+    font-weight: 700; 
+    background: rgba(255,255,255,0.1); 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+  }
+  .slot-name { 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 120px; 
+    font-size: 1.7vh;
+  }
+  
+  .slot-score {
+    font-size: 1.8vh;
+    font-weight: 900;
+    color: #fff;
+    min-width: 30px;
+    text-align: right;
+  }
+  .score-under { color: var(--accent-blue, #3b82f6); }
+  .score-over { color: var(--accent-red, #ff4757); }
+  
+  /* =========================================
+     중앙 결승박스
+  ========================================= */
   .final-center { display: flex; flex-direction: column; align-items: center; gap: 2vh; padding: 0 3vw; position: relative; }
   .final-box {
     background: #16181c;
     border: 2px solid var(--accent-yellow);
     border-radius: 12px;
-    width: 240px;
+    width: 280px; /* 결승 박스도 너비 확장 */
     padding: 0;
-    box-shadow: 0 0 40px rgba(255,193,7,0.2);
+    box-shadow: 0 0 40px rgba(255,193,7,0.3);
     z-index: 2;
     overflow: hidden;
   }
   .final-label {
-    background: rgba(255,193,7,0.1);
+    background: rgba(255,193,7,0.15);
     color: var(--accent-yellow);
-    font-size: 1.5vh;
+    font-size: 1.6vh;
     font-weight: 900;
     text-align: center;
-    padding: 1vh;
+    padding: 1.2vh;
     letter-spacing: 2px;
     border-bottom: 1px solid rgba(255,193,7,0.3);
   }
   
-  /* 네비게이션 및 헤더 */
-  .bracket-nav { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2vh; }
-  .bracket-nav h2 { margin: 0; font-weight: 900; font-size: 3.5vh; display: flex; align-items: center; gap: 12px; }
-  .live-tag {
-    background: #ff0000; color: #fff; padding: 0.3vh 0.8vw; font-size: 1.6vh;
-    font-weight: 800; border-radius: 4px; animation: pulse 2s infinite;
-  }
-  
-  /* 버튼 스타일 */
-  .btn-glass {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    color: #fff; padding: 1vh 1.5vw; border-radius: 6px; font-size: 1.6vh;
-    font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    text-decoration: none; transition: 0.2s;
-  }
-  .btn-glass:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
-  .btn-gold { border-color: var(--accent-yellow); color: var(--accent-yellow); }
-  
   /* =========================================
-     [NEW] 스켈레톤 UI (Skeleton UI) 스타일
+     스켈레톤 및 애니메이션 효과
   ========================================= */
   .skeleton {
     position: relative;
@@ -161,26 +235,26 @@
   }
   
   .skeleton::after {
-    content: "";
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0,
-      rgba(255, 255, 255, 0.05) 20%,
-      rgba(255, 255, 255, 0.1) 60%,
-      rgba(255, 255, 255, 0)
-    );
+    content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0.1) 60%, rgba(255, 255, 255, 0));
     animation: shimmer 2s infinite;
   }
   
-  @keyframes shimmer {
-    100% { transform: translateX(100%); }
-  }
-  
+  @keyframes shimmer { 100% { transform: translateX(100%); } }
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
   
-  /* 애니메이션용 코인 */
-  .casino-coin { position: absolute; top: 30%; left: 50%; font-size: 3rem; pointer-events: none; z-index: 9999; animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-  @keyframes jackpotBurst { 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; } }
+  /* 애니메이션용 코인/이모지 */
+  .casino-coin { 
+    position: fixed; /* absolute에서 fixed로 변경하여 화면 뷰포트 기준 생성 */
+    top: 30%; 
+    left: 50%; 
+    font-size: 3.5rem; 
+    pointer-events: none; 
+    z-index: 9999; 
+    animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
+  }
+  @keyframes jackpotBurst { 
+    0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 
+    80% { opacity: 1; } 
+    100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; } 
+  }
