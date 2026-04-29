@@ -211,13 +211,13 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     const myRaw = parseFloat(row.dataset.raw); const oppRawStr = row.dataset.oppraw;
     const hasMyScore = !isNaN(myRaw); const hasOppScore = oppRawStr !== 'null' && oppRawStr !== 'undefined' && !isNaN(parseFloat(oppRawStr));
     if (!hasOppScore) {
-      statusEl.innerHTML = hasMyScore ? `현재 앞서가는 중! <span style="color:#28a745;">👑👑</span>` : "경기 전 ⏳";
+      statusEl.innerHTML = hasMyScore ? `먼저 앞서가는 중! <span style="color:#28a745;">👑👑</span>` : "경기 전 ⏳";
       statusEl.style.color = hasMyScore ? "#fff" : "#aaa";
     } else {
       const oppRaw = parseFloat(oppRawStr); const diff = myRaw - oppRaw;
-      if (diff < 0) { statusEl.innerHTML = `현재 ${Math.abs(diff)}타 차 리드 중! <span style="color:#28a745;">👑👑</span>`; statusEl.style.color = "#fff"; }
-      else if (diff > 0) { statusEl.innerHTML = `현재 ${diff}타 차 뒤처짐 <span style="color:#ff4757;">⛳⛳</span>`; statusEl.style.color = "#ff4757"; }
-      else { statusEl.innerHTML = `현재 동점 (Tied) <span style="color:#ffc107;">🏌️🏌️</span>`; statusEl.style.color = "#ffc107"; }
+      if (diff < 0) { statusEl.innerHTML = `${Math.abs(diff)}타 차 리드 중! <span style="color:#28a745;">👑👑</span>`; statusEl.style.color = "#fff"; }
+      else if (diff > 0) { statusEl.innerHTML = `${diff}타 차 뒤처짐 <span style="color:#ff4757;">⛳⛳</span>`; statusEl.style.color = "#ff4757"; }
+      else { statusEl.innerHTML = `동점 (Tied) <span style="color:#ffc107;">🏌️🏌️</span>`; statusEl.style.color = "#ffc107"; }
     }
     pModal.style.opacity = "1"; pModal.style.visibility = "visible";
   });
