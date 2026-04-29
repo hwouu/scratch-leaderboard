@@ -1,20 +1,24 @@
 import { fetchLeaderboardData, getLeaderboardData } from "../services/api.js";
 
 let updateInterval;
-let jackpotInterval; // 10초 자동 잭팟을 위한 인터벌 변수
+let jackpotInterval;
 
 /**
- * 스켈레톤 UI 렌더링
+ * 스켈레톤 UI 렌더링 (헤더 타이틀 포함)
  */
 function renderSkeleton() {
   const skeletonSlot = `<div class="slot skeleton"><div class="slot-info"></div></div>`;
   const skeletonMatch = `<div class="match-pair">${skeletonSlot}${skeletonSlot}</div>`;
-  const skeletonRound = (count) => `<div class="round-col">${Array(count).fill(skeletonMatch).join('')}</div>`;
+  const skeletonRound = (count, title, cssClass = '') => `
+    <div class="round-col ${cssClass}">
+      <div class="round-header">${title}</div>
+      ${Array(count).fill(skeletonMatch).join('')}
+    </div>`;
 
   return `
-    <div class="side-wing left">${skeletonRound(4)}${skeletonRound(2)}${skeletonRound(1)}</div>
+    <div class="side-wing left">${skeletonRound(4, '16강')}${skeletonRound(2, '8강', 'r-8')}${skeletonRound(1, '4강', 'r-4')}</div>
     <div class="final-center"><div class="final-box skeleton" style="height: 160px;"></div></div>
-    <div class="side-wing right">${skeletonRound(1)}${skeletonRound(2)}${skeletonRound(4)}</div>
+    <div class="side-wing right">${skeletonRound(4, '16강')}${skeletonRound(2, '8강', 'r-8')}${skeletonRound(1, '4강', 'r-4')}</div>
   `;
 }
 
@@ -25,7 +29,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     document.head.appendChild(link);
   }
 
-  // 버튼 좌우 배치 및 UI 구조
   appElement.innerHTML = `
     <div class="bracket-wrapper" id="bracket-tv-wrapper">
       <div class="bracket-nav">
@@ -62,7 +65,7 @@ export async function renderBracket2026_1st(stage, appElement) {
     </div>
   `;
 
-  // 화려한 잭팟 이모지 이펙트 함수
+  // 10초 잭팟 이펙트
   const triggerJackpot = () => {
     const wrapper = document.getElementById("bracket-tv-wrapper");
     if (!wrapper) return;
@@ -81,7 +84,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     }
   };
 
-  // 10초마다 자동 이모지 터짐 (인터벌)
   if (jackpotInterval) clearInterval(jackpotInterval);
   jackpotInterval = setInterval(triggerJackpot, 10000);
 
@@ -89,7 +91,6 @@ export async function renderBracket2026_1st(stage, appElement) {
   const animateValue = (element, start, end, duration) => {
     let startTimestamp = null;
     if (start < end) triggerJackpot();
-    
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
@@ -102,7 +103,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     window.requestAnimationFrame(step);
   };
 
-  // 플레이어 데이터 파싱 (순위 및 점수 추출)
   const getPlayer = (rawList, slot) => {
     const players = Array.isArray(rawList) ? rawList : (rawList?.data || []);
     const p = players.find((x) => x.slotNo === slot);
@@ -114,7 +114,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     return { name: "-", rank: 999, score: null, hasData: false };
   };
 
-  // 승자 판별 유틸 함수 (성적 -> 순위 순서)
   const checkWinner = (p1, p2) => {
     if (!p1.hasData || !p2.hasData || p1.score === null || p2.score === null) return { w1: false, w2: false };
     if (p1.score < p2.score) return { w1: true, w2: false };
@@ -124,7 +123,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     return { w1: false, w2: false };
   };
 
-  // 개별 슬롯 HTML 생성 함수
   const renderSlot = (p, isWin) => {
     const rankHtml = p.rank !== 999 ? `<span class="slot-rank">${p.rank}</span>` : '';
     const nameHtml = `<span class="slot-name">${p.name}</span>`;
@@ -161,21 +159,21 @@ export async function renderBracket2026_1st(stage, appElement) {
     };
 
     // 좌측 (1~8)
-    let leftHtml = '<div class="side-wing left"><div class="round-col">';
+    let leftHtml = '<div class="side-wing left"><div class="round-col"><div class="round-header">16강</div>';
     for (let i = 1; i <= 8; i += 2) leftHtml += buildMatchPair(b16, i, i + 1);
-    leftHtml += '</div><div class="round-col" style="justify-content: space-around; padding: 4vh 0;">';
+    leftHtml += '</div><div class="round-col r-8"><div class="round-header">8강</div>';
     for (let i = 1; i <= 4; i += 2) leftHtml += buildMatchPair(b8, i, i + 1);
-    leftHtml += '</div><div class="round-col" style="justify-content: space-around; padding: 12vh 0;">';
+    leftHtml += '</div><div class="round-col r-4"><div class="round-header">4강</div>';
     leftHtml += buildMatchPair(b4, 1, 2);
     leftHtml += '</div></div>';
 
-    // 중앙 (결승)
+    // 중앙
     const f1 = getPlayer(bFinal, 1), f2 = getPlayer(bFinal, 2);
     const { w1: fw1, w2: fw2 } = checkWinner(f1, f2);
     const centerHtml = `
       <div class="final-center">
         <div class="final-box">
-          <div class="final-label">🏆 THE FINAL MATCH 🏆</div>
+          <div class="final-label">🏆 FINAL 🏆</div>
           <div style="padding: 1.5vh;">
             ${renderSlot(f1, fw1)}
             <div style="text-align:center; color:#555; padding: 0.5vh 0; font-weight:900; font-size:1.2vh;">VS</div>
@@ -185,11 +183,11 @@ export async function renderBracket2026_1st(stage, appElement) {
       </div>`;
 
     // 우측 (9~16)
-    let rightHtml = '<div class="side-wing right"><div class="round-col">';
+    let rightHtml = '<div class="side-wing right"><div class="round-col"><div class="round-header">16강</div>';
     for (let i = 9; i <= 16; i += 2) rightHtml += buildMatchPair(b16, i, i + 1);
-    rightHtml += '</div><div class="round-col" style="justify-content: space-around; padding: 4vh 0;">';
+    rightHtml += '</div><div class="round-col r-8"><div class="round-header">8강</div>';
     for (let i = 5; i <= 8; i += 2) rightHtml += buildMatchPair(b8, i, i + 1);
-    rightHtml += '</div><div class="round-col" style="justify-content: space-around; padding: 12vh 0;">';
+    rightHtml += '</div><div class="round-col r-4"><div class="round-header">4강</div>';
     rightHtml += buildMatchPair(b4, 3, 4);
     rightHtml += '</div></div>';
 
@@ -212,7 +210,6 @@ export async function renderBracket2026_1st(stage, appElement) {
     } catch (e) { console.error("Update Error:", e); }
   };
 
-  // 모달 제어
   const modal = document.getElementById("br-overview-modal");
   document.getElementById("btn-open-overview-br").onclick = () => { modal.style.opacity = "1"; modal.style.visibility = "visible"; };
   document.getElementById("btn-close-overview-br").onclick = () => { modal.style.opacity = "0"; modal.style.visibility = "hidden"; };
