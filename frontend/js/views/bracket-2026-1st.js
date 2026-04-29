@@ -199,7 +199,7 @@ export async function renderBracket2026_1st(stage, appElement) {
       await fetchLeaderboardData("2026-1st-bracket");
       renderMatches();
 
-      const fixedQualGames = 955;
+      const fixedQualGames = 995;
       const targetAmount = fixedQualGames * 2000;
       const amountEl = document.getElementById("br-prize-amount");
       
