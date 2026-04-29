@@ -1,0 +1,179 @@
+/* Tournament Leaderboard V2 Styles */
+
+.tb-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 3% 3rem 3%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg-main, #0b0c0e);
+    color: #fff;
+  }
+  
+  /* 상단 헤더 영역 */
+  .tb-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+  
+  .tb-title-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .tb-title {
+    font-size: 2.2rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 900;
+  }
+  
+  .tb-live-badge {
+    background: #ff0000;
+    color: #fff;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    border-radius: 4px;
+    animation: pulse 2s infinite;
+  }
+  
+  .tb-subtitle-group {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+  
+  .tb-subtitle {
+    font-size: 1.1rem;
+    color: var(--accent-blue, #3b82f6);
+    font-weight: 700;
+  }
+  
+  /* 테이블 레이아웃 */
+  .tb-table-container {
+    width: 100%;
+    background: #16181c;
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  .tb-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+  }
+  
+  .tb-table th {
+    background: #1c1f26;
+    padding: 1rem 0.5rem;
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 600;
+    border-bottom: 2px solid #333;
+  }
+  
+  .tb-table td {
+    padding: 1rem 0.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #222;
+    transition: background 0.2s;
+  }
+  
+  .tb-table tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  
+  /* 데이터 강조 스타일 */
+  .tb-rank { font-size: 1.5rem; font-weight: 900; }
+  .tb-player { text-align: left; padding-left: 2rem !important; }
+  .tb-name { font-size: 1.2rem; font-weight: 800; }
+  .tb-score { font-size: 1.1rem; color: #aaa; }
+  .tb-final-score { font-size: 1.6rem; font-weight: 900; }
+  
+  /* 커트라인 (진출자 vs 탈락자) */
+  .tb-row-advance td {
+    background-color: rgba(40, 167, 69, 0.05);
+  }
+  .tb-row-advance .tb-rank {
+    color: var(--accent-green, #28a745);
+    text-shadow: 0 0 10px rgba(40,167,69,0.3);
+  }
+  .tb-row-eliminated td {
+    opacity: 0.6;
+  }
+  .tb-row-eliminated .tb-rank {
+    color: #666;
+  }
+  
+  /* 컷오프 경계선 */
+  .tb-cutoff-line td {
+    border-bottom: 2px dashed #ff4757 !important;
+    position: relative;
+  }
+  .tb-cutoff-line td::after {
+    content: "CUT-OFF";
+    position: absolute;
+    right: 10px;
+    bottom: -10px;
+    background: #ff4757;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  /* 스켈레톤 UI */
+  .tb-skeleton-row td {
+    padding: 1rem 0.5rem;
+  }
+  .tb-skeleton-box {
+    height: 24px;
+    background: #2a2d35;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  .tb-skeleton-box.left { margin: 0; max-width: 150px; }
+  .tb-skeleton-box.short { max-width: 40px; }
+  
+  .tb-skeleton-box::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.05) 20%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0));
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer { 100% { transform: translateX(100%); } }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+  
+  /* 모바일 반응형 */
+  @media (max-width: 768px) {
+    .tb-title { font-size: 1.5rem; }
+    .tb-table th { font-size: 0.75rem; padding: 0.8rem 0.2rem; }
+    .tb-table td { padding: 0.8rem 0.2rem; }
+    .tb-rank { font-size: 1.2rem; }
+    .tb-name { font-size: 1rem; }
+    .tb-final-score { font-size: 1.3rem; }
+    .tb-hide-mobile { display: none !important; }
+    .tb-player { padding-left: 0.5rem !important; }
+  }

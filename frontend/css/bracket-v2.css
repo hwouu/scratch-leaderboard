@@ -1,0 +1,186 @@
+/* Bracket V2 전용 스타일 및 스켈레톤 UI */
+
+.bracket-wrapper {
+    background: #0b0c0e;
+    min-height: 100vh;
+    padding: 2vh 2vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    overflow-x: auto;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+  }
+  
+  /* 상단 상금 보드 */
+  .prize-glass-board {
+    background: linear-gradient(180deg, #1e2128 0%, #111318 100%);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 2vh 4vw;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    margin-bottom: 3vh;
+    position: relative;
+    z-index: 10;
+    min-width: 300px;
+  }
+  
+  .prize-label {
+    font-size: 1.6vh;
+    color: #888;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.5vh;
+  }
+  
+  .prize-value {
+    font-size: 6.5vh;
+    font-weight: 900;
+    color: var(--accent-yellow);
+    text-shadow: 0 0 30px rgba(255,193,7,0.3);
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .prize-currency {
+    font-size: 2.5vh;
+    color: #fff;
+    margin-left: 10px;
+    font-weight: 700;
+  }
+  
+  /* 대진표 구조 */
+  .tournament-stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    flex: 1;
+    min-width: 1100px; /* 대진표가 깨지지 않는 최소 너비 */
+  }
+  
+  .side-wing { display: flex; gap: 0; align-items: center; }
+  .side-wing.right { flex-direction: row-reverse; }
+  
+  .round-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 180px;
+    height: 60vh;
+  }
+  
+  .match-pair {
+    margin: 1.5vh 0;
+    position: relative;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 연결선 스타일 */
+  .left .match-pair::after {
+    content: ''; position: absolute; right: 0; top: 25%; height: 50%; width: 20px;
+    border: 2px solid #333; border-left: none; border-radius: 0 8px 8px 0;
+  }
+  .right .match-pair::before {
+    content: ''; position: absolute; left: 0; top: 25%; height: 50%; width: 20px;
+    border: 2px solid #333; border-right: none; border-radius: 8px 0 0 8px;
+  }
+  
+  /* 슬롯 공통 */
+  .slot {
+    background: #1c1f26;
+    border: 1px solid #333;
+    padding: 1.2vh 1vw;
+    font-weight: 700;
+    font-size: 1.8vh;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 4px;
+    position: relative;
+    z-index: 2;
+    align-items: center;
+    min-height: 4.5vh;
+  }
+  .slot:first-child { margin-bottom: 4px; }
+  .slot-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+  .slot-rank { color: #666; font-size: 1.4vh; font-weight: 600; }
+  
+  /* 중앙 결승박스 */
+  .final-center { display: flex; flex-direction: column; align-items: center; gap: 2vh; padding: 0 3vw; position: relative; }
+  .final-box {
+    background: #16181c;
+    border: 2px solid var(--accent-yellow);
+    border-radius: 12px;
+    width: 240px;
+    padding: 0;
+    box-shadow: 0 0 40px rgba(255,193,7,0.2);
+    z-index: 2;
+    overflow: hidden;
+  }
+  .final-label {
+    background: rgba(255,193,7,0.1);
+    color: var(--accent-yellow);
+    font-size: 1.5vh;
+    font-weight: 900;
+    text-align: center;
+    padding: 1vh;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255,193,7,0.3);
+  }
+  
+  /* 네비게이션 및 헤더 */
+  .bracket-nav { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2vh; }
+  .bracket-nav h2 { margin: 0; font-weight: 900; font-size: 3.5vh; display: flex; align-items: center; gap: 12px; }
+  .live-tag {
+    background: #ff0000; color: #fff; padding: 0.3vh 0.8vw; font-size: 1.6vh;
+    font-weight: 800; border-radius: 4px; animation: pulse 2s infinite;
+  }
+  
+  /* 버튼 스타일 */
+  .btn-glass {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; padding: 1vh 1.5vw; border-radius: 6px; font-size: 1.6vh;
+    font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    text-decoration: none; transition: 0.2s;
+  }
+  .btn-glass:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+  .btn-gold { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+  
+  /* =========================================
+     [NEW] 스켈레톤 UI (Skeleton UI) 스타일
+  ========================================= */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #1c1f26 !important;
+    border-color: #2a2d35 !important;
+  }
+  
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.1) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+  
+  /* 애니메이션용 코인 */
+  .casino-coin { position: absolute; top: 30%; left: 50%; font-size: 3rem; pointer-events: none; z-index: 9999; animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+  @keyframes jackpotBurst { 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; } }
