@@ -107,11 +107,10 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     return score > 0 ? '#ff4757' : (score < 0 ? '#3b82f6' : '#fff');
   };
 
-  // 대진표 데이터 기반 내 상대 찾기 알고리즘
   const getMatchInfo = (playerName, bracketData, bracketKey) => {
     if (!bracketData || !bracketKey) return null;
     let bList = bracketData[bracketKey] || [];
-    if (bList.data) bList = bList.data; // API 구조 방어
+    if (bList.data) bList = bList.data;
     if (!Array.isArray(bList)) return null;
 
     const me = bList.find(p => p.userNickname === playerName);
@@ -128,7 +127,6 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   };
 
   const generateTableHtml = (playersGroup, bracketData) => {
-    // 💡 데이터가 완전히 없는 표의 경우 헤더 숨김(빈 플레이스홀더 렌더링)
     const hasValidData = playersGroup.some(p => p && p.userId);
     if (!hasValidData) {
       return `<div class="tb-empty-table-placeholder tb-hide-mobile"></div>`;
@@ -155,11 +153,10 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       const f_aScore = formatScore(aScore);
       const f_bScore = formatScore(bScore);
 
-      // 대결 상대 정보 계산
       const matchInfo = getMatchInfo(player.userNickname, bracketData, config.bracketKey);
       const oppName = matchInfo ? matchInfo.oppName : '데이터 없음';
       const oppScoreRaw = matchInfo ? matchInfo.oppScoreRaw : null;
-      const oppScoreStr = oppScoreRaw !== null ? formatScore(oppScoreRaw) : '-';
+      const oppScoreStr = oppScoreRaw !== null && oppScoreRaw !== undefined ? formatScore(oppScoreRaw) : '-';
       const oppScoreColor = getScoreColor(oppScoreRaw);
 
       return `
@@ -174,7 +171,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
             data-oppname="${oppName}"
             data-oppscore="${oppScoreStr}"
             data-oppcolor="${oppScoreColor}"
-            data-oppraw="${oppScoreRaw !== null ? oppScoreRaw : 'null'}">
+            data-oppraw="${oppScoreRaw !== null && oppScoreRaw !== undefined ? oppScoreRaw : 'null'}">
           <td class="tb-rank">${rankStr}</td>
           <td class="tb-player"><span class="tb-name">${player.userNickname}</span></td>
           <td class="tb-score tb-hide-mobile">${f_aScore}</td>
@@ -196,7 +193,6 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   };
 
   const renderData = async () => {
-    // 현재 리더보드와 대진표(Bracket) 데이터를 병렬로 동시 호출
     const [rawData, bracketData] = await Promise.all([
       fetchData(stage).catch(() => null),
       fetchData("2026-1st-bracket").catch(() => null)
@@ -213,7 +209,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
 
     const players = rawData.total;
     let paddedPlayers = [...players];
-    while (paddedPlayers.length < config.total) paddedPlayers.push({}); // 레이아웃 유지를 위한 패딩
+    while (paddedPlayers.length < config.total) paddedPlayers.push({});
 
     const col1 = paddedPlayers.slice(0, halfCount);
     const col2 = paddedPlayers.slice(halfCount, config.total);
@@ -221,7 +217,6 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     contentArea.innerHTML = generateTableHtml(col1, bracketData) + generateTableHtml(col2, bracketData);
   };
 
-  // 모달 제어 이벤트
   const pModal = document.getElementById("player-detail-modal");
   document.getElementById("tb-content-area").addEventListener("click", (e) => {
     const row = e.target.closest(".player-row");
@@ -236,21 +231,32 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     totalEl.textContent = row.dataset.total;
     totalEl.style.color = row.dataset.color;
 
-    // 대결 상대 정보 주입
     document.getElementById("pm-opp-name").textContent = row.dataset.oppname;
     const oppScoreEl = document.getElementById("pm-opp-score");
     oppScoreEl.textContent = row.dataset.oppscore;
     oppScoreEl.style.color = row.dataset.oppcolor;
 
-    // 대결 상태(Status) 계산
+    // 💡 [수정됨] 데이터 유무(NaN) 판별 완벽 대응 및 상태 문구 추가
     const statusEl = document.getElementById("pm-status");
     const myRaw = parseFloat(row.dataset.raw);
     const oppRawStr = row.dataset.oppraw;
     
-    if (oppRawStr === 'null') {
-      statusEl.textContent = "상대 선수 대기중 ⏳";
-      statusEl.style.color = "#aaa";
+    // 유효한 숫자인지(NaN이 아닌지) 검사
+    const hasMyScore = !isNaN(myRaw);
+    const hasOppScore = oppRawStr !== 'null' && oppRawStr !== 'undefined' && oppRawStr !== '' && !isNaN(parseFloat(oppRawStr));
+
+    if (!hasOppScore) {
+      // 상대방 점수는 없는데 내 점수는 있는 경우 (내가 먼저 쳤거나, 부전승)
+      if (hasMyScore) {
+        statusEl.innerHTML = `현재 앞서가는 중! <span style="color:#28a745;">🟢</span>`;
+        statusEl.style.color = "#fff";
+      } else {
+        // 둘 다 점수가 없는 경우
+        statusEl.textContent = "경기 전 ⏳";
+        statusEl.style.color = "#aaa";
+      }
     } else {
+      // 둘 다 점수가 있는 경우
       const oppRaw = parseFloat(oppRawStr);
       const diff = myRaw - oppRaw;
       if (diff < 0) {
