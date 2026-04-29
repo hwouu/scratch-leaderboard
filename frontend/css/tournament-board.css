@@ -63,6 +63,14 @@
     font-weight: 700;
   }
   
+  /* 2단 분할 그리드 (좌/우 8명씩 배치) */
+  .tb-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  
   /* 테이블 레이아웃 */
   .tb-table-container {
     width: 100%;
@@ -77,6 +85,7 @@
     width: 100%;
     border-collapse: collapse;
     text-align: center;
+    table-layout: fixed; /* 헤더와 데이터 열 완벽 정렬 */
   }
   
   .tb-table th {
@@ -86,6 +95,7 @@
     color: #888;
     font-weight: 600;
     border-bottom: 2px solid #333;
+    vertical-align: middle;
   }
   
   .tb-table td {
@@ -93,6 +103,9 @@
     vertical-align: middle;
     border-bottom: 1px solid #222;
     transition: background 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .tb-table tr:hover td {
@@ -101,7 +114,7 @@
   
   /* 데이터 강조 스타일 */
   .tb-rank { font-size: 1.5rem; font-weight: 900; }
-  .tb-player { text-align: left; padding-left: 2rem !important; }
+  .tb-player { text-align: left; padding-left: 1.5rem !important; }
   .tb-name { font-size: 1.2rem; font-weight: 800; }
   .tb-score { font-size: 1.1rem; color: #aaa; }
   .tb-final-score { font-size: 1.6rem; font-weight: 900; }
@@ -126,7 +139,7 @@
     border-bottom: 2px dashed #ff4757 !important;
     position: relative;
   }
-  .tb-cutoff-line td::after {
+  .tb-cutoff-line td:last-child::after {
     content: "CUT-OFF";
     position: absolute;
     right: 10px;
@@ -166,7 +179,11 @@
   @keyframes shimmer { 100% { transform: translateX(100%); } }
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
   
-  /* 모바일 반응형 */
+  /* 모바일 및 태블릿 반응형 */
+  @media (max-width: 1200px) {
+    .tb-grid { grid-template-columns: 1fr; gap: 1rem; }
+  }
+  
   @media (max-width: 768px) {
     .tb-title { font-size: 1.5rem; }
     .tb-table th { font-size: 0.75rem; padding: 0.8rem 0.2rem; }
