@@ -265,8 +265,39 @@ function getPathForCurrentDate() {
 export function route() {
   let path = window.location.pathname;
   if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-  if (path === "" || path === "/") {
-    path = getPathForCurrentDate();
+
+  const currentPath = getPathForCurrentDate();
+
+  // 보호할 경로 (리다이렉트 하지 않음)
+  const protectedPaths = [
+    "/prize",
+    "/2026-1st/courses",
+    "/2026-1st/bracket",
+    "/4th-open",
+    "/v2/4th-open",
+  ];
+
+  // 스테이지 관련 경로인지 확인
+  const isStagePath = (p) => {
+    return (
+      p.startsWith("/2026-1st/") ||
+      p.startsWith("/leaderboard-2nd/") ||
+      p.startsWith("/leaderboard/")
+    );
+  };
+
+  // 리다이렉트 조건:
+  // 1. 루트 경로 (/)
+  // 2. 스테이지 경로인데 현재 스테이지가 아니고 보호된 경로도 아닌 경우
+  // 3. 등록되지 않은 경로이고 보호된 경로도 아닌 경우 (404 대신 현재 페이지로)
+  const shouldRedirect =
+    path === "" ||
+    path === "/" ||
+    (isStagePath(path) && path !== currentPath && !protectedPaths.includes(path)) ||
+    (!protectedPaths.includes(path) && !routes[path]);
+
+  if (shouldRedirect) {
+    path = currentPath;
     window.history.replaceState({}, "", path);
   }
 
