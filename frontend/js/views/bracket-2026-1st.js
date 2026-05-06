@@ -22,6 +22,25 @@ function renderSkeleton() {
   `;
 }
 
+function getCurrentTournamentPath() {
+  const now = new Date();
+  const schedule = [
+    { path: "/2026-1st/4", start: new Date("2026-05-06T06:00:00+09:00"), end: new Date("2026-05-10T05:59:59+09:00") },
+    { path: "/2026-1st/final", start: new Date("2026-05-10T06:00:00+09:00"), end: new Date("2026-05-13T23:59:59+09:00") },
+  ];
+
+  return schedule.find(({ start, end }) => now >= start && now <= end)?.path || "/2026-1st/4";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function renderBracket2026_1st(stage, appElement) {
   if (!document.getElementById('bracket-v2-style')) {
     const link = document.createElement('link');
@@ -32,12 +51,12 @@ export async function renderBracket2026_1st(stage, appElement) {
   appElement.innerHTML = `
     <div class="bracket-wrapper" id="bracket-tv-wrapper">
       <div class="bracket-nav">
-        <h2>2026 SCRATCH 1st OPEN<span style="color:var(--accent-yellow)">BRACKET</span> <span class="live-tag">LIVE</span></h2>
+        <h2>2026 SCRATCH 1st OPEN <span style="color:var(--accent-yellow)">BRACKET</span> <span class="live-tag">LIVE</span></h2>
         <div class="header-actions">
           <button id="btn-open-overview-br" class="btn-glass" style="color: var(--accent-blue); border-color: var(--accent-blue);">
             <i class="fas fa-info-circle"></i> 개요
           </button>
-          <a href="/2026-1st/16" class="btn-glass" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">
+          <a href="${getCurrentTournamentPath()}" class="btn-glass" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">
             <i class="fas fa-list-ol"></i> 랭킹 보기
           </a>
         </div>
@@ -108,8 +127,8 @@ export async function renderBracket2026_1st(stage, appElement) {
     const p = players.find((x) => x.slotNo === slot);
     if (p && p.userNickname) {
       const score = p.totalScore !== undefined ? p.totalScore : (p.score !== undefined ? p.score : null);
-      const rank = p.rank || p.preliminaryRank || 999;
-      return { name: p.userNickname, rank: rank, score: score, hasData: true };
+      const seedRank = p.preliminaryRank || p.rank || 999;
+      return { name: p.userNickname, rank: seedRank, score: score, hasData: true };
     }
     return { name: "-", rank: 999, score: null, hasData: false };
   };
@@ -125,7 +144,7 @@ export async function renderBracket2026_1st(stage, appElement) {
 
   const renderSlot = (p, isWin) => {
     const rankHtml = p.rank !== 999 ? `<span class="slot-rank">${p.rank}</span>` : '';
-    const nameHtml = `<span class="slot-name">${p.name}</span>`;
+    const nameHtml = `<span class="slot-name">${escapeHtml(p.name)}</span>`;
     let scoreStr = '-';
     let scoreColorClass = '';
     

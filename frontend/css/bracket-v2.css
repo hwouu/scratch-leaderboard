@@ -201,3 +201,95 @@
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
   .casino-coin { position: fixed; top: 30%; left: 50%; font-size: 3.5rem; pointer-events: none; z-index: 9999; animation: jackpotBurst 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
   @keyframes jackpotBurst { 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--scale)); opacity: 0; } }
+
+  @media (max-width: 768px) {
+    .bracket-wrapper {
+      align-items: flex-start;
+      padding: 1rem;
+    }
+
+    .bracket-nav {
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .bracket-nav h2 {
+      font-size: 1.25rem;
+      line-height: 1.25;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .live-tag {
+      font-size: 0.72rem;
+      padding: 0.22rem 0.45rem;
+    }
+
+    .header-actions {
+      width: 100%;
+      gap: 8px;
+    }
+
+    .btn-glass {
+      min-height: 40px;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .prize-glass-board {
+      width: 100%;
+      min-width: 0;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .prize-label {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+    }
+
+    .prize-value {
+      font-size: 3rem;
+      letter-spacing: 0;
+    }
+
+    .prize-currency {
+      font-size: 1.15rem;
+    }
+
+    .tournament-stage {
+      min-width: 1100px;
+      min-height: 560px;
+      align-self: flex-start;
+      margin-top: 2.5rem;
+    }
+
+    .round-col {
+      width: 180px;
+      height: 560px;
+    }
+
+    .final-box {
+      width: 220px;
+    }
+
+    .slot {
+      min-height: 46px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+
+    .slot-name {
+      max-width: 84px;
+      font-size: 0.78rem;
+    }
+
+    .slot-score {
+      font-size: 0.86rem;
+    }
+
+    .footer-note {
+      min-width: 1100px;
+      text-align: center;
+    }
+  }

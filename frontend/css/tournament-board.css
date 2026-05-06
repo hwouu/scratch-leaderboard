@@ -290,6 +290,8 @@
     .tb-wrapper { padding: 1rem 3% 2rem 3%; }
     .tb-header { gap: 1rem; margin-bottom: 1.5rem; }
     .tb-title { font-size: 1.4rem; gap: 6px; }
+    .tb-title-group { align-items: flex-start; }
+    .tb-title-group .header-actions { width: 100%; justify-content: flex-start; }
     .tb-info-bar { padding: 1rem; gap: 0.8rem; border-radius: 8px; }
     .tb-info-left { gap: 0.6rem; }
     .tb-info-stage { font-size: 1.05rem; }
@@ -299,7 +301,6 @@
     /* 모바일에서 버튼 아이콘화 & 불필요한 버튼 숨김 */
     .btn-glass { padding: 0.6rem 0.8rem; font-size: 1.1rem; justify-content: center; }
     .btn-text { display: none; }
-    .btn-bracket { display: none !important; } 
     .pc-only-btn { display: none !important; } 
   
     /* 테이블 축소 및 모바일 전용 컬럼 숨김 */

@@ -50,8 +50,6 @@ const routes = {
     renderLeaderboard2026_1st_tournament("2026-1st-8", app),
   "/2026-1st/4": (app) =>
     renderLeaderboard2026_1st_tournament("2026-1st-4", app),
-  "/2026-1st/third-place": (app) =>
-    renderLeaderboard2026_1st_tournament("2026-1st-third-place", app),
   "/2026-1st/final": (app) =>
     renderLeaderboard2026_1st_tournament("2026-1st-final", app),
 
@@ -99,7 +97,6 @@ function getSeoForPath(path) {
       16: "16강",
       8: "8강",
       4: "4강",
-      "third-place": "3위 결정전",
       final: "결승전",
     })[stage] || "리더보드";
 
@@ -191,10 +188,6 @@ function getPathForCurrentDate() {
       start: new Date("2026-05-06T06:00:00+09:00"),
       end: new Date("2026-05-10T05:59:59+09:00"),
     },
-    "third-place": {
-      start: new Date("2026-05-10T06:00:00+09:00"),
-      end: new Date("2026-05-13T23:59:59+09:00"),
-    },
     final: {
       start: new Date("2026-05-10T06:00:00+09:00"),
       end: new Date("2026-05-13T23:59:59+09:00"),
@@ -237,7 +230,6 @@ function getPathForCurrentDate() {
     "16",
     "8",
     "4",
-    "third-place",
     "final",
   ];
   for (const stage of schedule2026Order) {

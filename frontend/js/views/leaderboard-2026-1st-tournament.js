@@ -7,13 +7,21 @@ let refreshInterval;
  */
 function getTournamentConfig(stage) {
   const base = {
-    "2026-1st-16": { name: "16강 본선", advanceCount: 8, total: 16, date: "4/28(화) ~ 5/2(토)", courses: "A: 아크로CC / B: 써닝포인트CC", bracketKey: "bracket16" },
-    "2026-1st-8": { name: "8강 본선", advanceCount: 4, total: 8, date: "5/2(토) ~ 5/6(수)", courses: "A: 아크로CC / B: 써닝포인트CC", bracketKey: "bracket8" },
-    "2026-1st-4": { name: "4강 본선", advanceCount: 2, total: 4, date: "5/6(수) ~ 5/10(일)", courses: "A: 아크로CC / B: 써닝포인트CC", bracketKey: "bracket4" },
-    "2026-1st-third-place": { name: "3·4위전", advanceCount: 1, total: 2, date: "5/10(일) ~ 5/13(수)", courses: "A: 아크로CC / B: 써닝포인트CC", bracketKey: "bracketFinal" },
-    "2026-1st-final": { name: "결승전", advanceCount: 1, total: 2, date: "5/10(일) ~ 5/13(수)", courses: "A: 아크로CC / B: 써닝포인트CC", bracketKey: "bracketFinal" }
+    "2026-1st-16": { name: "16강 본선", advanceCount: 8, total: 16, date: "26.04.28 ~ 26.05.01", courses: "A: 트윈 도브스 골프 / B: 뉴욕 센트럴파크 GC", bracketKey: "bracket16" },
+    "2026-1st-8": { name: "8강 본선", advanceCount: 4, total: 8, date: "26.05.02 ~ 26.05.05", courses: "A: 트윈 도브스 골프 / B: 뉴욕 센트럴파크 GC", bracketKey: "bracket8" },
+    "2026-1st-4": { name: "4강 본선", advanceCount: 2, total: 4, date: "26.05.06 ~ 26.05.09", courses: "A: 군자리 CC / B: 크리스밸리 CC", bracketKey: "bracket4" },
+    "2026-1st-final": { name: "결승전", advanceCount: 1, total: 2, date: "26.05.10 ~ 26.05.13", courses: "A: 군자리 CC / B: 크리스밸리 CC", bracketKey: "bracketFinal" }
   };
   return base[stage] || { name: "토너먼트", advanceCount: 0, total: 16, date: "-", courses: "-", bracketKey: "" };
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function renderSkeletonTable(rowCount) {
@@ -42,7 +50,7 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
   }
 
   const config = getTournamentConfig(stage);
-  const halfCount = 8;
+  const halfCount = Math.ceil(config.total / 2);
   const stagePrefix = config.name.split(' ')[0];
 
   appElement.innerHTML = `
@@ -120,8 +128,10 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     const oppSlot = mySlot % 2 === 1 ? mySlot + 1 : mySlot - 1;
     const opp = bList.find(p => p.slotNo === oppSlot);
     return {
+      mySeedRank: me.preliminaryRank || me.rank || null,
       oppName: opp && opp.userNickname ? opp.userNickname : '대기중/부전승',
-      oppScoreRaw: opp && opp.userNickname ? (opp.totalScore !== undefined ? opp.totalScore : opp.score) : null
+      oppScoreRaw: opp && opp.userNickname ? (opp.totalScore !== undefined ? opp.totalScore : opp.score) : null,
+      oppSeedRank: opp && opp.userNickname ? (opp.preliminaryRank || opp.rank || null) : null
     };
   };
 
@@ -132,9 +142,9 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       if (!player || !player.userId) {
         return `<tr class="tb-empty-row"><td class="tb-rank" style="color:#333;">-</td><td class="tb-player"><span class="tb-name" style="color:#333;">-</span></td><td class="tb-hide-mobile">-</td><td class="tb-hide-mobile">-</td><td>-</td></tr>`;
       }
-      const isTopEight = player.rank <= 8;
+      const isAdvancing = player.rank <= config.advanceCount;
       const isCutoffLine = player.rank === config.advanceCount && (playersGroup[idx + 1]?.rank > config.advanceCount || idx === playersGroup.length - 1);
-      let rowClass = isTopEight ? 'tb-row-top-eight' : '';
+      let rowClass = isAdvancing ? 'tb-row-top-eight' : '';
       if (isCutoffLine) rowClass += ' tb-cutoff-line';
       const scoresArr = player.scores || [];
       const aScore = scoresArr[0] ? scoresArr[0].score : null;
@@ -148,10 +158,14 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
       const oppScoreRaw = matchInfo ? matchInfo.oppScoreRaw : null;
       const oppScoreStr = oppScoreRaw !== null && oppScoreRaw !== undefined ? formatScore(oppScoreRaw) : '-';
       const oppScoreColor = getScoreColor(oppScoreRaw);
+      const mySeedRank = matchInfo?.mySeedRank ?? "";
+      const oppSeedRank = matchInfo?.oppSeedRank ?? "";
+      const safePlayerName = escapeHtml(player.userNickname);
+      const safeOppName = escapeHtml(oppName);
 
       return `
-        <tr class="${rowClass} clickable player-row" data-name="${player.userNickname}" data-rank="${rankStr}" data-a="${formatScore(aScore)}" data-b="${formatScore(bScore)}" data-total="${scoreStr}" data-color="${scoreColor}" data-raw="${myScoreRaw}" data-oppname="${oppName}" data-oppscore="${oppScoreStr}" data-oppcolor="${oppScoreColor}" data-oppraw="${oppScoreRaw !== null && oppScoreRaw !== undefined ? oppScoreRaw : 'null'}">
-          <td class="tb-rank">${rankStr}</td><td class="tb-player"><span class="tb-name">${player.userNickname}</span></td><td class="tb-score tb-hide-mobile">${formatScore(aScore)}</td><td class="tb-score tb-hide-mobile">${formatScore(bScore)}</td><td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
+        <tr class="${rowClass} clickable player-row" data-name="${safePlayerName}" data-rank="${rankStr}" data-a="${formatScore(aScore)}" data-b="${formatScore(bScore)}" data-total="${scoreStr}" data-color="${scoreColor}" data-raw="${myScoreRaw}" data-seed="${mySeedRank}" data-oppname="${safeOppName}" data-oppscore="${oppScoreStr}" data-oppcolor="${oppScoreColor}" data-oppraw="${oppScoreRaw !== null && oppScoreRaw !== undefined ? oppScoreRaw : 'null'}" data-oppseed="${oppSeedRank}">
+          <td class="tb-rank">${rankStr}</td><td class="tb-player"><span class="tb-name">${safePlayerName}</span></td><td class="tb-score tb-hide-mobile">${formatScore(aScore)}</td><td class="tb-score tb-hide-mobile">${formatScore(bScore)}</td><td class="tb-final-score" style="color: ${scoreColor};">${scoreStr}</td>
         </tr>`;
     }).join('');
 
@@ -209,15 +223,22 @@ export async function renderLeaderboard2026_1st_tournament(stage, appElement) {
     oppScoreEl.textContent = row.dataset.oppscore; oppScoreEl.style.color = row.dataset.oppcolor;
     const statusEl = document.getElementById("pm-status");
     const myRaw = parseFloat(row.dataset.raw); const oppRawStr = row.dataset.oppraw;
+    const mySeedRank = parseInt(row.dataset.seed, 10);
+    const oppSeedRank = parseInt(row.dataset.oppseed, 10);
     const hasMyScore = !isNaN(myRaw); const hasOppScore = oppRawStr !== 'null' && oppRawStr !== 'undefined' && !isNaN(parseFloat(oppRawStr));
     if (!hasOppScore) {
-      statusEl.innerHTML = hasMyScore ? `먼저 앞서가는 중! <span style="color:#28a745;">👑👑</span>` : "경기 전 ⏳";
+      statusEl.textContent = hasMyScore ? "상대 기록 대기 중" : "경기 전";
       statusEl.style.color = hasMyScore ? "#fff" : "#aaa";
     } else {
       const oppRaw = parseFloat(oppRawStr); const diff = myRaw - oppRaw;
-      if (diff < 0) { statusEl.innerHTML = `${Math.abs(diff)}타 차 리드 중! <span style="color:#28a745;">👑👑</span>`; statusEl.style.color = "#fff"; }
-      else if (diff > 0) { statusEl.innerHTML = `${diff}타 차 뒤처짐 <span style="color:#ff4757;">⛳⛳</span>`; statusEl.style.color = "#ff4757"; }
-      else { statusEl.innerHTML = `동점 (Tied) <span style="color:#ffc107;">🏌️🏌️</span>`; statusEl.style.color = "#ffc107"; }
+      if (diff < 0) { statusEl.textContent = `${Math.abs(diff)}타 차 리드 중`; statusEl.style.color = "#fff"; }
+      else if (diff > 0) { statusEl.textContent = `${diff}타 차 추격 중`; statusEl.style.color = "#ff4757"; }
+      else if (!isNaN(mySeedRank) && !isNaN(oppSeedRank) && mySeedRank !== oppSeedRank) {
+        const isSeedAhead = mySeedRank < oppSeedRank;
+        statusEl.textContent = isSeedAhead ? `동점, 예선 순위 우세 (${mySeedRank}위)` : `동점, 예선 순위 열세 (${mySeedRank}위)`;
+        statusEl.style.color = isSeedAhead ? "#fff" : "#ff4757";
+      }
+      else { statusEl.textContent = "동점"; statusEl.style.color = "#ffc107"; }
     }
     pModal.style.opacity = "1"; pModal.style.visibility = "visible";
   });
