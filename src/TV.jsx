@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {ArrowClockwiseIcon,ArrowLeftIcon,ArrowUpRightIcon,GearSixIcon,MonitorIcon,PauseIcon,PlayIcon,XIcon} from '@phosphor-icons/react';
-import {ROUNDS,SHOPS,shortCourse,scoreText,kstDate,kstTime} from './event';
+import {ROUNDS,POSTED_SHOP,shortCourse,scoreText,kstDate,kstTime} from './event';
 import {buildTickerItems} from './ticker.mjs';
 import './tv.css';
 
@@ -29,7 +29,7 @@ function RecordTicker({data,nearest,paused,onToggle}) {
   </section>;
 }
 
-export function TVScreen({nearest,round,setRound,shop,setShop,data,loading,error,refresh,isDesign}) {
+export function TVScreen({nearest,round,setRound,shop,data,loading,error,refresh,isDesign}) {
   const [controls,setControls]=useState(false),[paused,setPaused]=useState(false);
   const r=data?.round??ROUNDS[round==='2'?1:0];
   const resources=nearest?(data?.courses.map(c=>c.nearest)??[]):[data?.total,...(data?.courses.map(c=>c.standings)??[])];
@@ -38,11 +38,11 @@ export function TVScreen({nearest,round,setRound,shop,setShop,data,loading,error
   return <main className={`tv-screen ${nearest?'tv-nearest':'tv-standings'}`}>
     <header className="tv-header">
       <div className="tv-event"><span>골목대장 나야나</span><span>Goodbye 2026</span></div>
-      <div className="tv-heading"><h1>{nearest?'니어리스트':'합산 순위'}</h1><div className="tv-context"><span>{r.name}</span><span>{nearest?'전체 매장 통합':SHOPS.find(s=>s.id===shop)?.name??'전체 매장'}</span><span>{kstDate(r.start)} — {kstDate(r.end)}</span></div></div>
+      <div className="tv-heading"><h1>{nearest?'니어리스트':'합산 순위'}</h1><div className="tv-context"><span>{r.name}</span><span>{nearest?'전체 매장 통합':POSTED_SHOP.name}</span><span>{kstDate(r.start)} — {kstDate(r.end)}</span></div></div>
       <button className="tv-settings-trigger" aria-label="TV 화면 설정" aria-expanded={controls} onClick={()=>setControls(v=>!v)}><GearSixIcon/></button>
     </header>
     {isDesign&&<div className="preview-label">예시 기록</div>}
-    {controls&&<div className="tv-controls"><div className="tv-controls-heading"><span>화면 설정</span><button aria-label="설정 닫기" onClick={()=>setControls(false)}><XIcon size={20}/></button></div><label>차전<select aria-label="TV 차전" value={round} onChange={e=>setRound(e.target.value)}><option value="1">1차전</option><option value="2">2차전</option></select></label>{!nearest&&<label>매장<select aria-label="TV 매장" value={shop} onChange={e=>setShop(Number(e.target.value))}>{SHOPS.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}<option value={0}>전체 매장</option></select></label>}<button onClick={refresh}>기록 새로고침</button><button onClick={()=>document.documentElement.requestFullscreen?.()}>전체화면</button><a href="/tv">다른 TV 화면 선택<ArrowUpRightIcon size={16}/></a></div>}
+    {controls&&<div className="tv-controls"><div className="tv-controls-heading"><span>화면 설정</span><button aria-label="설정 닫기" onClick={()=>setControls(false)}><XIcon size={20}/></button></div><label>차전<select aria-label="TV 차전" value={round} onChange={e=>setRound(e.target.value)}><option value="1">1차전</option><option value="2">2차전</option></select></label><button onClick={refresh}>기록 새로고침</button><button onClick={()=>document.documentElement.requestFullscreen?.()}>전체화면</button><a href="/tv">다른 TV 화면 선택<ArrowUpRightIcon size={16}/></a></div>}
     <div className="tv-content">
       {!nearest&&<section className="tv-total-panel"><div className="tv-panel-title"><h2>합산</h2><span>상위 15명</span></div><TVRows entries={data?.total.entries} limit={15} status={data?.total.status} loading={loading}/></section>}
       <div className="tv-course-grid">{r.courses.map((c,i)=>{
@@ -53,7 +53,7 @@ export function TVScreen({nearest,round,setRound,shop,setShop,data,loading,error
         </section>;
       })}</div>
     </div>
-    <footer className="tv-footer"><div className="tv-schedule"><span>1차전 <time>11.10 — 11.30</time></span><span>2차전 <time>12.01 — 12.21</time></span><span>결선 <time>12.22 — 12.31</time></span></div><div className={`tv-update ${bad?'warning':''}`}><ArrowClockwiseIcon className={loading?'spin':''}/><span>{loading?'기록 확인 중':bad?'연결 지연. 최근 기록 표시':`업데이트 ${kstTime(dates[0])}`}</span><span className="tv-refresh-interval">60초 간격</span></div></footer>
+    <footer className="tv-footer"><div className="tv-schedule">{(data?.event.rounds??ROUNDS).map(stage=><span key={stage.no}>{stage.name}<time>{kstDate(stage.start)} — {kstDate(stage.end)}</time></span>)}<span>결선<time>별도 일반대회</time></span></div><div className={`tv-update ${bad?'warning':''}`}><ArrowClockwiseIcon className={loading?'spin':''}/><span>{loading?'기록 확인 중':bad?'연결 지연. 최근 기록 표시':`업데이트 ${kstTime(dates[0])}`}</span><span className="tv-refresh-interval">60초 간격</span></div></footer>
     <RecordTicker data={data} nearest={nearest} paused={paused} onToggle={()=>setPaused(p=>!p)}/>
   </main>;
 }
@@ -64,5 +64,5 @@ function MiniTable({nearest=false,total=false}) {
 
 export function TVLauncher({round,shop}) {
   const r=round==='2'?'2':'1';
-  return <main className="tv-launcher"><header><a href="/"><ArrowLeftIcon size={17}/>순위로 돌아가기</a><span>골목대장 나야나</span></header><div className="tv-launcher-intro"><MonitorIcon size={26}/><h1>TV 화면 선택</h1><p>두 대의 TV에 각각 다른 화면을 열어 주세요.</p></div><div className="tv-launch-options"><a className="tv-launch-card" href={`/tv/nearest?round=${r}`}><MiniTable nearest/><div className="launch-card-copy"><span className="launch-number">화면 1</span><h2>니어리스트<ArrowUpRightIcon/></h2><p>A, B, C코스 각 8위까지</p><small>전체 매장 통합</small></div></a><a className="tv-launch-card" href={`/tv/standings?round=${r}&shop=${shop}`}><MiniTable total/><div className="launch-card-copy"><span className="launch-number">화면 2</span><h2>합산 순위<ArrowUpRightIcon/></h2><p>합산 15위와 A, B, C코스 각 8위</p><small>{SHOPS.find(s=>s.id===shop)?.name??'전체 매장'}</small></div></a></div><p className="tv-launch-note">16:9 화면에 맞춰 표시됩니다. 차전과 매장은 각 화면의 설정에서 변경할 수 있습니다.</p></main>;
+  return <main className="tv-launcher"><header><a href="/"><ArrowLeftIcon size={17}/>순위로 돌아가기</a><span>골목대장 나야나</span></header><div className="tv-launcher-intro"><MonitorIcon size={26}/><h1>TV 화면 선택</h1><p>두 대의 TV에 각각 다른 화면을 열어 주세요.</p></div><div className="tv-launch-options"><a className="tv-launch-card" href={`/tv/nearest?round=${r}`}><MiniTable nearest/><div className="launch-card-copy"><span className="launch-number">화면 1</span><h2>니어리스트<ArrowUpRightIcon/></h2><p>A, B, C코스 각 8위까지</p><small>전체 매장 통합</small></div></a><a className="tv-launch-card" href={`/tv/standings?round=${r}&shop=${POSTED_SHOP.id}`}><MiniTable total/><div className="launch-card-copy"><span className="launch-number">화면 2</span><h2>합산 순위<ArrowUpRightIcon/></h2><p>합산 15위와 A, B, C코스 각 8위</p><small>{POSTED_SHOP.name}</small></div></a></div><p className="tv-launch-note">16:9 화면에 맞춰 표시됩니다. 순위 화면은 화전 스크래치 기준입니다. 차전은 각 화면의 설정에서 변경할 수 있습니다.</p></main>;
 }

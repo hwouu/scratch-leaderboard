@@ -1,4 +1,5 @@
 export const SHOPS=[{id:14859,name:'화전 스크래치'},{id:17623,name:'창릉 스타원2'}];
+export const POSTED_SHOP=SHOPS[0];
 export const SOURCE_URL='https://www.golfzon.com/tournament/v2/view?tournamentId=3337';
 export const ROUNDS=[
  {no:1,id:23099,name:'1차전',start:Date.parse('2026-11-10T00:00:00+09:00'),end:Date.parse('2026-11-30T23:59:00+09:00'),courses:[{id:23100,label:'A',name:'타니 CC - 청룡/백호'},{id:23101,label:'B',name:'블루원 상주 골프리조트'},{id:23102,label:'C',name:'마우나오션 CC - 마우나/블루'}]},

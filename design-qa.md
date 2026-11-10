@@ -19,3 +19,7 @@ Passed local QA: 1920x1080 standings 15/8/8/8 rows, 3840x2160 nearest 8/8/8 rows
 Desktop TV 보기 reaches `/tv`, and choosing the first card reaches `/tv/nearest?round=1`. Mobile search focus verified at 390x844: computed font 16px, visual viewport scale 1, no horizontal overflow, search matches actual record. Pinch zoom is not disabled. Real iOS hardware was not available.
 
 14 tests including 3 meaningful ticker cases pass. Production build passes. The prior selected visual is superseded only by the user's explicit refinements; photo assets are removed rather than re-used.
+
+## Client rules confirmation — 2026-11-11
+
+Official Golfzon settings confirmed; policy provisional=false, confirmedBy=client. Public round choices are only 1/2 even for an old ?round=season link. TV standings ignores ?shop=0 and remains14859; no shop select. Nearest remains combined. Final is a separate ordinary event with season-based shop top15 each plus additional overall top30; no premature qualification badge or fixed unique count. Poster link clearly says awaiting correction. Schedule comes from official metadata rather than the client's approximate20-day phrase. 14 tests and build passed.

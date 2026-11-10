@@ -26,7 +26,7 @@ test('shop-filtered official standings and combined nearest remain separate; cre
  resetCacheForTests();const urls=[];
  const fetcher=async url=>{urls.push(url);if(url.includes('managements/'))return response({tournamentName:'대회',creatorUserId:'not-for-output',rounds:[round],joinCount:33});if(url.includes('/distance'))return response({courseName:'청룡',holeNo:8,ranks:[{...source,score:3.47}]});return response([source],1);};
  const {body,status}=await getLeaderboard(new URLSearchParams('round=1&shop=14859'),fetcher);
- assert.equal(status,200);assert.equal(body.total.entries[0].score,-3);assert.equal(body.total.entries.length,1);assert.equal(body.courses[0].nearest.entries[0].distance,3.47);
+ assert.equal(status,200);assert.equal(body.policy.provisional,false);assert.equal(body.policy.confirmedBy,'client');assert.equal(body.total.entries[0].score,-3);assert.equal(body.total.entries.length,1);assert.equal(body.courses[0].nearest.entries[0].distance,3.47);
  assert.equal(body.event.creatorUserId,undefined);assert.equal(body.total.entries[0].userId,undefined);
  assert.ok(urls.filter(u=>u.includes('/stroke')).every(u=>u.includes('shopNo=14859')));
  assert.ok(urls.filter(u=>u.includes('/distance')).every(u=>!u.includes('shopNo')));

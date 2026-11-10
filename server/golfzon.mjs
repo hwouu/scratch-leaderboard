@@ -81,7 +81,7 @@ export async function getLeaderboard(searchParams, fetcher = fetch) {
   }));
   const resources = await Promise.all(requests);
   return { status: 200, body: { event: detail.event, metadataStatus: detail.status, round, roundChoice, shopId: shop, shops: SHOPS,
-    policy: { source: 'golfzon-official', adjustments: 'upstream', provisional: true },
+    policy: { source: 'golfzon-official', adjustments: 'upstream', provisional: false, confirmedBy: 'client' },
     total: resources[0], courses: round.courses.map((course, i) => ({ ...course, standings: resources[i + 1], nearest: resources[i + 1 + round.courses.length] })), servedAt: new Date().toISOString(), refreshSeconds: 60 } };
 }
 export function resetCacheForTests() { cache.clear(); inflight.clear(); }
