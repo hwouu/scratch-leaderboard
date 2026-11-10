@@ -79,3 +79,10 @@
 
 :root{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(hover:none) and (pointer:coarse){.webapp input,.webapp select,.webapp textarea{font-size:16px}}
+
+/* Prominent PC entry to the two TV views. */
+.desktop-header-right a.tv-entry-button{min-height:44px;padding:11px 18px;background:#173f2c;color:#fff;border:1px solid #173f2c;border-radius:8px;font-size:14px;white-space:nowrap;text-decoration:none;justify-content:center;gap:9px}
+.desktop-header-right a.tv-entry-button:hover{background:#0e3020;border-color:#0e3020}
+.sidebar-season a.tv-entry-button{min-height:46px;padding:12px 10px;background:#e4edda;border:1px solid #bdcfae;color:#173f2c;border-radius:8px;justify-content:center;gap:8px;font-size:13px;white-space:nowrap;text-decoration:none}
+.sidebar-season a.tv-entry-button:hover{background:#d9e6ca;border-color:#93af7c}
+.tv-entry-button:focus-visible{outline:2px solid #547a3a;outline-offset:3px}
