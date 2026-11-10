@@ -1,0 +1,9 @@
+{
+  "name": "골목대장 나야나 · Goodbye 2026",
+  "short_name": "골목대장",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7ef",
+  "theme_color": "#06382c",
+  "icons": []
+}

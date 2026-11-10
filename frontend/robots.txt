@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /api/
-
-Sitemap: https://scratch-leaderboard.vercel.app/sitemap.xml
-
