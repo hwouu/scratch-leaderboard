@@ -15,3 +15,6 @@ Use only the user-selected Heritage Scoreboard option 1 layout. Discard blended 
 On 2026-11-10 the user requested QA, commit, push, and deployment to the existing project. Mobile typography should be light and modern, referencing the official Genesis Championship page: regular 400 body/controls/names/scores and light 300 titles; remove decorative italic mobile wordmark. Use licensed Pretendard, not copied proprietary Genesis font files. Keep TV option 1 and mobile glass navigation.
 
 Latest clarification: apply the same regular/light typography to ALL screens, including PC and TV. No extra bold emphasis for TV. Establish hierarchy through size, spacing, and color. This supersedes mobile-only typography scope.
+
+## UI revision — 2026-11-11
+User requests natural typography and normal tracking on all screens, no decorative middle-dot separators or generic slogans. TV: smaller type, more spacing, remove background photo and mobile link, exchange-style moving official-record ticker with pause/reduced-motion support. `/tv` is now the selection hub; TV 보기 routes there. Preserve TV row counts and independent views. Mobile inputs/selects use 16px to prevent iOS focus auto-zoom while preserving pinch zoom. This supersedes earlier generated mock details and extreme light typography.
