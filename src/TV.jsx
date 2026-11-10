@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {ArrowClockwiseIcon,ArrowLeftIcon,ArrowUpRightIcon,GearSixIcon,MonitorIcon,PauseIcon,PlayIcon,XIcon} from '@phosphor-icons/react';
 import {ROUNDS,POSTED_SHOP,shortCourse,scoreText,kstDate,kstTime} from './event';
 import {buildTickerItems} from './ticker.mjs';
@@ -23,14 +23,15 @@ function RecordTicker({data,nearest,paused,onToggle}) {
   return <section className={`record-ticker ${paused?'ticker-paused':''}`} aria-label="대회 기록 바">
     <div className="ticker-label">대회 기록</div>
     <div className="ticker-window" tabIndex={0} aria-label="상위 참가자 기록. 마우스를 올리거나 초점을 두면 이동이 멈춥니다.">
-      {items.length?<div className="ticker-track" style={{'--ticker-duration':`${Math.max(38,items.length*7)}s`}}>{[0,1].map(copy=><div className="ticker-group" key={copy} aria-hidden={copy===1?true:undefined}>{items.map(item=><div className="ticker-item" key={item.id}><span className="ticker-scope">{item.scope}</span><span className="ticker-rank">{item.rank}위</span><span>{item.nickname}</span><span className="ticker-value" key={item.value}>{item.value}</span></div>)}</div>)}</div>:<p className="ticker-empty">등록된 기록이 반영되면 표시됩니다</p>}
+      {items.length?<div className="ticker-track" style={{'--ticker-duration':`${Math.max(38,items.length*7)}s`}}>{[0,1].map(copy=><div className="ticker-group" key={copy} aria-hidden={copy===1?true:undefined}>{items.map(item=><div className="ticker-item" key={item.id}><span className="ticker-scope">{item.scope}</span><span className="ticker-rank">{item.rank}위</span><span>{item.nickname}</span><span className="ticker-value" key={item.value}>{item.value}</span></div>)}</div>)}</div>:<p className="ticker-empty">기록 대기</p>}
     </div>
     <button className="ticker-toggle" aria-label={paused?'기록 바 재생':'기록 바 일시정지'} onClick={onToggle}>{paused?<PlayIcon/>:<PauseIcon/>}</button>
   </section>;
 }
 
 export function TVScreen({nearest,round,setRound,shop,data,loading,error,refresh,isDesign}) {
-  const [controls,setControls]=useState(false),[paused,setPaused]=useState(false);
+  const [controls,setControls]=useState(false),[paused,setPaused]=useState(false),settingsRef=useRef(null);
+  useEffect(()=>{if(!controls)return;const onKey=e=>{if(e.key==='Escape'){setControls(false);settingsRef.current?.focus();}};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);},[controls]);
   const r=data?.round??ROUNDS[round==='2'?1:0];
   const resources=nearest?(data?.courses.map(c=>c.nearest)??[]):[data?.total,...(data?.courses.map(c=>c.standings)??[])];
   const dates=resources.map(s=>s?.fetchedAt).filter(Boolean).sort();
@@ -38,11 +39,11 @@ export function TVScreen({nearest,round,setRound,shop,data,loading,error,refresh
   return <main className={`tv-screen ${nearest?'tv-nearest':'tv-standings'}`}>
     <header className="tv-header">
       <div className="tv-event"><span>골목대장 나야나</span><span>Goodbye 2026</span></div>
-      <div className="tv-heading"><h1>{nearest?'니어리스트':'합산 순위'}</h1><div className="tv-context"><span>{r.name}</span><span>{nearest?'전체 매장 통합':POSTED_SHOP.name}</span><span>{kstDate(r.start)} — {kstDate(r.end)}</span></div></div>
-      <button className="tv-settings-trigger" aria-label="TV 화면 설정" aria-expanded={controls} onClick={()=>setControls(v=>!v)}><GearSixIcon/></button>
+      <div className="tv-heading"><h1>{nearest?'니어리스트':'합산 순위'}</h1><div className="tv-context"><span>{r.name}</span><span>{nearest?'전체 매장 통합':POSTED_SHOP.name}</span><span>{kstDate(r.start)} — {kstDate(r.end)}</span></div>
+      <button ref={settingsRef} className="tv-settings-trigger" aria-label="TV 화면 설정" aria-controls="tv-controls" aria-expanded={controls} onClick={()=>setControls(v=>!v)}><GearSixIcon/></button></div>
+    {controls&&<div id="tv-controls" className="tv-controls"><div className="tv-controls-heading"><span>화면 설정</span><button aria-label="설정 닫기" onClick={()=>setControls(false)}><XIcon size={20}/></button></div><label>차전<select aria-label="TV 차전" value={round} onChange={e=>setRound(e.target.value)}><option value="1">1차전</option><option value="2">2차전</option></select></label><button onClick={refresh}>기록 새로고침</button><button onClick={()=>document.documentElement.requestFullscreen?.()}>전체화면</button><a href="/tv">다른 TV 화면 선택<ArrowUpRightIcon size={16}/></a></div>}
     </header>
     {isDesign&&<div className="preview-label">예시 기록</div>}
-    {controls&&<div className="tv-controls"><div className="tv-controls-heading"><span>화면 설정</span><button aria-label="설정 닫기" onClick={()=>setControls(false)}><XIcon size={20}/></button></div><label>차전<select aria-label="TV 차전" value={round} onChange={e=>setRound(e.target.value)}><option value="1">1차전</option><option value="2">2차전</option></select></label><button onClick={refresh}>기록 새로고침</button><button onClick={()=>document.documentElement.requestFullscreen?.()}>전체화면</button><a href="/tv">다른 TV 화면 선택<ArrowUpRightIcon size={16}/></a></div>}
     <div className="tv-content">
       {!nearest&&<section className="tv-total-panel"><div className="tv-panel-title"><h2>합산</h2><span>상위 15명</span></div><TVRows entries={data?.total.entries} limit={15} status={data?.total.status} loading={loading}/></section>}
       <div className="tv-course-grid">{r.courses.map((c,i)=>{

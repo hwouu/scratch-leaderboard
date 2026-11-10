@@ -23,3 +23,9 @@ Desktop TV 보기 reaches `/tv`, and choosing the first card reaches `/tv/neares
 ## Client rules confirmation — 2026-11-11
 
 Official Golfzon settings confirmed; policy provisional=false, confirmedBy=client. Public round choices are only 1/2 even for an old ?round=season link. TV standings ignores ?shop=0 and remains14859; no shop select. Nearest remains combined. Final is a separate ordinary event with season-based shop top15 each plus additional overall top30; no premature qualification badge or fixed unique count. Poster link clearly says awaiting correction. Schedule comes from official metadata rather than the client's approximate20-day phrase. 14 tests and build passed.
+
+## TV controls / copy cleanup — 2026-11-11
+
+Scoped Product Design audit: before/after screenshots of TV settings, player modal and event page. Header centerline mismatch ~9px fixed using one grid row. Close target now32px square, actions44px, settings below header; Escape closes and returns focus. 1080p center difference0px, 4K<0.01px. Nearest8/8/8 and no overflow at4K.
+
+Player modal omits prose/missing raw/zero adjustments, preserves official totals, genuine E and applied adjustments. Event page retains essential schedules/courses/selection/links as labeled values without explanatory sentences. Mobile390x844 modal646px and no horizontal overflow; event no overflow. Console errors/warnings none. This is a scoped interaction check, not full accessibility certification. Full screenshot comparison is stored in the workspace design/2026-season/qa-2026-11-11/controls-cleanup/report.html.

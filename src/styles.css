@@ -86,3 +86,6 @@
 .sidebar-season a.tv-entry-button{min-height:46px;padding:12px 10px;background:#e4edda;border:1px solid #bdcfae;color:#173f2c;border-radius:8px;justify-content:center;gap:8px;font-size:13px;white-space:nowrap;text-decoration:none}
 .sidebar-season a.tv-entry-button:hover{background:#d9e6ca;border-color:#93af7c}
 .tv-entry-button:focus-visible{outline:2px solid #547a3a;outline-offset:3px}
+
+.event-facts{margin:0;font-size:14px;line-height:1.6}.event-facts>div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:20px;padding:10px 0}.event-facts dt{color:#7b8970}.event-facts dd{margin:0;color:#304b2c;overflow-wrap:anywhere}.player-status{font-size:12px;color:#7b8c6d;margin-top:14px}
+@media(max-width:699px){.event-facts{font-size:13px}.event-facts>div{grid-template-columns:92px minmax(0,1fr);gap:14px;padding:9px 0}}
