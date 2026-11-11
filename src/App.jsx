@@ -44,7 +44,7 @@ function EventInfo({data}){return <section className="event-info">
  <section className="event-policy"><h2>결선 선발</h2><EventFacts items={[["대회 방식","별도 일반대회"],["선발 기준","1, 2차전 시즌 합산"],["매장별 선발","각 상위 15명 (2개 매장 30명)"],["추가 선발","전체 합산 30위 이내"],["결선 일정","추후 안내"]]}/></section>
  <section className="event-schedule"><h2>참여 매장</h2>{SHOPS.map(s=><p key={s.id}>{s.name}</p>)}</section>
  <section className="event-policy"><h2>성적 기준</h2><EventFacts items={[["순위 / 보정","골프존 공식 기준"],["차전 합산","전 코스 완료자"],["니어 시상","코스별 1~5위"]]}/><a className="source-link" href={SOURCE_URL} target="_blank" rel="noreferrer">골프존 대회<ArrowSquareOutIcon size={16}/></a><a className="source-link" href="/assets/tournament-poster.png" target="_blank" rel="noreferrer">포스터 (수정 예정)<ArrowSquareOutIcon size={16}/></a></section>
- <section className="tv-links"><h2>매장 TV</h2><a href="/tv/nearest" target="_blank" rel="noreferrer"><MonitorIcon size={22}/>니어리스트<ArrowSquareOutIcon size={18}/></a><a href="/tv/standings" target="_blank" rel="noreferrer"><MonitorIcon size={22}/>화전 스크래치 합산 순위<ArrowSquareOutIcon size={18}/></a></section>
+ <section className="tv-links"><h2>매장 TV</h2><a href="/tv/nearest" target="_blank" rel="noreferrer"><MonitorIcon size={22}/>니어리스트 (통합)<ArrowSquareOutIcon size={18}/></a><a href="/tv/standings" target="_blank" rel="noreferrer"><MonitorIcon size={22}/>순위 (화전 스크래치)<ArrowSquareOutIcon size={18}/></a></section>
  </section>;}
 export function App(){
  const[path,navigate]=useLocation(),tv=['/tv/nearest','/tv/standings'].includes(path),nearest=path==='/nearest'||path==='/tv/nearest';
@@ -55,7 +55,7 @@ export function App(){
  const setShop=n=>{updateShop(n);try{localStorage.setItem('golmok-shop',String(n));}catch{}};
  const{data,loading,error,refresh}=useLeaderboard(nearest&&round==='season'?'1':round,nearest?0:shop);
  useEffect(()=>{document.body.classList.toggle('tv-mode',tv);return()=>document.body.classList.remove('tv-mode');},[tv]);
- useEffect(()=>{document.title=`${path==='/tv'?'TV 화면 선택':nearest?'니어리스트':path==='/event'?'대회 안내':'순위'} - 골목대장 나야나`;setQuery('');setPlayer(null);},[path]);
+ useEffect(()=>{document.title=`${path==='/tv'?'TV 화면 선택':tv?(nearest?'니어리스트 (통합)':'순위 (화전 스크래치)'):nearest?'니어리스트':path==='/event'?'대회 안내':'순위'} - 골목대장 나야나`;setQuery('');setPlayer(null);},[path]);
  const changeRound=r=>{setRound(r);setCourse('total');setPlayer(null);};
  const entries=course==='total'?data?.total.entries??[]:data?.courses.find(c=>c.label===course)?.standings.entries??[];
  const resource=course==='total'?data?.total:data?.courses.find(c=>c.label===course)?.standings;

@@ -26,3 +26,5 @@ TV stroke posting is restricted to 화전 스크래치 14859 (ignore shop query 
 2026-11-11: PC TV 화면 선택 must be a visible button, not a small text link. Header uses filled deep green and sidebar uses bordered light green. Both link to /tv.
 
 2026-11-11: User requests aligned TV controls and minimal copy. Settings trigger shares the heading grid centerline; settings menu below header, centered square close button, uniform 44px actions. Player detail and event tab use factual rows only; omit missing raw score and zero adjustments, retain official record values and essential eligibility rules. Remove generic explanatory prose.
+
+2026-11-11 latest TV request: headings exactly 니어리스트 (통합) and 순위 (화전 스크래치). Standings has15 rows in EACH of total/A/B/C, including empty placeholders. Nearest retains8 rows per course. Supersedes previous ABC8 rule for standings only. Stretch course panels to same height as total. Update launcher labels/counts accordingly.

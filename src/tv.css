@@ -37,7 +37,7 @@
 .tv-row-empty{color:#78958645}
 .tv-row-empty .tv-nickname{font-size:1.65vh}
 .tv-standings .tv-total-panel .tv-row{font-size:2.45vh}
-.tv-standings .tv-course-grid{align-self:flex-start;height:76%;gap:1.4vw}
+.tv-standings .tv-course-grid{align-self:stretch;height:auto;gap:1.4vw}
 .tv-standings .tv-course-panel .tv-panel-title{padding-inline:.6vw}
 .tv-standings .tv-course-panel h2{font-size:1.95vh;gap:.6vw}
 .tv-standings .tv-course-letter{font-size:1.5vh;height:2.6vh;width:2.6vh}

@@ -29,3 +29,7 @@ Official Golfzon settings confirmed; policy provisional=false, confirmedBy=clien
 Scoped Product Design audit: before/after screenshots of TV settings, player modal and event page. Header centerline mismatch ~9px fixed using one grid row. Close target now32px square, actions44px, settings below header; Escape closes and returns focus. 1080p center difference0px, 4K<0.01px. Nearest8/8/8 and no overflow at4K.
 
 Player modal omits prose/missing raw/zero adjustments, preserves official totals, genuine E and applied adjustments. Event page retains essential schedules/courses/selection/links as labeled values without explanatory sentences. Mobile390x844 modal646px and no horizontal overflow; event no overflow. Console errors/warnings none. This is a scoped interaction check, not full accessibility certification. Full screenshot comparison is stored in the workspace design/2026-season/qa-2026-11-11/controls-cleanup/report.html.
+
+## TV row count / headings — 2026-11-11
+
+User titles applied exactly: 니어리스트 (통합), 순위 (화전 스크래치). Standings tables now15/15/15/15 rows, including empty placeholders. Course panels stretch to total panel height; 1080p row height41.6px. Verified no horizontal/vertical overflow at1920x1080 and3840x2160. Nearest remains8/8/8. Launcher labels/counts updated.14 tests and build passed.
