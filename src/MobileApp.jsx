@@ -1,0 +1,58 @@
+import {useEffect,useMemo,useRef,useState} from 'react';
+import {ArrowClockwiseIcon,ArrowLeftIcon,ArrowSquareOutIcon,CalendarDotsIcon,CaretDownIcon,FlagIcon,MagnifyingGlassIcon,NoteIcon,WarningCircleIcon,XIcon} from '@phosphor-icons/react';
+import {ROUNDS,SHOPS,SOURCE_URL,shortCourse,scoreText,kstTime} from './event';
+import {mobileSearchPlayers} from './mobile-records.mjs';
+import './mobile.css';
+
+function useModal(open) {
+  const ref=useRef(null);
+  useEffect(()=>{const el=ref.current;if(!el)return;if(open&&!el.open){el.showModal();el.querySelector('input')?.focus();}else if(!open&&el.open)el.close();},[open]);
+  return ref;
+}
+function MobileStatus({resource,loading,error,onRefresh}) {
+  const failed=error||resource?.status==='error',stale=resource?.status==='stale';
+  return <button className={`m-status ${failed||stale?'m-status-warning':''}`} onClick={onRefresh} aria-label="기록 새로고침"><ArrowClockwiseIcon size={15} className={loading?'spin':''}/><span>{loading?'확인 중':failed?'다시 확인':stale?`저장 ${kstTime(resource?.fetchedAt)}`:`${kstTime(resource?.fetchedAt)} 기준`}</span></button>;
+}
+function MobileEmpty({loading,error,search,onRefresh}) {
+  return <div className="m-empty" role="status">{loading?<ArrowClockwiseIcon className="spin" size={24}/>:error?<WarningCircleIcon size={25}/>:search?<MagnifyingGlassIcon size={25}/>:<FlagIcon size={25}/>}<p>{loading?'기록 확인 중':error?'기록 연결 확인 필요':search?'검색 결과 없음':'등록된 기록 없음'}</p>{error&&<button onClick={onRefresh}>다시 확인</button>}</div>;
+}
+function MobileTable({entries=[],nearest,onSelect,resource,loading,error,onRefresh,showShop}) {
+  const failed=error||resource?.status==='error';
+  return <div className="m-table-wrap"><table className="m-table"><thead><tr><th scope="col">순위</th><th scope="col">닉네임</th><th scope="col">{nearest?'거리':'최종성적'}</th></tr></thead><tbody>{entries.map(p=><tr key={p.id} className={p.excluded?'m-excluded':''}><td className="m-rank">{p.rank==null?'—':`${p.tie?'T':''}${p.rank}`}</td><td><button className="m-player-button" onClick={()=>onSelect(p)}>{p.nickname}</button>{showShop&&p.shopName&&<small>{p.shopName}</small>}{p.excluded&&<small>순위 제외</small>}</td><td className="m-value">{nearest?<>{p.distance==null?'—':p.distance.toFixed(2)}<small>m</small></>:scoreText(p.score)}</td></tr>)}</tbody></table>{!entries.length&&<MobileEmpty loading={loading} error={failed} onRefresh={onRefresh}/>}</div>;
+}
+function ScopeDialog({open,onClose,round,shop,onApply}) {
+  const ref=useModal(open),[draftRound,setDraftRound]=useState(round),[draftShop,setDraftShop]=useState(shop);
+  useEffect(()=>{if(open){setDraftRound(round);setDraftShop(shop);}},[open,round,shop]);
+  return <dialog className="m-sheet" ref={ref} aria-labelledby="m-scope-title" onClose={onClose} onClick={e=>{if(e.target===ref.current)onClose();}}><div className="m-sheet-top"><h2 id="m-scope-title">순위 범위</h2><button aria-label="범위 설정 닫기" onClick={onClose}><XIcon size={23}/></button></div><fieldset><legend>차전</legend><div className="m-options two">{['1','2'].map(r=><button key={r} aria-pressed={draftRound===r} onClick={()=>setDraftRound(r)}>{r}차전</button>)}</div></fieldset><fieldset><legend>매장</legend><div className="m-options">{[...SHOPS,{id:0,name:'전체 매장'}].map(s=><button key={s.id} aria-pressed={draftShop===s.id} onClick={()=>setDraftShop(s.id)}>{s.name}</button>)}</div></fieldset><button className="m-apply" onClick={()=>{onApply(draftRound,draftShop);onClose();}}>적용</button></dialog>;
+}
+function SearchDialog({open,onClose,data,round,shop,nearest,onSelect,loading,error,onRefresh}) {
+  const ref=useModal(open),[query,setQuery]=useState('');
+  useEffect(()=>{if(open)setQuery('');},[open]);
+  const results=useMemo(()=>mobileSearchPlayers(data,query,{includeNearest:nearest}),[data,query,nearest]);
+  const scope=nearest?'전체 매장':SHOPS.find(s=>s.id===shop)?.name??'전체 매장';
+  const choose=p=>{ref.current?.close();onClose();onSelect(p);};
+  return <dialog ref={ref} className="m-search-dialog" aria-labelledby="m-search-title" onClose={onClose}><div className="m-search-top"><button aria-label="검색 닫기" onClick={onClose}><ArrowLeftIcon size={23}/></button><h2 id="m-search-title">기록 찾기</h2></div><label className="m-search-input"><MagnifyingGlassIcon size={21}/><input type="search" aria-label="닉네임 검색" placeholder="닉네임 검색" value={query} onChange={e=>setQuery(e.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false}/>{query&&<button aria-label="검색어 지우기" onClick={()=>setQuery('')}><XIcon size={19}/></button>}</label><div className="m-search-scope"><span>{scope}</span><span>{round}차전</span></div>{query.trim()?<>{results.length?<div className="m-search-results">{results.map(p=><button key={p.id} onClick={()=>choose(p)}><span><b>{p.nickname}</b><small>{p.aggregateUnavailable?'합산 확인 필요':p.incomplete?'합산 미등록':p.distance!=null?p.viewLabel:`${p.tie?'T':''}${p.rank}위`}{nearest&&p.shopName?` / ${p.shopName}`:''}</small></span><strong>{p.incomplete||p.aggregateUnavailable?'':p.distance!=null?`${p.distance.toFixed(2)}m`:scoreText(p.score)}</strong></button>)}</div>:<MobileEmpty loading={loading} error={error||data?.total?.status==='error'} search onRefresh={onRefresh}/>}</>:<div className="m-search-start"><MagnifyingGlassIcon size={25}/><p>닉네임으로 기록 찾기</p></div>}</dialog>;
+}
+function MobilePlayer({player,data,onClose}) {
+  const ref=useModal(Boolean(player));
+  if(!player)return <dialog ref={ref} className="m-player-dialog" onClose={onClose}/>;
+  const near=player.distance!=null,incomplete=player.incomplete||player.rank==null;
+  const adjustments=[['원성적',player.rawScore!=null?scoreText(player.rawScore):null],['등급 보정',player.adjustments?.grade],['여성 보정',player.adjustments?.gender],['다라운드 보정',player.adjustments?.rounds],['시스템 보정',player.adjustments?.system]].filter(([label,v])=>v!=null&&(label==='원성적'||v!==0));
+  const nearRecords=(data?.courses??[]).map(c=>({course:c,entry:c.nearest?.entries?.find(p=>p.id===player.id)})).filter(r=>r.entry);
+  return <dialog ref={ref} className="m-player-dialog" aria-labelledby="m-player-title" onClose={onClose} onClick={e=>{if(e.target===ref.current)onClose();}}><div className="m-sheet-top"><span>{player.viewLabel??'합산'} 기록</span><button aria-label="선수 기록 닫기" onClick={onClose}><XIcon size={23}/></button></div><h2 id="m-player-title">{player.nickname}</h2><p className="m-player-shop">{player.shopName||(near?'전체 매장 통합':'')}</p>{incomplete?<p className="m-player-state">{player.aggregateUnavailable?'합산 확인 필요':'합산 미등록'}</p>:<div className="m-player-summary"><div><span>순위</span><strong>{player.tie?'T':''}{player.rank}<small>위</small></strong></div><div><span>{near?'거리':'최종성적'}</span><strong>{near?<>{player.distance.toFixed(2)}<small>m</small></>:scoreText(player.score)}</strong></div></div>}{!near&&<section><h3>코스 기록</h3><dl className="m-player-courses">{(data?.courses??[]).map(c=>{const p=c.standings?.entries?.find(e=>e.id===player.id);return <div key={c.id}><dt><b>{c.label}</b>{shortCourse(c.name)}</dt><dd>{p?scoreText(p.score):c.standings?.status==='error'?'확인 필요':'미등록'}</dd></div>;})}</dl></section>}{nearRecords.length>0&&<section><h3>니어 기록</h3><dl className="m-player-courses">{nearRecords.map(({course:c,entry:p})=><div key={c.id}><dt><b>{c.label}</b>{shortCourse(c.name)}</dt><dd>{p.distance==null?'—':`${p.distance.toFixed(2)}m`}</dd></div>)}</dl></section>}{(adjustments.length>0||player.rounds!=null)&&<dl className="m-adjustments">{adjustments.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}{player.rounds!=null&&<div><dt>라운드 수</dt><dd>{player.rounds}회</dd></div>}</dl>}<a className="m-official" href={SOURCE_URL} target="_blank" rel="noreferrer">골프존 기록<ArrowSquareOutIcon size={16}/></a></dialog>;
+}
+
+export function MobileApp({path,navigate,round,changeRound,shop,setShop,course,setCourse,data,loading,error,refresh,player,setPlayer,eventView,isDesign}) {
+  const nearest=path==='/nearest',event=path==='/event';
+  const lastRecordPath=useRef(nearest?'/nearest':'/');
+  const [nearCourse,setNearCourse]=useState('A'),[scopeOpen,setScopeOpen]=useState(false),[searchOpen,setSearchOpen]=useState(false);
+  useEffect(()=>{if(path==='/'||path==='/nearest')lastRecordPath.current=path;if(path==='/search'){navigate('/',{replace:true});setSearchOpen(true);}},[path]);
+  const chosen=nearest?nearCourse:course;
+  const courses=data?.courses??ROUNDS[round==='2'?1:0].courses;
+  const selectedCourse=courses.find(c=>c.label===chosen);
+  const resource=nearest?selectedCourse?.nearest:course==='total'?data?.total:selectedCourse?.standings;
+  const entries=resource?.entries??[];
+  const scope=nearest?'전체 매장 통합':SHOPS.find(s=>s.id===shop)?.name??'전체 매장';
+  const onSelect=p=>setPlayer({...p,viewLabel:nearest?`니어 ${nearCourse}코스`:course==='total'?'합산':`${course}코스`});
+  return <div className="mobile-app"><header className="m-header"><span>골목대장 나야나</span>{!event&&<button className="m-search-trigger" aria-label="기록 검색" onClick={()=>setSearchOpen(true)}><MagnifyingGlassIcon size={26}/></button>}</header>{isDesign&&<div className="m-preview">예시 기록</div>}<main>{event?<div className="m-event">{eventView}</div>:<><nav className="m-mode" aria-label="기록 종류"><a href="/" aria-current={!nearest?'page':undefined} className={!nearest?'active':''} onClick={e=>{e.preventDefault();navigate('/');}}>스코어</a><a href="/nearest" aria-current={nearest?'page':undefined} className={nearest?'active':''} onClick={e=>{e.preventDefault();navigate('/nearest');}}>니어</a></nav>{nearest?<div className="m-scope-row"><span>{scope}</span><label className="m-round"><select aria-label="차전 선택" value={round} onChange={e=>{changeRound(e.target.value);setPlayer(null);}}><option value="1">1차전</option><option value="2">2차전</option></select><CaretDownIcon size={18}/></label></div>:<button className="m-scope-row m-score-scope" aria-label="매장과 차전 선택" onClick={()=>setScopeOpen(true)}><span>{scope}</span><span className="m-scope-phase">{round}차전<CaretDownIcon size={18}/></span></button>}<div className="m-courses" role="group" aria-label="코스 선택">{(nearest?['A','B','C']:['total','A','B','C']).map(c=><button key={c} aria-pressed={chosen===c} className={chosen===c?'active':''} onClick={()=>{nearest?setNearCourse(c):setCourse(c);setPlayer(null);}}>{c==='total'?'합산':`${c}코스`}</button>)}</div><div className="m-record-title"><div><h1>{chosen==='total'?'합산 순위':shortCourse(selectedCourse?.name??'')}</h1>{nearest&&selectedCourse?.nearest?.hole>0&&<span>{selectedCourse.nearest.courseName} {selectedCourse.nearest.hole}H</span>}</div><MobileStatus resource={resource} loading={loading} error={error} onRefresh={refresh}/></div>{error&&data&&<div className="m-connection" role="status">연결 지연 / 저장 기록</div>}<MobileTable entries={entries} nearest={nearest} resource={resource} onSelect={onSelect} loading={loading} error={error} onRefresh={refresh} showShop={!nearest&&shop===0}/></>}</main><nav className="m-bottom" aria-label="주요 메뉴"><a href={lastRecordPath.current} aria-current={!event?'page':undefined} className={!event?'active':''} onClick={e=>{e.preventDefault();navigate(lastRecordPath.current);}}><NoteIcon size={27}/><span>기록</span></a><a href="/event" aria-current={event?'page':undefined} className={event?'active':''} onClick={e=>{e.preventDefault();navigate('/event');}}><CalendarDotsIcon size={27}/><span>대회</span></a></nav><ScopeDialog open={scopeOpen} onClose={()=>setScopeOpen(false)} round={round} shop={shop} onApply={(r,s)=>{setShop(s);changeRound(r);}}/><SearchDialog open={searchOpen} onClose={()=>setSearchOpen(false)} data={data} round={round} shop={shop} nearest={nearest} loading={loading} error={error} onRefresh={refresh} onSelect={setPlayer}/><MobilePlayer player={player} data={data} onClose={()=>setPlayer(null)}/></div>;
+}

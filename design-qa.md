@@ -33,3 +33,13 @@ Player modal omits prose/missing raw/zero adjustments, preserves official totals
 ## TV row count / headings — 2026-11-11
 
 User titles applied exactly: 니어리스트 (통합), 순위 (화전 스크래치). Standings tables now15/15/15/15 rows, including empty placeholders. Course panels stretch to total panel height; 1080p row height41.6px. Verified no horizontal/vertical overflow at1920x1080 and3840x2160. Nearest remains8/8/8. Launcher labels/counts updated.14 tests and build passed.
+
+## Selected mobile concept 3 — 2026-11-12
+
+final result: passed
+
+Scope: mobile public routes only (below700px); existing PC/TV presentation retained. Selected reference: workspace design/2026-season/mobile-renewal-2026-11-11/displayed-3-unified-results.png. Reference normalized from852x1846 to390px width; actual390x844 captured with identical five nearest-A names/distances and14:20 timestamp. Side-by-side evidence: qa/mobile3/comparison.html and comparison.png. Initial extra preview/title spacing corrected and recaptured. User's regular400 typography overrides generated bold;44px controls and refresh action intentionally retained. No remaining P0/P1/P2 findings in this scoped check.
+
+One records surface with score/nearest modes, one search entry, one shop/round scope sheet, ABC selection and two-item glass dock. Search includes course-only participants without inventing a combined score/rank. Native modal keyboard dismissal, search-to-player transition and incomplete player course records checked with live data. Round2 empty state, all-shops setting, nearest combined scope and returning from event to previous record mode checked. Input16px, visual scale1, pinch zoom remains available; actual iOS hardware not available.
+
+Responsive360/390/430/600 mobile and768/1440 desktop checked for horizontal overflow. Fixed viewport initialization race found at360px and rechecked. TV1920x1080 remains nearest8/8/8 and standings15/15/15/15, no overflow. Console errors/warnings none during main-flow checks. Production build and18 meaningful tests passed, including official values, failure/cache behavior and mobile participant lookup. Source adapter and official scoring unchanged.
