@@ -140,3 +140,27 @@
 @media(max-width:375px){.m-header>span{font-size:17px}.m-record-title>div{gap:6px}.m-record-title>div>span{font-size:12px}.m-status{font-size:12px;gap:3px}.m-status svg{display:none}.m-table th:first-child{width:42px}.m-table th:last-child{width:78px}.m-player-button{font-size:15px}.m-value{font-size:23px}.m-event .event-facts>div{grid-template-columns:84px minmax(0,1fr)}.m-player-result strong{font-size:30px}.m-player-records th:first-child{width:50%}.m-player-records tbody th{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.mobile-app *, .mobile-app *::after{scroll-behavior:auto;animation:none!important;transition:none!important}}
 .mobile-app .m-search-input input:focus,.mobile-app .m-search-input input:focus-visible{outline:none;box-shadow:none}
+/* Touch response stays inside the mobile surface. */
+.mobile-app :is(.m-info-trigger,.m-search-trigger,.m-event-back a,.m-options button,.m-apply,.m-sheet-top button,.m-search-top button,.m-shop-trigger,.m-status,.m-shop-contacts a){transition:background-color 120ms ease,transform 120ms ease,color 120ms ease;user-select:none;-webkit-user-select:none}
+.mobile-app :is(.m-info-trigger,.m-search-trigger,.m-event-back a,.m-options button,.m-apply,.m-sheet-top button,.m-search-top button,.m-shop-trigger,.m-status,.m-shop-contacts a):active{transform:scale(.96);background-color:#eaf0e7}
+.mobile-app .m-apply:active{background:#143d24}
+.mobile-app .m-table tr:has(.m-player-button:active){background:#edf2ea}
+.mobile-app .m-search-results>button{transition:background-color 120ms ease}
+.mobile-app .m-search-results>button:active{background:#edf2ea}
+.m-mode,.m-courses{position:relative}
+.m-mode a.active,.m-courses button.active{border-bottom-color:transparent}
+.m-mode::after,.m-courses::after{content:'';position:absolute;bottom:-1px;left:0;height:3px;background:#194832;pointer-events:none;transition:transform 220ms cubic-bezier(.22,1,.36,1),width 220ms cubic-bezier(.22,1,.36,1)}
+.m-mode::after{width:50%;transform:translateX(calc(var(--mode-index,0)*100%))}
+.m-courses::after{width:calc(100% / var(--course-count,4));transform:translateX(calc(var(--course-index,0)*100%))}
+.m-mode a:active,.m-courses button:active{background:#f0f4ed}
+@media(max-width:699px){
+ .mobile-app .m-drag-zone{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+ .mobile-app dialog[data-dragging=true] .m-drag-zone{cursor:grabbing}
+ .mobile-app dialog::backdrop{background:rgb(0 0 0 / var(--sheet-scrim,.4));animation:mobile-scrim-in 180ms ease both}
+ .mobile-app dialog[data-closing=true]::backdrop{animation:mobile-scrim-out 170ms ease both}
+}
+@keyframes mobile-scrim-in{from{opacity:0}to{opacity:1}}
+@keyframes mobile-scrim-out{from{opacity:1}to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.mobile-app *, .mobile-app *::before,.mobile-app *::after,.mobile-app dialog::backdrop{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Moving content must never create a horizontal page scroll. */
+.mobile-app>main{overflow-x:clip}
