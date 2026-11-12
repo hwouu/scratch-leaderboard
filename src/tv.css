@@ -108,9 +108,9 @@
 @media(max-width:699px){.tv-launcher{padding:24px 20px 45px}.tv-launcher>header{font-size:12px}.tv-launcher-intro{padding-top:35px}.tv-launcher h1{font-size:27px}.tv-launch-options{grid-template-columns:1fr;gap:20px}.launch-preview{height:180px}.launch-card-copy{padding:21px 23px}.tv-launcher-intro p{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.ticker-track{animation:none;transform:none;will-change:auto}.ticker-window{overflow-x:auto}.ticker-group[aria-hidden=true]{display:none}.tv-launch-card{transition:none}}
 
-/* Original logo colors and alpha retained, with no background plate. */
+/* Transparent TV branding: original Park color, white NX PLUS, at 130% size. */
 .tv-topline{display:flex;align-items:center;justify-content:space-between;gap:2vw}
 .tv-brand-logos{display:flex;align-items:center;gap:1.6vh;padding:.6vh 0;background:transparent;flex-shrink:0}
-.tv-brand-logos img{display:block;object-fit:contain;width:auto;max-width:none;height:2.5vh}
-.tv-brand-logos img+img{height:2.2vh}
+.tv-brand-logos img{display:block;object-fit:contain;width:auto;max-width:none;height:3.25vh}
+.tv-brand-logos img+img{height:2.86vh;filter:brightness(0) invert(1)}
 .site-qr-tv span{white-space:nowrap}

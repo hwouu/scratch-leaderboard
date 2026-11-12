@@ -115,3 +115,5 @@ final result: passed
 User requested no white background. Verified both original PNGs carry real alpha (not opaque); the white region was our CSS plate. Removed plate and horizontal plate padding; TV-only white silhouette rendering preserves original alpha/geometry. Original source assets and PC/mobile colors unchanged.1920x1080 nearest8/8/8 verified, no overflow; logos visually clear on dark green. Build passed. No raster image manipulation/generation required.
 
 2026-11-12 user clarification: transparent background only; original logo colors must remain. Removed TV brightness/invert filter. This supersedes the white-silhouette treatment above.
+
+2026-11-12 TV logo refinement: Park original color, NX PLUS white only; both130% (3.25vh/2.86vh).1080p measured35.09/30.88px, transparent background, standings15/15/15/15 andnooverflow; build passed.

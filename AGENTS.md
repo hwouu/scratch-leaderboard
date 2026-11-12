@@ -52,3 +52,5 @@ TV two screens: original full-color Park and NX PLUS logos side by side upper ri
 2026-11-12 user explicitly removes white TV logo plate. Both source PNGs already have real alpha (sharp hasAlpha=true/isOpaque=false). Remove wrapper background and render monochrome white with TV-only brightness(0) invert(1) filter; original brand files and full-color PC/mobile display unchanged. No image cutout needed. Retain header height, row counts and QR caption.
 
 2026-11-12 correction: user means ORIGINAL logo colors with transparent background. Remove TV white color filter too. This supersedes prior monochrome treatment; retain original alpha/color, no background plate and no color transformations.
+
+2026-11-12 latest TV logo decision: Park remains original color, NX PLUS ONLY white via TV CSS filter. Both logos130% of preceding size: Park2.5→3.25vh, NX2.2→2.86vh. Transparent wrapper retained; no mobile/PC asset changes. Supersedes previous both-original-color TV instruction for NX only.
