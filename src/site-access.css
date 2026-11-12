@@ -1,0 +1,23 @@
+/* Locally generated, high-contrast QR with four-module quiet zone. */
+.site-qr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-decoration:none;color:#53654f;font:400 12px/1.4 Pretendard,sans-serif;letter-spacing:normal}
+.site-qr img{display:block;background:#fff;width:112px;height:112px;max-width:none}
+.site-qr-pc{position:fixed;right:20px;bottom:20px;width:128px;padding:8px 8px 10px;border:1px solid #dce3d6;border-radius:8px;background:#fff;z-index:15}
+@media(min-width:1051px){.webapp{padding-right:148px}}
+@media(min-width:700px) and (max-width:1050px){.site-qr-pc{position:static;margin:0 24px 24px auto}}
+@media(max-width:699px){.site-qr-pc{display:none}}
+.site-qr-tv{position:absolute;right:3.2vw;bottom:1.2vh;z-index:2;gap:.5vh;color:#b1c3b4;font-size:1.35vh;width:14vh}
+.site-qr-tv img{width:13vh;height:13vh}
+.tv-screen:has(.site-qr-tv) .tv-footer{flex-basis:10.2vh;padding-right:17vh;gap:1.2vw}
+.tv-screen:has(.site-qr-tv) .tv-schedule{gap:1.3vw}
+.tv-screen:has(.site-qr-tv) .record-ticker{margin-right:17vh}
+.m-shop-footer{margin-top:28px;padding:24px 20px calc(20px + env(safe-area-inset-bottom));border-top:1px solid #e0e7db;background:#f6f8f2;color:#52654b}
+.m-shop-brands{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:23px}
+.m-shop-brands a{display:flex;align-items:center;min-height:44px;min-width:0}
+.m-shop-brands img{display:block;object-fit:contain;max-width:100%;height:auto}
+.m-shop-brands a:first-child{width:112px;flex-shrink:0}
+.m-shop-brands a:last-child{width:156px}
+.m-shop-footer h2{font-size:17px;line-height:1.4;color:#2f4730;font-weight:400;margin:0 0 8px}
+.m-shop-footer p{font-size:13px;line-height:1.6;margin:0}
+.m-shop-phone{display:flex;align-items:center;gap:7px;font-size:14px;min-height:44px;width:fit-content}
+.m-shop-links{display:flex;gap:22px;border-top:1px solid #dce4d5;margin-top:9px;padding-top:6px}
+.m-shop-links a{display:flex;align-items:center;gap:6px;font-size:12px;min-height:44px}

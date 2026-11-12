@@ -43,3 +43,13 @@ Scope: mobile public routes only (below700px); existing PC/TV presentation retai
 One records surface with score/nearest modes, one search entry, one shop/round scope sheet, ABC selection and two-item glass dock. Search includes course-only participants without inventing a combined score/rank. Native modal keyboard dismissal, search-to-player transition and incomplete player course records checked with live data. Round2 empty state, all-shops setting, nearest combined scope and returning from event to previous record mode checked. Input16px, visual scale1, pinch zoom remains available; actual iOS hardware not available.
 
 Responsive360/390/430/600 mobile and768/1440 desktop checked for horizontal overflow. Fixed viewport initialization race found at360px and rechecked. TV1920x1080 remains nearest8/8/8 and standings15/15/15/15, no overflow. Console errors/warnings none during main-flow checks. Production build and18 meaningful tests passed, including official values, failure/cache behavior and mobile participant lookup. Source adapter and official scoring unchanged.
+
+## Footer / QR refinement — 2026-11-12
+
+final result: passed
+
+User-directed incremental refinement supersedes selected mock's bottom dock. Removed mobile fixed dock and112px bottom reservation; event is a44px header link with return to records. Shop footer is in normal flow, so ranks remain unobscured. Original Golfzon Park and TWOVISION NX PLUS assets fetched from official sites, aspect ratios preserved; verified official shop14859 roadAddress/telephone/NX PLUS9 systems. Provenance in public/assets/branding/sources.json. No assumed hours/prices.
+
+PC QR occupies a reserved gutter above1050px; tablet700–1050 uses an end-of-page QR. Both TVs reserve right footer/ticker space. Initial ticker edge overlapped QR by29px; corrected and recaptured:1080p tickerRight1674.97, QRleft1707.38 (32px gap), table bottom875.91, QRtop900.86 (25px gap).4K no overflow;15/15/15/15 standings and8/8/8 nearest retained. Header event/return works.360/390/600/768/1050/1051/1440 widths checked, no horizontal overflow; mobile has zero visible fixed elements. Console errors/warnings none.
+
+QR independently decoded from generated PNG and actual PC1440/TV1920 screenshots using macOS Vision: exact https://scratch-leaderboard-omega.vercel.app/. Four-module quiet zone, opaque white backing, no logo overlay. Physical TV/camera distance not tested. Screenshots in workspace design/2026-season/qa-2026-11-12-branding/. Existing18 tests and production build passed.

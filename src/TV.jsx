@@ -3,6 +3,7 @@ import {ArrowClockwiseIcon,ArrowLeftIcon,ArrowUpRightIcon,GearSixIcon,MonitorIco
 import {ROUNDS,POSTED_SHOP,shortCourse,scoreText,kstDate,kstTime} from './event';
 import {buildTickerItems} from './ticker.mjs';
 import './tv.css';
+import {SiteQR} from './SiteAccess';
 
 function TVRows({entries=[],limit=8,nearest=false,status,loading}) {
   return <div className="tv-table" role="table" aria-label={nearest?'니어 순위':'성적 순위'} style={{'--rows':limit}}>
@@ -55,7 +56,7 @@ export function TVScreen({nearest,round,setRound,shop,data,loading,error,refresh
       })}</div>
     </div>
     <footer className="tv-footer"><div className="tv-schedule">{(data?.event.rounds??ROUNDS).map(stage=><span key={stage.no}>{stage.name}<time>{kstDate(stage.start)} — {kstDate(stage.end)}</time></span>)}<span>결선<time>별도 일반대회</time></span></div><div className={`tv-update ${bad?'warning':''}`}><ArrowClockwiseIcon className={loading?'spin':''}/><span>{loading?'기록 확인 중':bad?'연결 지연. 최근 기록 표시':`업데이트 ${kstTime(dates[0])}`}</span><span className="tv-refresh-interval">60초 간격</span></div></footer>
-    <RecordTicker data={data} nearest={nearest} paused={paused} onToggle={()=>setPaused(p=>!p)}/>
+    <SiteQR tv/><RecordTicker data={data} nearest={nearest} paused={paused} onToggle={()=>setPaused(p=>!p)}/>
   </main>;
 }
 
@@ -65,5 +66,5 @@ function MiniTable({nearest=false,total=false}) {
 
 export function TVLauncher({round,shop}) {
   const r=round==='2'?'2':'1';
-  return <main className="tv-launcher"><header><a href="/"><ArrowLeftIcon size={17}/>순위로 돌아가기</a><span>골목대장 나야나</span></header><div className="tv-launcher-intro"><MonitorIcon size={26}/><h1>TV 화면 선택</h1><p>두 대의 TV에 각각 다른 화면을 열어 주세요.</p></div><div className="tv-launch-options"><a className="tv-launch-card" href={`/tv/nearest?round=${r}`}><MiniTable nearest/><div className="launch-card-copy"><span className="launch-number">화면 1</span><h2>니어리스트 (통합)<ArrowUpRightIcon/></h2><p>A, B, C코스 각 8위까지</p><small>전체 매장 통합</small></div></a><a className="tv-launch-card" href={`/tv/standings?round=${r}&shop=${POSTED_SHOP.id}`}><MiniTable total/><div className="launch-card-copy"><span className="launch-number">화면 2</span><h2>순위 (화전 스크래치)<ArrowUpRightIcon/></h2><p>합산, A, B, C코스 각 15위</p><small>{POSTED_SHOP.name}</small></div></a></div><p className="tv-launch-note">16:9 화면에 맞춰 표시됩니다. 순위 화면은 화전 스크래치 기준입니다. 차전은 각 화면의 설정에서 변경할 수 있습니다.</p></main>;
+  return <main className="tv-launcher"><header><a href="/"><ArrowLeftIcon size={17}/>순위로 돌아가기</a><span>골목대장 나야나</span></header><div className="tv-launcher-intro"><MonitorIcon size={26}/><h1>TV 화면 선택</h1><p>두 대의 TV에 각각 다른 화면을 열어 주세요.</p></div><div className="tv-launch-options"><a className="tv-launch-card" href={`/tv/nearest?round=${r}`}><MiniTable nearest/><div className="launch-card-copy"><span className="launch-number">화면 1</span><h2>니어리스트 (통합)<ArrowUpRightIcon/></h2><p>A, B, C코스 각 8위까지</p><small>전체 매장 통합</small></div></a><a className="tv-launch-card" href={`/tv/standings?round=${r}&shop=${POSTED_SHOP.id}`}><MiniTable total/><div className="launch-card-copy"><span className="launch-number">화면 2</span><h2>순위 (화전 스크래치)<ArrowUpRightIcon/></h2><p>합산, A, B, C코스 각 15위</p><small>{POSTED_SHOP.name}</small></div></a></div><SiteQR/><p className="tv-launch-note">16:9 화면에 맞춰 표시됩니다. 순위 화면은 화전 스크래치 기준입니다. 차전은 각 화면의 설정에서 변경할 수 있습니다.</p></main>;
 }

@@ -1,0 +1,28 @@
+{
+  "verifiedDate": "2026-11-12",
+  "purpose": "User-requested identification of participating Golfzon shop and installed system; no sponsorship claim",
+  "assets": [
+    {
+      "file": "golfzon-park.png",
+      "source": "https://www.golfzonpark.com/images/head/logo.png",
+      "officialPage": "https://www.golfzonpark.com/Park/bi_intro.aspx",
+      "sha256": "1eef9715c1d1c5a92b4cc7e1551f84f4fdce98073ab4795733a980a5af2d44ed",
+      "changes": "original unmodified; aspect ratio retained"
+    },
+    {
+      "file": "twovisionnx-plus.png",
+      "source": "https://i.gzcdn.net/vt/images/logo/product/twovisionnx-plus.png",
+      "officialPage": "https://www.golfzon.com/guide/nxp",
+      "sha256": "cb5f657d484a24f16798218370f193a58b8443c735291e0fe8da56b2152de868",
+      "changes": "original unmodified; aspect ratio retained"
+    }
+  ],
+  "shop": {
+    "source": "https://fairway.golfzon.com/v2/shop/14859",
+    "officialPage": "https://m.golfzon.com/shop/#/main/14859",
+    "name": "골프존파크 화전 스크래치",
+    "roadAddress": "경기 고양시 덕양구 중앙로 151",
+    "telephone": "02-3158-0753",
+    "twoVisionNxPlusCount": 9
+  }
+}
