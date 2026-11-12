@@ -14,10 +14,8 @@ export function SiteQR({tv=false}) {
 
 export function ShopFooter() {
   return <footer className="m-shop-footer" aria-label="화전 스크래치 매장 정보">
-    <div className="m-shop-brands"><a href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="골프존 화전 스크래치 매장 페이지"><img src="/assets/branding/golfzon-park.png" width="186" height="62" alt="GOLFZON PARK"/></a><a href="https://www.golfzon.com/guide/nxp" target="_blank" rel="noreferrer" aria-label="투비전 NX PLUS 제품 안내"><img src="/assets/branding/twovisionnx-plus.png" width="440" height="80" alt="TWOVISION NX PLUS"/></a></div>
-    <h2>화전 스크래치</h2>
+    <div className="m-shop-heading"><h2>화전 스크래치</h2><a className="m-nx-brand" href="https://www.golfzon.com/guide/nxp" target="_blank" rel="noreferrer" aria-label="투비전 NX PLUS 제품 안내"><img src="/assets/branding/twovisionnx-plus.png" width="440" height="80" alt="TWOVISION NX PLUS"/></a></div>
     <p>경기 고양시 덕양구 중앙로 151</p>
-    <a className="m-shop-phone" href="tel:0231580753"><PhoneIcon size={16}/>02-3158-0753</a>
-    <div className="m-shop-links"><a href={MAP_URL} target="_blank" rel="noreferrer"><MapPinIcon size={16}/>매장 위치</a><a href={SHOP_URL} target="_blank" rel="noreferrer">골프존 매장 정보<ArrowSquareOutIcon size={15}/></a></div>
+    <div className="m-shop-contacts"><a href="tel:0231580753"><PhoneIcon size={15}/>02-3158-0753</a><a href={MAP_URL} target="_blank" rel="noreferrer"><MapPinIcon size={15}/>매장 위치</a><a href={SHOP_URL} target="_blank" rel="noreferrer">매장 정보<ArrowSquareOutIcon size={14}/></a></div>
   </footer>;
 }

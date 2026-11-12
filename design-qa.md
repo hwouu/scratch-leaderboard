@@ -53,3 +53,11 @@ User-directed incremental refinement supersedes selected mock's bottom dock. Rem
 PC QR occupies a reserved gutter above1050px; tablet700–1050 uses an end-of-page QR. Both TVs reserve right footer/ticker space. Initial ticker edge overlapped QR by29px; corrected and recaptured:1080p tickerRight1674.97, QRleft1707.38 (32px gap), table bottom875.91, QRtop900.86 (25px gap).4K no overflow;15/15/15/15 standings and8/8/8 nearest retained. Header event/return works.360/390/600/768/1050/1051/1440 widths checked, no horizontal overflow; mobile has zero visible fixed elements. Console errors/warnings none.
 
 QR independently decoded from generated PNG and actual PC1440/TV1920 screenshots using macOS Vision: exact https://scratch-leaderboard-omega.vercel.app/. Four-module quiet zone, opaque white backing, no logo overlay. Physical TV/camera distance not tested. Screenshots in workspace design/2026-season/qa-2026-11-12-branding/. Existing18 tests and production build passed.
+
+## Compact controls and PC brand assets — 2026-11-12
+
+final result: passed
+
+User requested direct refinement. Mobile header tournament name left/Park logo84px right; info/search icon44px targets beside two mode tabs. Same MobileRoundPicker DOM/control for score and nearest,16px select. Separate shop-only sheet avoids duplicate phase selection. Round2 selection retained when switching modes, shop change and info/return/search verified against actual records. Removed stale poster link from shared EventInfo on PC and mobile. Footer123.19px (previous~267px), all three contact targets share the exact y position. Only NX PLUS remains in footer, Park logo moved up as requested. PC uses original Park logo96px header/NX PLUS156px sidebar; tablet header84px. No changes to official data or TV layout.
+
+Responsive320/360/390/600/768/1051/1440 checked: no horizontal overflow; contact row stays on one line even320px. Search and native select remain16px; original logo aspect ratios retained.18 tests and build passed. Desktop screenshot inspected at1440x900. No new decorative text or weight emphasis. Existing QR placement retained.

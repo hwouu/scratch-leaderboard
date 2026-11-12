@@ -7,19 +7,24 @@
 .mobile-app button{touch-action:manipulation}
 .mobile-app button:focus-visible,.mobile-app a:focus-visible{outline:2px solid #497a39;outline-offset:3px}
 .mobile-app a{color:inherit;text-decoration:none}
-.m-header{height:72px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.m-header{height:64px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
 .m-header>span{font-size:17px;line-height:1.3;white-space:nowrap}
-.m-search-trigger{width:44px;height:44px;display:grid;place-items:center;border-radius:11px;background:#eef4e8;color:#102f1d}
-.m-mode{display:flex;align-items:stretch;height:47px;border-bottom:1px solid #d9dfd6;margin:0 18px}
-.m-mode a{flex:1;display:flex;align-items:center;justify-content:center;font-size:21px;color:#647063;border-bottom:3px solid transparent}
+.m-header-logo{display:block;width:84px;height:auto;flex-shrink:0}
+.m-record-toolbar{display:flex;align-items:center;gap:12px;margin:0 18px;border-bottom:1px solid #d9dfd6}
+.m-mode{display:flex;align-items:stretch;height:47px;flex:1;min-width:0}
+.m-mode a{flex:1;display:flex;align-items:center;justify-content:center;font-size:18px;color:#647063;border-bottom:3px solid transparent}
 .m-mode a.active{color:#18452b;border-bottom-color:#245733}
-.m-scope-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;margin:18px 18px 18px;font-size:16px}
+.m-record-actions{display:flex;align-items:center;gap:0}
+.m-info-trigger,.m-search-trigger{display:grid;place-items:center;width:44px;height:44px;color:#52684d;border-radius:8px}
+.m-info-trigger:hover,.m-search-trigger:hover{background:#eef4e8}
+.m-scope-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;margin:14px 18px 14px;font-size:15px}
 .m-scope-row>span:first-child{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.m-score-scope{width:calc(100% - 36px);padding:0;text-align:left}
-.m-scope-phase,.m-round{display:flex;align-items:center;justify-content:center;gap:12px;flex-shrink:0;min-height:44px;min-width:96px;border:1px solid #cdd5ca;border-radius:8px;padding:0 12px;background:#fff;font-size:16px}
-.m-round{position:relative;padding:0}
+.m-shop-trigger{display:flex;align-items:center;gap:8px;min-height:44px;padding:0;min-width:0;font-size:15px}
+.m-round{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:44px;width:96px;border:1px solid #cdd5ca;border-radius:8px;background:#fff;position:relative}
 .m-round select{min-height:44px;padding:0 34px 0 14px;font-size:16px;width:100%;color:var(--m-ink)}
 .m-round svg{position:absolute;right:11px;pointer-events:none}
+.m-event-back{margin:0 18px;border-bottom:1px solid #d9dfd6}
+.m-event-back a{display:flex;align-items:center;gap:8px;min-height:44px;width:fit-content;font-size:14px;color:#52684d}
 .m-courses{display:flex;min-height:44px;margin:0 18px 6px;background:#eef3e8;border-radius:7px;overflow:hidden}
 .m-courses button{flex:1;min-width:0;min-height:44px;padding:0 5px;font-size:17px;color:#2a3d2b;position:relative}
 .m-courses button+button{border-left:1px solid #d1dacb}
@@ -117,10 +122,8 @@
 .m-adjustments dt{color:#76876a}
 .m-adjustments dd{margin:0}
 .m-official{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid #dfe7d7;font-size:13px;padding-top:14px}
-.m-preview{position:absolute;top:55px;right:18px;font-size:9px;color:#78836f;pointer-events:none}
+.m-preview{position:absolute;top:46px;right:18px;font-size:9px;color:#78836f;pointer-events:none}
 @media(max-width:375px){.m-header>span{font-size:17px}.m-record-title h1{font-size:16px}.m-record-title>div{gap:7px}.m-record-title>div>span{font-size:13px}.m-status{font-size:12px;gap:3px}.m-status svg{display:none}.m-table th:first-child{width:42px}.m-table th:last-child{width:83px}.m-player-button{font-size:14px}.m-value{font-size:21px}.m-event .event-facts>div{grid-template-columns:84px minmax(0,1fr)}.m-event .event-schedule strong{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.mobile-app *, .mobile-app *::after{scroll-behavior:auto;animation:none!important;transition:none!important}}
 
 .mobile-app>main{flex:1}
-.m-header-actions{display:flex;align-items:center;gap:8px}
-.m-event-trigger{display:flex;align-items:center;justify-content:center;gap:4px;min-width:44px;min-height:44px;font-size:14px;color:#52684d!important}

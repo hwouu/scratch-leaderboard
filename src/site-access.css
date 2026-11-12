@@ -10,14 +10,17 @@
 .tv-screen:has(.site-qr-tv) .tv-footer{flex-basis:10.2vh;padding-right:17vh;gap:1.2vw}
 .tv-screen:has(.site-qr-tv) .tv-schedule{gap:1.3vw}
 .tv-screen:has(.site-qr-tv) .record-ticker{margin-right:17vh}
-.m-shop-footer{margin-top:28px;padding:24px 20px calc(20px + env(safe-area-inset-bottom));border-top:1px solid #e0e7db;background:#f6f8f2;color:#52654b}
-.m-shop-brands{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:23px}
-.m-shop-brands a{display:flex;align-items:center;min-height:44px;min-width:0}
-.m-shop-brands img{display:block;object-fit:contain;max-width:100%;height:auto}
-.m-shop-brands a:first-child{width:112px;flex-shrink:0}
-.m-shop-brands a:last-child{width:156px}
-.m-shop-footer h2{font-size:17px;line-height:1.4;color:#2f4730;font-weight:400;margin:0 0 8px}
-.m-shop-footer p{font-size:13px;line-height:1.6;margin:0}
-.m-shop-phone{display:flex;align-items:center;gap:7px;font-size:14px;min-height:44px;width:fit-content}
-.m-shop-links{display:flex;gap:22px;border-top:1px solid #dce4d5;margin-top:9px;padding-top:6px}
-.m-shop-links a{display:flex;align-items:center;gap:6px;font-size:12px;min-height:44px}
+.m-shop-footer{margin-top:20px;padding:12px 18px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #e0e7db;background:#f6f8f2;color:#52654b}
+.m-shop-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:36px}
+.m-shop-footer h2{font-size:15px;line-height:1.4;color:#2f4730;font-weight:400;margin:0}
+.m-nx-brand{display:flex;align-items:center;width:136px;min-height:36px}
+.m-nx-brand img{display:block;width:100%;height:auto}
+.m-shop-footer p{font-size:12px;line-height:1.6;margin:3px 0 0}
+.m-shop-contacts{display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
+.m-shop-contacts a{display:flex;align-items:center;gap:5px;font-size:12px;min-height:44px}
+@media(max-width:359px){.m-shop-footer{padding-inline:12px}.m-shop-contacts{gap:6px}.m-shop-contacts a{gap:3px}.m-shop-contacts svg{width:13px}}
+
+.desktop-park-logo{display:block;width:96px;height:auto;object-fit:contain;margin-right:12px}
+.sidebar-season .desktop-nx-brand{display:flex;align-items:center;min-height:64px;margin-top:24px;padding-top:18px;border-top:1px solid #dce3d6}
+.desktop-nx-brand img{display:block;width:156px;max-width:100%;height:auto}
+@media(min-width:700px) and (max-width:1050px){.webapp .desktop-header-right{display:flex}.webapp .desktop-header-right .tv-entry-button{display:none}.desktop-park-logo{width:84px;margin:0}.desktop-nx-brand img{width:140px}}
