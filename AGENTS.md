@@ -50,3 +50,5 @@ User requests favicon/preview/social/OG assets and metadata; generated original 
 TV two screens: original full-color Park and NX PLUS logos side by side upper right on light shared plate; QR caption exactly QR을 스캔해보세요. PC QR retains 모바일 순위. Counts and official data unchanged.
 
 2026-11-12 user explicitly removes white TV logo plate. Both source PNGs already have real alpha (sharp hasAlpha=true/isOpaque=false). Remove wrapper background and render monochrome white with TV-only brightness(0) invert(1) filter; original brand files and full-color PC/mobile display unchanged. No image cutout needed. Retain header height, row counts and QR caption.
+
+2026-11-12 correction: user means ORIGINAL logo colors with transparent background. Remove TV white color filter too. This supersedes prior monochrome treatment; retain original alpha/color, no background plate and no color transformations.
