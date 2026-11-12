@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-12",
+  "method": "Built-in image_gen; no API/CLI fallback",
+  "assets": [
+    {
+      "source": "source/app-icon.png",
+      "role": "Original tournament pin identity, not a Golfzon corporate logo",
+      "prompt": "Use case: logo-brand. Asset type: original favicon and installed web-app icon for a local Korean golf tournament leaderboard called 골목대장 나야나. Create ONE crisp square1024x1024 raster brand icon, full bleed SOLID deep forest green #123d2c background, opaque (not transparent). Simple white golf pin/flag silhouette with a stout upright stem and a single decisive flag shape, optionally one small circular golf ball near the base. Exactly one symbol, no text, no letters, no logos from Golfzon/Genesis/PGA. Extremely clear at16px and32px, no tiny detail. Symbol centered and confined to central66% of the square so it remains intact under circular and rounded-square mobile app masks; plenty of green safety area around it. All corners background-filled (do NOT draw an outer rounded-square mask). Flat restrained premium sports identity, confident geometry and even optical balance. NOT a photorealistic ball texture, trophy, emoji, 3D render, glass, gradients, shadow, gloss, mockup, UI screenshot or multiple variants. White on green only. No caption, no frame, no watermark.",
+      "exports": [
+        "public/favicon.ico",
+        "public/favicon-16x16.png",
+        "public/favicon-32x32.png",
+        "public/apple-touch-icon.png",
+        "public/assets/meta/icon-192.png",
+        "public/assets/meta/icon-512.png"
+      ]
+    },
+    {
+      "source": "source/share-card.png",
+      "role": "Original social sharing artwork",
+      "prompt": "Use case: ads-marketing. Asset type: Open Graph social sharing card, landscape EXACT1200x630 proportions (1.905:1), for Korean local screen-golf leaderboard. Create one polished restrained premium golf tournament sharing image, NOT a UI screen, collage, mockup or ad full of badges. Full-bleed deep forest green #123d2c, rightmost35% an original editorial macro photograph of a white golf ball on closely cropped green near a cup, understated raking evening light and believable grass detail, calm and low contrast. Left60% uncluttered deep-green negative space with accurate large readable Korean type. Small original pin mark inspired by attached favicon reference near top-left, keep mark modest. Do not copy any Golfzon/PGA/Genesis logos or recognizable course. No trophies, people, glitter, gold, fake stats, dates, AI slogans, gradients/effects or fake QR.\nText verbatim: small top line \"Goodbye 2026 시즌대회\". Main title on TWO LINES: \"골목대장\" then \"나야나\". Supporting text \"순위 / 니어리스트\". Small bottom text \"화전 스크래치\". All Korean spelled exactly, modern clean regular-weight sans serif (not bold), natural tracking. Near-white title roughly72px at1200px width; supporting24-28px. Lots of deliberate breathing room, typography is the hero. No additional text. Keep ALL lettering within inner safe rectangle x80..1050 y70..550, especially main title in x80..730 y170..390. Clear hierarchy. Background can be photographic on right but never obscure lettering. Ready-to-publish original graphic, no watermark or borders. The current date anchor2026-11-12: year2026 preserved, no live scores or future claims.",
+      "exports": [
+        "public/assets/meta/og-season-2026-v1.jpg"
+      ]
+    }
+  ],
+  "processing": "Technical resizing and JPEG/PNG/ICO export via scripts/build-brand-assets.mjs; no creative repainting, typography replacement or compositing.",
+  "tvLogos": "Original supplied Golfzon Park and TWOVISION NX PLUS assets; original color/aspect retained on a shared light background. Existing provenance: public/assets/branding/sources.json."
+}

@@ -8,7 +8,8 @@
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs",
-    "test": "npm run build && node --test tests/golfzon.test.mjs tests/ticker.test.mjs tests/sites-worker.test.mjs tests/mobile-records.test.mjs tests/mobile-motion.test.mjs"
+    "test": "npm run build && node --test tests/golfzon.test.mjs tests/ticker.test.mjs tests/sites-worker.test.mjs tests/mobile-records.test.mjs tests/mobile-motion.test.mjs tests/metadata.test.mjs",
+    "assets:brand": "node scripts/build-brand-assets.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -21,6 +22,7 @@
     "node": "24.x"
   },
   "devDependencies": {
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "sharp": "^0.34.5"
   }
 }

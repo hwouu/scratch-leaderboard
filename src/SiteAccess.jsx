@@ -8,7 +8,7 @@ const MAP_URL='https://map.naver.com/p/search/'+encodeURIComponent('골프존파
 export function SiteQR({tv=false}) {
   return <a className={`site-qr ${tv?'site-qr-tv':'site-qr-pc'}`} href={SITE_URL} aria-label="모바일 순위 사이트 열기">
     <img src="/assets/site-qr.svg" alt="골목대장 나야나 순위 사이트 접속 QR 코드" width="164" height="164"/>
-    <span>모바일 순위</span>
+    <span>{tv?'QR을 스캔해보세요':'모바일 순위'}</span>
   </a>;
 }
 

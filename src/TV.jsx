@@ -39,7 +39,7 @@ export function TVScreen({nearest,round,setRound,shop,data,loading,error,refresh
   const bad=error||data?.metadataStatus==='stale'||resources.some(s=>s?.status==='error'||s?.status==='stale');
   return <main className={`tv-screen ${nearest?'tv-nearest':'tv-standings'}`}>
     <header className="tv-header">
-      <div className="tv-event"><span>골목대장 나야나</span><span>Goodbye 2026</span></div>
+      <div className="tv-topline"><div className="tv-event"><span>골목대장 나야나</span><span>Goodbye 2026</span></div><div className="tv-brand-logos" aria-label="골프존파크 투비전 NX PLUS"><img src="/assets/branding/golfzon-park.png" width="186" height="62" alt="GOLFZON PARK"/><img src="/assets/branding/twovisionnx-plus.png" width="440" height="80" alt="TWOVISION NX PLUS"/></div></div>
       <div className="tv-heading"><h1>{nearest?'니어리스트 (통합)':'순위 (화전 스크래치)'}</h1><div className="tv-context"><span>{r.name}</span><span>{kstDate(r.start)} — {kstDate(r.end)}</span></div>
       <button ref={settingsRef} className="tv-settings-trigger" aria-label="TV 화면 설정" aria-controls="tv-controls" aria-expanded={controls} onClick={()=>setControls(v=>!v)}><GearSixIcon/></button></div>
     {controls&&<div id="tv-controls" className="tv-controls"><div className="tv-controls-heading"><span>화면 설정</span><button aria-label="설정 닫기" onClick={()=>setControls(false)}><XIcon size={20}/></button></div><label>차전<select aria-label="TV 차전" value={round} onChange={e=>setRound(e.target.value)}><option value="1">1차전</option><option value="2">2차전</option></select></label><button onClick={refresh}>기록 새로고침</button><button onClick={()=>document.documentElement.requestFullscreen?.()}>전체화면</button><a href="/tv">다른 TV 화면 선택<ArrowUpRightIcon size={16}/></a></div>}
