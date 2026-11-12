@@ -10,7 +10,7 @@
 .tv-screen:has(.site-qr-tv) .tv-footer{flex-basis:10.2vh;padding-right:17vh;gap:1.2vw}
 .tv-screen:has(.site-qr-tv) .tv-schedule{gap:1.3vw}
 .tv-screen:has(.site-qr-tv) .record-ticker{margin-right:17vh}
-.m-shop-footer{margin-top:20px;padding:12px 18px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #e0e7db;background:#f6f8f2;color:#52654b}
+.m-shop-footer{margin-top:20px;padding:8px 18px calc(4px + env(safe-area-inset-bottom));border-top:1px solid #e0e7db;background:#f6f8f2;color:#52654b}
 .m-shop-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:36px}
 .m-shop-footer h2{font-size:15px;line-height:1.4;color:#2f4730;font-weight:400;margin:0}
 .m-nx-brand{display:flex;align-items:center;width:136px;min-height:36px}

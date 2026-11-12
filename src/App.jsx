@@ -2,14 +2,14 @@ import {useEffect,useMemo,useRef,useState} from 'react';
 import {TrophyIcon,FlagIcon,MagnifyingGlassIcon,CalendarDotsIcon,ArrowClockwiseIcon,ArrowSquareOutIcon,XIcon,CaretDownIcon,CaretRightIcon,MonitorIcon,CheckCircleIcon,WarningCircleIcon} from '@phosphor-icons/react';
 import {SHOPS,ROUNDS,POSTED_SHOP,SOURCE_URL,shortCourse,scoreText,currentRound,kstDate,kstTime} from './event';
 import {designPreview} from './design-preview';
-import {mobileReferencePreview} from './mobile-reference-preview.mjs';
+import {mobileReferencePreview,professionalReferencePreview} from './mobile-reference-preview.mjs';
 import {TVScreen,TVLauncher} from './TV';
 import {MobileApp,MobilePlayer} from './MobileApp';
 import {SiteQR} from './SiteAccess';
 
 const NAV=[{path:'/',label:'순위',icon:TrophyIcon},{path:'/nearest',label:'니어',icon:FlagIcon},{path:'/search',label:'검색',icon:MagnifyingGlassIcon},{path:'/event',label:'대회',icon:CalendarDotsIcon}];
 const isDesign=new URLSearchParams(location.search).get('preview')==='design';
-const mobileReference=new URLSearchParams(location.search).get('mobile-reference')==='3';
+const mobileReference=new URLSearchParams(location.search).get('mobile-reference');
 function useMobileViewport(){const[mobile,setMobile]=useState(()=>window.matchMedia('(max-width:699px)').matches);useEffect(()=>{const mq=window.matchMedia('(max-width:699px)'),update=()=>setMobile(mq.matches);mq.addEventListener('change',update);update();return()=>mq.removeEventListener('change',update);},[]);return mobile;}
 function readShop(){try{const v=localStorage.getItem('golmok-shop'),n=Number(v);return v!==null&&[0,14859,17623].includes(n)?n:14859;}catch{return 14859;}}
 function useLocation(){
@@ -20,7 +20,7 @@ function useLocation(){
 function useLeaderboard(round,shop){
  const[state,setState]=useState({data:null,loading:true,error:null});const[retry,setRetry]=useState(0);
  useEffect(()=>{let active=true,controller,timer,failures=0;setState({data:null,loading:true,error:null});
- async function load(){controller=new AbortController();try{const response=isDesign?null:await fetch(`/api/leaderboard?round=${round}&shop=${shop}`,{signal:controller.signal});const data=isDesign?(mobileReference?mobileReferencePreview(round,shop):designPreview(round,shop)):await response.json();if(response&&!response.ok)throw new Error(data.error||'순위를 불러오지 못했습니다.');failures=0;if(active)setState({data,loading:false,error:null});}catch(error){if(active&&error.name!=='AbortError'){failures++;setState(s=>({...s,loading:false,error:error.message}));}}finally{if(active)timer=setTimeout(load,Math.min(60000*2**Math.max(0,failures-1),300000));}}
+ async function load(){controller=new AbortController();try{const response=isDesign?null:await fetch(`/api/leaderboard?round=${round}&shop=${shop}`,{signal:controller.signal});const data=isDesign?(mobileReference==='professional'?professionalReferencePreview(round,shop):mobileReference==='3'?mobileReferencePreview(round,shop):designPreview(round,shop)):await response.json();if(response&&!response.ok)throw new Error(data.error||'순위를 불러오지 못했습니다.');failures=0;if(active)setState({data,loading:false,error:null});}catch(error){if(active&&error.name!=='AbortError'){failures++;setState(s=>({...s,loading:false,error:error.message}));}}finally{if(active)timer=setTimeout(load,Math.min(60000*2**Math.max(0,failures-1),300000));}}
  load();return()=>{active=false;controller?.abort();clearTimeout(timer);};},[round,shop,retry]);
  return{...state,refresh:()=>setRetry(v=>v+1)};
 }

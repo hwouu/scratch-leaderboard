@@ -1,3 +1,23 @@
+# Tour Results implementation QA — 2026-11-12
+
+final result: passed
+
+Source truth: workspace design/2026-season/mobile-professional-2026-11-12/displayed-1.png, explicitly selected displayed1. Existing responsive WEB APP retained; no new device-shell template. User override removes official-record viewing link; no replacement button. Prior regular400/natural-spacing/no-dock/no-autofocus requirements override generated bold artifacts. Raster inventory: supplied original Park and NX PLUS logos only, unchanged. Phosphor matches supplied icons.
+
+Comparison evidence: qa/tour-results/comparison-before.png and comparison-after.png; same-input focused comparison focus-after.png. Source1261x1247 contains two content panels ~598x1210 each; rendered original at820px wide in comparison to normalize each to~390x789. Actual list-after.png/sheet-after.png each390x789. CSS viewport390x789, screenshot density1. Both list and selected-player states share exact five sample names/ranks/scores and11:46 timestamp, explicit opt-in preview fixture. Real API is not replaced. Full-view comparison1680x900; focused comparison1000x600. Only image layout/quality evidence is archived here; source text is not authoritative event data.
+
+Comparison history: first comparison identified P2 accumulated top spacing (~12px) and row-density drift (~40px by final row). Fixed header68→64px, scope bottom gap18→12px, table header36→34px and data rows48→44px; recaptured and compared. Final data region aligns within touch-target allowance. Remaining intentional differences: regular400 instead of image-bold;44px minimum rows; official CTA removed per user; duplicate round count removed (displayed once in identity), making sheet421px instead of source~507px. Sheet remains bottom anchored. No actionable P0/P1/P2 findings remain.
+
+Five fidelity surfaces: licensed Pretendard400, natural tracking,16px names/24px list scores/22px player name/34px final score; viewport-aligned tabs, no filled segmented pills, neutral borders/ink with green active rules; pale venue footer only, black scrim without blur; original logos crisp/unwarped, no invented imagery; official ties, nulls, genuine E/units and course context preserved. Count is selected resource count, no duplicate title. Applied adjustments displayed without recalculating the official final.
+
+Interactions: actual source-data search→course-only participant, shop/all-shops, ABC score/nearest switching, round1/2, event/return preserving prior nearest course, search opens unfocused,16px input, native Escape and focus return. Actual partial player shows missing records, no fabricated combined rank/score. Current longest observed live nicknames7characters; wrapping/truncation retained for future long content, not claimed as a synthetic long-name test. Official-record links absent on both PC/mobile details. Mobile320x568/360x640/390x844/600x900 andPC768x1024/1440x900: no modal x/y overflow, mobile bottom flush; sheet heights372.5/421.09px depending density. Close transparent, title focus H2. Extreme zoom/content can scroll rather than clip. Console warnings/errors none during actual main-flow checks.
+
+TV1920x1080 regression: standings15/15/15/15, nearest8/8/8, QR retained, no overflow. Existing18 meaningful source/lookup/ticker/packaging tests and production build pass. No official adapter/formula changes. Physical iOS hardware, physical QR distance, and exhaustive accessibility certification outside this check.
+
+Implementation checklist complete: mobile selected list; contextual player sheet; official CTA removal; preserved data/controls; responsive/browser checks; before/after comparison. P3: system font antialiasing differs from generated raster. No further loop required.
+
+---
+
 # Release QA — passed
 
 2026-11-10. User authorized commit, push, and production deployment.
