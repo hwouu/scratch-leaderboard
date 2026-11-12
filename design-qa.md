@@ -107,3 +107,9 @@ Original built-in image_gen assets inspected and exported: pin icon at16/32/48 I
 Static built HTML checked for required OG fields, alt/dimensions/type, canonical, X large-image card, structured site data. Tests validate actual emitted image dimensions/size, opaque manifest icons and ICO payloads. All social values are in initial HTML for non-JavaScript crawlers. One shared root canonical for this app, not route-specific SSR. No fabricated publisher/handle/rating.25 tests and build pass.
 
 TV1920x1080 standings15/15/15/15 and3840x2160 nearest8/8/8: original Park/NX PLUS assets loaded, same centerline (different natural heights), no overflow; shared light plate preserves brand contrast/color. QR caption exactly QR을 스캔해보세요 and remains clear of ticker/ranks. Source screenshot initial partial browser capture was replaced with full-page1920 capture; final full-view evidence in workspace design/2026-season/qa-social-2026-11-12/. Mobile390 unchanged/no overflow; browser OG/card/favicon link values correct, console errors/warnings none. Actual social provider cache behavior and physical home-screen install not asserted.
+
+## Transparent TV marks — 2026-11-12
+
+final result: passed
+
+User requested no white background. Verified both original PNGs carry real alpha (not opaque); the white region was our CSS plate. Removed plate and horizontal plate padding; TV-only white silhouette rendering preserves original alpha/geometry. Original source assets and PC/mobile colors unchanged.1920x1080 nearest8/8/8 verified, no overflow; logos visually clear on dark green. Build passed. No raster image manipulation/generation required.
