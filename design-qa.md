@@ -61,3 +61,11 @@ final result: passed
 User requested direct refinement. Mobile header tournament name left/Park logo84px right; info/search icon44px targets beside two mode tabs. Same MobileRoundPicker DOM/control for score and nearest,16px select. Separate shop-only sheet avoids duplicate phase selection. Round2 selection retained when switching modes, shop change and info/return/search verified against actual records. Removed stale poster link from shared EventInfo on PC and mobile. Footer123.19px (previous~267px), all three contact targets share the exact y position. Only NX PLUS remains in footer, Park logo moved up as requested. PC uses original Park logo96px header/NX PLUS156px sidebar; tablet header84px. No changes to official data or TV layout.
 
 Responsive320/360/390/600/768/1051/1440 checked: no horizontal overflow; contact row stays on one line even320px. Search and native select remain16px; original logo aspect ratios retained.18 tests and build passed. Desktop screenshot inspected at1440x900. No new decorative text or weight emphasis. Existing QR placement retained.
+
+## Dialog initial state / player detail — 2026-11-12
+
+final result: passed
+
+Cause: showModal default focus on first close button, plus explicit input.focus in mobile useModal. Initial focus now goes to a noninteractive modal title (screen-reader context retained); input opens unfocused. Close backgrounds transparent, corners8px; hover fill limited to fine-pointer devices to avoid sticky touch hover. Keyboard focus on interactive controls and native Escape/return retained. Search input has no nested outline even after typing, caret/field boundary retained.
+
+PC and mobile share compact player detail: identity, rank/final score, one ABC table with score and nearest columns, applied adjustments in two columns, official source. Actual player at390x844 andPC1440x900:517px dialog, no internal scroll;320x568:463px, no x/y overflow. Partial participant432px with missing courses correctly marked; nearest1.86m and per-course records preserved. Search-to-player transition, scope title focus, transparent X default, search unfocused on entry / no outline on typing, Escape and focus return verified. Console warnings/errors none.18 tests and build pass; original official values never recomputed. Extreme zoom/content retains scroll fallback rather than clipping.
